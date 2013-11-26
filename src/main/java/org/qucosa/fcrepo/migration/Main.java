@@ -45,6 +45,7 @@ public class Main {
             Document out = qucosaProvider.getXmlDocumentRecord("37");
             printXml(out);
 
+            qucosaProvider.release();
         } catch (Exception e) {
             log.error(e.getMessage());
             exit(1);
