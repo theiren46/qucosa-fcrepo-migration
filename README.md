@@ -19,6 +19,8 @@ This will generate a runnable JAR file `target/qucosa-fcrepo-migration-<VERSION>
 
 ## Usage
 
+You will have to provide a suitable JDBC driver via the Java Classpath in order to connect to databases.
+
 a. Either run the packed Jar-File with the `java -jar` command
 b. Or just run `mvn exec:java`
 
