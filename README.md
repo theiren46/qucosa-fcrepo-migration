@@ -19,6 +19,9 @@ This will generate a runnable JAR file `target/qucosa-fcrepo-migration-<VERSION>
 
 ## Usage
 
+a. Either run the packed Jar-File with the `java -jar` command
+b. Or just run `mvn exec:java`
+
 1. Write properties file to define Qucosa DB connection, Qucosa WebAPI
 2. Define workspace directory
 3. Add Fedora Commons Connection and Credentials
