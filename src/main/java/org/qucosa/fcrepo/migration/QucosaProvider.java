@@ -31,9 +31,9 @@ import org.w3c.dom.Document;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URI;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QucosaProvider {
 
@@ -103,5 +103,21 @@ public class QucosaProvider {
     protected void finalize() throws Throwable {
         release();
         super.finalize();
+    }
+
+    public List<String> getResourcesFor(String parentResourceName) throws SQLException {
+        ArrayList<String> names = new ArrayList<String>();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        try {
+            stmt = connection.prepareStatement("select r1.name as name from resources r1, resources r2 where r1.parent_id=r2.id and r2.name=?");
+            stmt.setString(1, parentResourceName);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) names.add(resultSet.getString("name"));
+        } finally {
+            if (resultSet != null) resultSet.close();
+            if (stmt != null) stmt.close();
+        }
+        return names;
     }
 }

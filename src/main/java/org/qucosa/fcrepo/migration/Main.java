@@ -28,6 +28,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -36,19 +37,21 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
+        QucosaProvider qucosaProvider = new QucosaProvider();
         try {
             Configuration conf = getConfiguration();
-
-            QucosaProvider qucosaProvider = new QucosaProvider();
             qucosaProvider.configure(conf);
 
-            Document out = qucosaProvider.getXmlDocumentRecord("37");
-            printXml(out);
+            List<String> resources = qucosaProvider.getResourcesFor("SLUB");
+            for(String s : resources) System.out.println(s);
 
-            qucosaProvider.release();
+
+
         } catch (Exception e) {
             log.error(e.getMessage());
             exit(1);
+        } finally {
+            qucosaProvider.release();
         }
     }
 
