@@ -42,10 +42,12 @@ public class Main {
             Configuration conf = getConfiguration();
             qucosaProvider.configure(conf);
 
+            // Demo: Print Qucosa Document (Opus-XML-v2)
+            printXml(qucosaProvider.getXmlDocumentRecord("37"));
+
+            // Demo: List all Qucosa Resources
             List<String> resources = qucosaProvider.getResourcesFor("SLUB");
             for(String s : resources) System.out.println(s);
-
-
 
         } catch (Exception e) {
             log.error(e.getMessage());
