@@ -34,6 +34,8 @@ import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class QucosaProvider {
 
@@ -74,10 +76,16 @@ public class QucosaProvider {
         return val;
     }
 
-    public Document getXmlDocumentRecord(String id) throws Exception {
+    public Document getXmlDocumentResource(String resourceId) throws Exception {
+        Pattern p = Pattern.compile("Opus/Document/(\\d+)");
+        Matcher m = p.matcher(resourceId);
+        if (!m.matches()) {
+            throw new IllegalArgumentException("Not a valid Qucosa document resource identifier: " + resourceId);
+        }
+
+        String id = m.group(1);
         URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + id);
         HttpGet request = new HttpGet(uri);
-
         request.setParams(new BasicHttpParams().setParameter("role", role));
 
         HttpResponse response = httpClient.execute(request);
