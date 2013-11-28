@@ -113,7 +113,23 @@ public class QucosaProvider {
         super.finalize();
     }
 
-    public List<String> getResourcesFor(String parentResourceName) throws SQLException {
+    public List<String> getResources(String pattern) throws SQLException {
+        ArrayList<String> names = new ArrayList<String>();
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        try {
+            stmt = connection.prepareStatement("select name from resources where name like ?");
+            stmt.setString(1, pattern);
+            resultSet = stmt.executeQuery();
+            while (resultSet.next()) names.add(resultSet.getString("name"));
+        } finally {
+            if (resultSet != null) resultSet.close();
+            if (stmt != null) stmt.close();
+        }
+        return names;
+    }
+
+    public List<String> getResourcesOf(String parentResourceName) throws SQLException {
         ArrayList<String> names = new ArrayList<String>();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;

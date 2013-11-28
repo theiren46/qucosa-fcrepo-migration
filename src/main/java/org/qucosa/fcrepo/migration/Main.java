@@ -20,15 +20,13 @@ package org.qucosa.fcrepo.migration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.qucosa.fcrepo.foxml.DigitalObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
-import java.util.List;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import static java.lang.System.exit;
 
@@ -42,12 +40,8 @@ public class Main {
             Configuration conf = getConfiguration();
             qucosaProvider.configure(conf);
 
-            // Demo: List all Qucosa Resources for DIU
-            List<String> resources = qucosaProvider.getResourcesFor("DIU");
-            for(String resourceId : resources) {
-                System.out.println(resourceId);
-                printXml(qucosaProvider.getXmlDocumentResource(resourceId));
-            }
+            DigitalObject fdo = new DigitalObject();
+            printXml(fdo);
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -57,13 +51,13 @@ public class Main {
         }
     }
 
-    private static void printXml(Document doc) throws TransformerException {
-        StringWriter sw = new StringWriter();
-        Result out = new StreamResult(sw);
-        Transformer transformer = TransformerFactory.newInstance().newTransformer();
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.transform(new DOMSource(doc), out);
-        System.out.println(sw.toString());
+    private static void printXml(DigitalObject fdo) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(DigitalObject.class);
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        marshaller.setProperty(Marshaller.JAXB_SCHEMA_LOCATION, "info:fedora/fedora-system:def/foxml# " +
+                "http://www.fedora.info/definitions/1/0/foxml1-1.xsd");
+        marshaller.marshal(fdo, System.out);
     }
 
     private static Configuration getConfiguration() throws ConfigurationException {
