@@ -114,7 +114,7 @@ public class QucosaProvider {
     }
 
     public List<String> getResources(String pattern) throws SQLException {
-        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
@@ -130,7 +130,7 @@ public class QucosaProvider {
     }
 
     public List<String> getResourcesOf(String parentResourceName) throws SQLException {
-        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
