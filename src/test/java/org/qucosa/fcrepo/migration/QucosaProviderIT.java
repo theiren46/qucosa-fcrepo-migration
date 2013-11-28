@@ -47,17 +47,13 @@ public class QucosaProviderIT {
     @Test
     public void listsSubResources() throws SQLException {
         List<String> resources = qucosaProvider.getResourcesOf("DIU");
-        for (String resourceId : resources) {
-            System.out.println(resourceId);
-        }
+        Assert.assertFalse(resources.isEmpty());
     }
 
     @Test
     public void listsResourcesByPattern() throws SQLException {
         List<String> resources = qucosaProvider.getResources("%/Document/__");
-        for (String resourceId : resources) {
-            System.out.println(resourceId);
-        }
+        Assert.assertFalse(resources.isEmpty());
     }
 
     @Test
