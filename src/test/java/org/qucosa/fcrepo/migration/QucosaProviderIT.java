@@ -30,35 +30,35 @@ import java.util.List;
 
 public class QucosaProviderIT {
 
-    private QucosaProvider qucosaProvider;
+	private QucosaProvider qucosaProvider;
 
-    @Before
-    public void setUp() throws SQLException, ConfigurationException {
-        Configuration conf = new SystemConfiguration();
-        qucosaProvider = new QucosaProvider();
-        qucosaProvider.configure(conf);
-    }
+	@Before
+	public void setUp() throws SQLException, ConfigurationException {
+		Configuration conf = new SystemConfiguration();
+		qucosaProvider = new QucosaProvider();
+		qucosaProvider.configure(conf);
+	}
 
-    @After
-    public void tearDown() {
-        qucosaProvider.release();
-    }
+	@After
+	public void tearDown() {
+		qucosaProvider.release();
+	}
 
-    @Test
-    public void listsSubResources() throws SQLException {
-        List<String> resources = qucosaProvider.getResourcesOf("DIU");
-        Assert.assertFalse(resources.isEmpty());
-    }
+	@Test
+	public void listsSubResources() throws SQLException {
+		List<String> resources = qucosaProvider.getResourcesOf("DIU");
+		Assert.assertFalse(resources.isEmpty());
+	}
 
-    @Test
-    public void listsResourcesByPattern() throws SQLException {
-        List<String> resources = qucosaProvider.getResources("%/Document/__");
-        Assert.assertFalse(resources.isEmpty());
-    }
+	@Test
+	public void listsResourcesByPattern() throws SQLException {
+		List<String> resources = qucosaProvider.getResources("%/Document/__");
+		Assert.assertFalse(resources.isEmpty());
+	}
 
-    @Test
-    public void retrievesQucosaXmlDocument() throws Exception {
-        Assert.assertNotNull(qucosaProvider.getXmlDocumentResource("Opus/Document/37"));
-    }
+	@Test
+	public void retrievesQucosaXmlDocument() throws Exception {
+		Assert.assertNotNull(qucosaProvider.getXmlDocumentResource("Opus/Document/37"));
+	}
 
 }
