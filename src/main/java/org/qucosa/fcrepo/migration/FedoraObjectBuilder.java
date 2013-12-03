@@ -18,133 +18,166 @@
 package org.qucosa.fcrepo.migration;
 
 import fedora.fedoraSystemDef.foxml.*;
+import org.apache.xmlbeans.impl.tool.XMLBean;
 import org.openarchives.oai.x20.oaiDc.DcDocument;
 import org.openarchives.oai.x20.oaiDc.OaiDcType;
 import org.purl.dc.elements.x11.ElementType;
 import org.w3.x1999.x02.x22RdfSyntaxNs.RDFDocument;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class FedoraObjectBuilder {
 
-	private String pid;
-	private String label;
-	private String ownerId;
-	private String urn;
-	private Object parentCollectionPid;
+    private String pid;
+    private String label;
+    private String ownerId;
+    private String urn;
+    private Object parentCollectionPid;
+    private Document qucosaXmlDocument = null;
 
-	public DigitalObjectDocument build() {
-		DigitalObjectDocument dof = DigitalObjectDocument.Factory.newInstance();
-		DigitalObjectDocument.DigitalObject dobj = createDigitalObject(dof);
-		addFedoraObjectProperties(dobj);
-		addDCDatastream(dobj);
-		addRELSEXTDatastream(dobj);
-		return dof;
-	}
+    public DigitalObjectDocument build() throws ParserConfigurationException {
+        DigitalObjectDocument dof = DigitalObjectDocument.Factory.newInstance();
+        DigitalObjectDocument.DigitalObject dobj = createDigitalObject(dof);
+        addFedoraObjectProperties(dobj);
+        addDCDatastream(dobj);
+        addRELSEXTDatastream(dobj);
+        if (qucosaXmlDocument != null) addQucosaXMLContentDatastream(dobj);
+        return dof;
+    }
 
-	private void addRELSEXTDatastream(DigitalObjectDocument.DigitalObject dobj) {
-		DatastreamType datastream = dobj.addNewDatastream();
-		datastream.setID("RELS-EXT");
-		datastream.setSTATE(StateType.A);
-		datastream.setCONTROLGROUP(DatastreamType.CONTROLGROUP.X);
+    private void addRELSEXTDatastream(DigitalObjectDocument.DigitalObject dobj) {
+        DatastreamType datastream = dobj.addNewDatastream();
+        datastream.setID("RELS-EXT");
+        datastream.setSTATE(StateType.A);
+        datastream.setCONTROLGROUP(DatastreamType.CONTROLGROUP.X);
 
-		DatastreamVersionType version = datastream.addNewDatastreamVersion();
-		version.setID("RELS-EXT.0");
-		version.setMIMETYPE("application/rdf+xml");
-		version.setFORMATURI("info:fedora/fedora-system:FedoraRELSExt-1.0");
-		version.setLABEL("RDF Statements about this object");
+        DatastreamVersionType version = datastream.addNewDatastreamVersion();
+        version.setID("RELS-EXT.0");
+        version.setMIMETYPE("application/rdf+xml");
+        version.setFORMATURI("info:fedora/fedora-system:FedoraRELSExt-1.0");
+        version.setLABEL("RDF Statements about this object");
 
-		XmlContentType content = version.addNewXmlContent();
-		RDFDocument rdfDocument = getRDFCollectionDescription();
-		content.set(rdfDocument);
-	}
+        XmlContentType content = version.addNewXmlContent();
+        RDFDocument rdfDocument = getRDFCollectionDescription();
+        content.set(rdfDocument);
+    }
 
-	private RDFDocument getRDFCollectionDescription() {
-		RDFDocument rdfDocument = RDFDocument.Factory.newInstance();
-		RDFDocument.RDF rdf = rdfDocument.addNewRDF();
-		RDFDocument.RDF.Description desc = rdf.addNewDescription();
-		desc.setAbout("info:fedora/" + pid);
-		Element e = desc.getDomNode().getOwnerDocument().createElementNS(
-				"info:fedora/fedora-system:def/relations-external#", "isMemberOfCollection");
-		e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
-				"info:fedora/" + parentCollectionPid);
-		desc.getDomNode().appendChild(e);
-		return rdfDocument;
-	}
+    private RDFDocument getRDFCollectionDescription() {
+        RDFDocument rdfDocument = RDFDocument.Factory.newInstance();
+        RDFDocument.RDF rdf = rdfDocument.addNewRDF();
+        RDFDocument.RDF.Description desc = rdf.addNewDescription();
+        desc.setAbout("info:fedora/" + pid);
+        Element e = desc.getDomNode().getOwnerDocument().createElementNS(
+                "info:fedora/fedora-system:def/relations-external#", "isMemberOfCollection");
+        e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
+                "info:fedora/" + parentCollectionPid);
+        desc.getDomNode().appendChild(e);
+        return rdfDocument;
+    }
 
-	private void addDCDatastream(DigitalObjectDocument.DigitalObject dobj) {
-		DatastreamType ds = dobj.addNewDatastream();
-		ds.setID("DC");
-		ds.setCONTROLGROUP(DatastreamType.CONTROLGROUP.X);
-		ds.setSTATE(StateType.A);
+    private void addDCDatastream(DigitalObjectDocument.DigitalObject dobj) {
+        DatastreamType ds = dobj.addNewDatastream();
+        ds.setID("DC");
+        ds.setCONTROLGROUP(DatastreamType.CONTROLGROUP.X);
+        ds.setSTATE(StateType.A);
 
-		DatastreamVersionType dsv = ds.addNewDatastreamVersion();
-		dsv.setID("DC.0");
-		dsv.setFORMATURI("http://www.openarchives.org/OAI/2.0/oai_dc/");
-		dsv.setMIMETYPE("text/xml");
-		dsv.setLABEL("Dublin Core Record for this object");
+        DatastreamVersionType dsv = ds.addNewDatastreamVersion();
+        dsv.setID("DC.0");
+        dsv.setFORMATURI("http://www.openarchives.org/OAI/2.0/oai_dc/");
+        dsv.setMIMETYPE("text/xml");
+        dsv.setLABEL("Dublin Core Record for this object");
 
-		XmlContentType content = dsv.addNewXmlContent();
-		DcDocument dcDocument = getDcDocument();
-		content.set(dcDocument);
-	}
+        XmlContentType content = dsv.addNewXmlContent();
+        DcDocument dcDocument = getDcDocument();
+        content.set(dcDocument);
+    }
 
-	private DcDocument getDcDocument() {
-		DcDocument dcDocument = DcDocument.Factory.newInstance();
-		OaiDcType dc = dcDocument.addNewDc();
-		ElementType title = dc.addNewTitle();
-		title.setStringValue("Dublin-Core Record for this Object");
-		ElementType id = dc.addNewIdentifier();
-		id.setStringValue(urn);
-		return dcDocument;
-	}
+    private DcDocument getDcDocument() {
+        DcDocument dcDocument = DcDocument.Factory.newInstance();
+        OaiDcType dc = dcDocument.addNewDc();
+        ElementType title = dc.addNewTitle();
+        title.setStringValue("Dublin-Core Record for this Object");
+        ElementType id = dc.addNewIdentifier();
+        id.setStringValue(urn);
+        return dcDocument;
+    }
 
-	private DigitalObjectDocument.DigitalObject createDigitalObject(DigitalObjectDocument dof) {
-		DigitalObjectDocument.DigitalObject dobj = dof.addNewDigitalObject();
-		dobj.setVERSION(DigitalObjectType.VERSION.X_1_1);
-		dobj.setPID(pid);
-		return dobj;
-	}
+    private DigitalObjectDocument.DigitalObject createDigitalObject(DigitalObjectDocument dof) {
+        DigitalObjectDocument.DigitalObject dobj = dof.addNewDigitalObject();
+        dobj.setVERSION(DigitalObjectType.VERSION.X_1_1);
+        dobj.setPID(pid);
+        return dobj;
+    }
 
-	private void addFedoraObjectProperties(DigitalObjectDocument.DigitalObject dobj) {
-		ObjectPropertiesType pt = dobj.addNewObjectProperties();
-		{
-			PropertyType p = pt.addNewProperty();
-			p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_STATE);
-			p.setVALUE("A");
-		}
-		{
-			PropertyType p = pt.addNewProperty();
-			p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_LABEL);
-			p.setVALUE(label);
-		}
-		{
-			PropertyType p = pt.addNewProperty();
-			p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_OWNER_ID);
-			p.setVALUE(ownerId);
-		}
-	}
+    private void addFedoraObjectProperties(DigitalObjectDocument.DigitalObject dobj) {
+        ObjectPropertiesType pt = dobj.addNewObjectProperties();
+        {
+            PropertyType p = pt.addNewProperty();
+            p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_STATE);
+            p.setVALUE("A");
+        }
+        {
+            PropertyType p = pt.addNewProperty();
+            p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_LABEL);
+            p.setVALUE(label);
+        }
+        {
+            PropertyType p = pt.addNewProperty();
+            p.setNAME(PropertyType.NAME.INFO_FEDORA_FEDORA_SYSTEM_DEF_MODEL_OWNER_ID);
+            p.setVALUE(ownerId);
+        }
+    }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    private void addQucosaXMLContentDatastream(DigitalObjectDocument.DigitalObject dobj) throws ParserConfigurationException {
+        DatastreamType ds = dobj.addNewDatastream();
+        ds.setID("QUCOSA-XML");
+        ds.setCONTROLGROUP(DatastreamType.CONTROLGROUP.X);
+        ds.setSTATE(StateType.A);
 
-	public void setOwnerId(String ownerId) {
-		this.ownerId = ownerId;
-	}
+        DatastreamVersionType dsv = ds.addNewDatastreamVersion();
+        dsv.setID("QUCOSA-XML.0");
+        dsv.setMIMETYPE("text/xml");
+        dsv.setLABEL("Qucosa XML Record for this Object (Opus4-XMLv2)");
 
-	public void setUrn(String urn) {
-		this.urn = urn;
-	}
+        XmlContentType content = dsv.addNewXmlContent();
 
-	public String getPid() {
-		return pid;
-	}
+        // Workaround for https://issues.apache.org/jira/browse/XMLBEANS-100
+        // XMLBeans does not work with jdk1.6 as calls made to methods within XObj.java
+        // return with a runtime: "java.lang.RuntimeException: DOM Level 3 Not implemented"
+        Node childNode = content.getDomNode().getOwnerDocument().importNode(qucosaXmlDocument.getDocumentElement(), true);
+        content.getDomNode().appendChild(childNode);
+    }
 
-	public void setPid(String pid) {
-		this.pid = pid;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
-	public void setParentCollectionPid(Object parentCollectionPid) {
-		this.parentCollectionPid = parentCollectionPid;
-	}
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setUrn(String urn) {
+        this.urn = urn;
+    }
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
+
+    public void setParentCollectionPid(Object parentCollectionPid) {
+        this.parentCollectionPid = parentCollectionPid;
+    }
+
+    public void setQucosaXmlDocument(Document qucosaXmlDocument) {
+        this.qucosaXmlDocument = qucosaXmlDocument;
+    }
 }
