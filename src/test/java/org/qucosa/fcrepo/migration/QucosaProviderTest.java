@@ -63,10 +63,4 @@ public class QucosaProviderTest {
         Assert.assertEquals(2, resources.size());
     }
 
-    @Test
-    @Ignore
-    public void retrievesQucosaXmlDocument() throws Exception {
-        Assert.assertNotNull(qucosaProvider.getXmlDocumentResource("Opus/Document/37"));
-    }
-
 }
