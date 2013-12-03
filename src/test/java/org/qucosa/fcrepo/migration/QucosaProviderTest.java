@@ -52,12 +52,15 @@ public class QucosaProviderTest {
     public void listsSubResources() throws SQLException {
         List<String> resources = qucosaProvider.getResourcesOf("SLUB");
         Assert.assertFalse(resources.isEmpty());
+        Assert.assertTrue(resources.contains("Opus/Document/10"));
+        Assert.assertTrue(resources.contains("Opus/Document/20"));
     }
 
     @Test
     public void listsResourcesByPattern() throws SQLException {
         List<String> resources = qucosaProvider.getResources("%/Document/__");
         Assert.assertFalse(resources.isEmpty());
+        Assert.assertEquals(2, resources.size());
     }
 
     @Test
