@@ -27,7 +27,7 @@
                                LABEL="Dublin Core Record for this object">
             <fox:xmlContent>
                 <oai:dc xmlns:oai="http://www.openarchives.org/OAI/2.0/oai_dc/">
-                    <ns:title xmlns:ns="http://purl.org/dc/elements/1.1/">Dublin-Core Record for this Object</ns:title>
+                    <ns:title xmlns:ns="http://purl.org/dc/elements/1.1/">An arbitrarily migrated Qucosa Document</ns:title>
                     <ns:identifier xmlns:ns="http://purl.org/dc/elements/1.1/">urn:de:slub-dresden:qucosa:4711
                     </ns:identifier>
                 </oai:dc>

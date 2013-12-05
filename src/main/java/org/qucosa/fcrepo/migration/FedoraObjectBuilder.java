@@ -18,7 +18,6 @@
 package org.qucosa.fcrepo.migration;
 
 import fedora.fedoraSystemDef.foxml.*;
-import org.apache.xmlbeans.impl.tool.XMLBean;
 import org.openarchives.oai.x20.oaiDc.DcDocument;
 import org.openarchives.oai.x20.oaiDc.OaiDcType;
 import org.purl.dc.elements.x11.ElementType;
@@ -27,8 +26,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 public class FedoraObjectBuilder {
@@ -101,7 +98,7 @@ public class FedoraObjectBuilder {
         DcDocument dcDocument = DcDocument.Factory.newInstance();
         OaiDcType dc = dcDocument.addNewDc();
         ElementType title = dc.addNewTitle();
-        title.setStringValue("Dublin-Core Record for this Object");
+        title.setStringValue(label);
         ElementType id = dc.addNewIdentifier();
         id.setStringValue(urn);
         return dcDocument;
