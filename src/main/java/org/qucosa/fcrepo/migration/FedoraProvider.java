@@ -23,6 +23,7 @@ import com.yourmediashelf.fedora.client.FedoraCredentials;
 import com.yourmediashelf.fedora.client.request.DescribeRepository;
 import com.yourmediashelf.fedora.client.request.FindObjects;
 import com.yourmediashelf.fedora.client.request.Ingest;
+import com.yourmediashelf.fedora.client.request.PurgeObject;
 import com.yourmediashelf.fedora.client.response.DescribeRepositoryResponse;
 import com.yourmediashelf.fedora.client.response.FindObjectsResponse;
 import com.yourmediashelf.fedora.generated.access.FedoraRepository;
@@ -86,6 +87,11 @@ public class FedoraProvider {
     public boolean hasObject(String pid) throws FedoraClientException {
         FindObjectsResponse findObjectsResponse = new FindObjects().query("pid%3D" + pid).pid().execute(client);
         return (findObjectsResponse.getPids().size() > 0);
+    }
+
+    public void purgeObject(String pid) throws FedoraClientException {
+        PurgeObject purgeRequest = new PurgeObject(pid);
+        purgeRequest.execute(client);
     }
 
 }

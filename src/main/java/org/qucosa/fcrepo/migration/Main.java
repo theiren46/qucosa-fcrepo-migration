@@ -47,6 +47,7 @@ public class Main {
     }
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private static final boolean PURGE_WHEN_PRESENT = true;
 
     public static void main(String[] args) {
         QucosaProvider qucosaProvider = new QucosaProvider();
@@ -58,7 +59,7 @@ public class Main {
             fedoraProvider.configure(conf);
 
             //List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
-            int[] ids = {101, 1044, 1313};
+            int[] ids = {9375};
             List<String> resourceNames = new ArrayList<>();
             for (int id : ids) resourceNames.add("Opus/Document/" + id);
 
@@ -69,10 +70,17 @@ public class Main {
                 String pid = "qucosa:" + resourceName.substring(resourceName.lastIndexOf("/") + 1);
 
                 if (fedoraProvider.hasObject(pid)) {
-                    log.info(pid + " exists. Skipping.");
-                } else {
-                    doIngest(fedoraProvider, qucosaDoc, pid);
+                    if (PURGE_WHEN_PRESENT) {
+                        log.info(pid + " exists. Purging...");
+                        fedoraProvider.purgeObject(pid);
+                    } else {
+                        log.info(pid + " exists. Skipping.");
+                        continue;
+                    }
                 }
+
+                doIngest(fedoraProvider, qucosaDoc, pid);
+
             }
         } catch (Exception e) {
             log.error(e.getMessage());
