@@ -93,10 +93,19 @@ public class FedoraObjectBuilderTest {
     @Test
     public void addsIsPartOfRelation() throws Exception {
         FedoraObjectBuilder fob = new FedoraObjectBuilder();
-        fob.setConstituentPid("qucosa:4711");
+        fob.setConstituentPid("qucosa:4712");
         Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
 
-        XMLAssert.assertXpathEvaluatesTo("info:fedora/qucosa:4711", "//rel:isConstituentOf/@rdf:resource", testDocument);
+        XMLAssert.assertXpathEvaluatesTo("info:fedora/qucosa:4712", "//rel:isConstituentOf/@rdf:resource", testDocument);
+    }
+
+    @Test
+    public void addsIsDerivationOfRelation() throws Exception {
+        FedoraObjectBuilder fob = new FedoraObjectBuilder();
+        fob.isDerivativeOfPid("qucosa:4713");
+        Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
+
+        XMLAssert.assertXpathEvaluatesTo("info:fedora/qucosa:4713", "//rel:isDerivationOf/@rdf:resource", testDocument);
     }
 
     private String serialize(FedoraObjectBuilder fob) throws ParserConfigurationException, IOException {

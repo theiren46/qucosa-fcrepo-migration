@@ -38,6 +38,7 @@ public class FedoraObjectBuilder {
     private Document qucosaXmlDocument = null;
     private String constituentPid;
     private String title;
+    private String derivativeOfPid;
 
     public DigitalObjectDocument build() throws ParserConfigurationException {
         DigitalObjectDocument dof = DigitalObjectDocument.Factory.newInstance();
@@ -62,11 +63,11 @@ public class FedoraObjectBuilder {
         version.setLABEL("RDF Statements about this object");
 
         XmlContentType content = version.addNewXmlContent();
-        RDFDocument rdfDocument = getRDFCollectionDescription();
+        RDFDocument rdfDocument = getRDFDescription();
         content.set(rdfDocument);
     }
 
-    private RDFDocument getRDFCollectionDescription() {
+    private RDFDocument getRDFDescription() {
         RDFDocument rdfDocument = RDFDocument.Factory.newInstance();
         RDFDocument.RDF rdf = rdfDocument.addNewRDF();
         RDFDocument.RDF.Description desc = rdf.addNewDescription();
@@ -83,6 +84,13 @@ public class FedoraObjectBuilder {
                     "info:fedora/fedora-system:def/relations-external#", "isConstituentOf");
             e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
                     "info:fedora/" + constituentPid);
+            desc.getDomNode().appendChild(e);
+        }
+        if (derivativeOfPid != null) {
+            Element e = desc.getDomNode().getOwnerDocument().createElementNS(
+                    "info:fedora/fedora-system:def/relations-external#", "isDerivationOf");
+            e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
+                    "info:fedora/" + derivativeOfPid);
             desc.getDomNode().appendChild(e);
         }
         return rdfDocument;
@@ -195,5 +203,9 @@ public class FedoraObjectBuilder {
 
     public void setTitle(String s) {
         this.title = s;
+    }
+
+    public void isDerivativeOfPid(String s) {
+        this.derivativeOfPid = s;
     }
 }

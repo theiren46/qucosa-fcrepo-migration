@@ -30,6 +30,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -57,7 +58,8 @@ public class Main {
             fedoraProvider.configure(conf);
 
             List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
-//            int[] ids = {128};
+
+//            int[] ids = {2555};
 //            List<String> resourceNames = new ArrayList<>();
 //            for (int id : ids) resourceNames.add("Opus/Document/" + id);
 
@@ -104,6 +106,7 @@ public class Main {
         fob.setUrn(xp("/Opus/Opus_Document/IdentifierUrn[1]/Value", qucosaDoc));
         fob.setParentCollectionPid("qucosa:qucosa");
         fob.setConstituentPid(determineConstituentPid(qucosaDoc, qucosaProvider));
+        fob.isDerivativeOfPid(determinePredecessorPid(qucosaDoc, qucosaProvider));
         fob.setQucosaXmlDocument(qucosaDoc);
         DigitalObjectDocument ingestObject = fob.build();
         try {
@@ -112,6 +115,18 @@ public class Main {
         } catch (FedoraClientException fe) {
             log.error("Error ingesting " + pid);
         }
+    }
+
+    private static String determinePredecessorPid(Document qucosaDoc, QucosaProvider qucosaProvider) throws Exception {
+        String predecessorPid = null;
+        String referenceUrn = xp("/Opus/Opus_Document/ReferenceUrn[1][Relation='predecessor']/Value", qucosaDoc);
+        if (referenceUrn != null && !referenceUrn.isEmpty()) {
+            predecessorPid = qucosaProvider.getQucosaIdByURN(referenceUrn);
+            if (predecessorPid != null) {
+                predecessorPid = "qucosa:" + predecessorPid;
+            }
+        }
+        return predecessorPid;
     }
 
     private static String determineConstituentPid(Document qucosaDoc, QucosaProvider qucosaProvider) throws Exception {
