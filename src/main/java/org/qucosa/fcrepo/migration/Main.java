@@ -26,12 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -101,6 +99,7 @@ public class Main {
                 xp("/Opus/Opus_Document/PersonAuthor[1]/LastName", qucosaDoc),
                 xp("/Opus/Opus_Document/PersonAuthor[1]/FirstName", qucosaDoc),
                 xp("/Opus/Opus_Document/TitleMain[1]/Value", qucosaDoc)));
+        fob.setTitle(xp("/Opus/Opus_Document/TitleMain[1]/Value", qucosaDoc));
         fob.setOwnerId("qucosa");
         fob.setUrn(xp("/Opus/Opus_Document/IdentifierUrn[1]/Value", qucosaDoc));
         fob.setParentCollectionPid("qucosa:qucosa");

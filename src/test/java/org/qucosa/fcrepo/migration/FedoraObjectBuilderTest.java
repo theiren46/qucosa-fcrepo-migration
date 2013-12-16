@@ -36,7 +36,7 @@ import java.util.Map;
 public class FedoraObjectBuilderTest {
 
     static {
-        Map prefixMap = new HashMap();
+        Map<String, String> prefixMap = new HashMap<>();
         prefixMap.put("fox", "info:fedora/fedora-system:def/foxml#");
         prefixMap.put("rel", "info:fedora/fedora-system:def/relations-external#");
         prefixMap.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
@@ -49,6 +49,7 @@ public class FedoraObjectBuilderTest {
         fob.setPid("qucosa:4711");
         fob.setUrn("urn:de:slub-dresden:" + fob.getPid());
         fob.setLabel("An arbitrarily migrated Qucosa Document");
+        fob.setTitle("The Title of an arbitrarily migrated Qucosa Document");
         fob.setOwnerId("slub");
         fob.setParentCollectionPid("qucosa:slub");
 

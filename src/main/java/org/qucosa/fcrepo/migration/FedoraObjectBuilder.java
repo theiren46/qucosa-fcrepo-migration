@@ -37,6 +37,7 @@ public class FedoraObjectBuilder {
     private Object parentCollectionPid;
     private Document qucosaXmlDocument = null;
     private String constituentPid;
+    private String title;
 
     public DigitalObjectDocument build() throws ParserConfigurationException {
         DigitalObjectDocument dof = DigitalObjectDocument.Factory.newInstance();
@@ -107,8 +108,8 @@ public class FedoraObjectBuilder {
     private DcDocument getDcDocument() {
         DcDocument dcDocument = DcDocument.Factory.newInstance();
         OaiDcType dc = dcDocument.addNewDc();
-        ElementType title = dc.addNewTitle();
-        title.setStringValue(label);
+        ElementType t = dc.addNewTitle();
+        t.setStringValue(title);
         ElementType id = dc.addNewIdentifier();
         id.setStringValue(urn);
         return dcDocument;
@@ -190,5 +191,9 @@ public class FedoraObjectBuilder {
 
     public void setConstituentPid(String constituentPid) {
         this.constituentPid = constituentPid;
+    }
+
+    public void setTitle(String s) {
+        this.title = s;
     }
 }
