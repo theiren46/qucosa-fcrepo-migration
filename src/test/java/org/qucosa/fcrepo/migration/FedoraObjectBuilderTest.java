@@ -38,6 +38,8 @@ public class FedoraObjectBuilderTest {
     static {
         Map prefixMap = new HashMap();
         prefixMap.put("fox", "info:fedora/fedora-system:def/foxml#");
+        prefixMap.put("rel", "info:fedora/fedora-system:def/relations-external#");
+        prefixMap.put("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         XMLUnit.setXpathNamespaceContext(new SimpleNamespaceContext(prefixMap));
     }
 
@@ -49,14 +51,11 @@ public class FedoraObjectBuilderTest {
         fob.setLabel("An arbitrarily migrated Qucosa Document");
         fob.setOwnerId("slub");
         fob.setParentCollectionPid("qucosa:slub");
-        DigitalObjectDocument d = fob.build();
-        StringWriter sw = new StringWriter();
-        d.save(sw);
 
         XMLUnit.setIgnoreWhitespace(true);
         Document ctrl = XMLUnit.buildControlDocument(new InputSource(
                 getClass().getResourceAsStream("/FedoraObjectBuilderTest-fo.xml")));
-        Document test = XMLUnit.buildTestDocument(sw.toString());
+        Document test = XMLUnit.buildTestDocument(serialize(fob));
 
         XMLAssert.assertXMLEqual(ctrl, test);
     }
@@ -65,10 +64,7 @@ public class FedoraObjectBuilderTest {
     public void addsQucosaDatastreamAndVersion() throws XpathException, IOException, SAXException, ParserConfigurationException {
         FedoraObjectBuilder fob = new FedoraObjectBuilder();
         fob.setQucosaXmlDocument(XMLUnit.buildTestDocument("<Opus/>"));
-        DigitalObjectDocument d = fob.build();
-        StringWriter sw = new StringWriter();
-        d.save(sw);
-        Document testDocument = XMLUnit.buildTestDocument(sw.toString());
+        Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
 
         XMLAssert.assertXpathExists("/fox:digitalObject/fox:datastream[@ID='QUCOSA-XML']/fox:datastreamVersion[@ID='QUCOSA-XML.0']", testDocument);
     }
@@ -77,12 +73,36 @@ public class FedoraObjectBuilderTest {
     public void addsQucosaDatastreamContent() throws IOException, SAXException, ParserConfigurationException, XpathException {
         FedoraObjectBuilder fob = new FedoraObjectBuilder();
         fob.setQucosaXmlDocument(XMLUnit.buildTestDocument("<Opus version=\"2.0\"><Opus_Document/></Opus>"));
+        Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
+
+        XMLAssert.assertXpathExists("//Opus_Document", testDocument);
+    }
+
+    @Test
+    public void addsMemberOfCollectionRelation() throws Exception {
+        String parentCollectionPid = "qucosa:qucosa";
+        FedoraObjectBuilder fob = new FedoraObjectBuilder();
+        fob.setQucosaXmlDocument(XMLUnit.buildTestDocument("<Opus version=\"2.0\"><Opus_Document/></Opus>"));
+        fob.setParentCollectionPid(parentCollectionPid);
+        Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
+
+        XMLAssert.assertXpathEvaluatesTo("info:fedora/" + parentCollectionPid, "//rel:isMemberOfCollection/@rdf:resource", testDocument);
+    }
+
+    @Test
+    public void addsIsPartOfRelation() throws Exception {
+        FedoraObjectBuilder fob = new FedoraObjectBuilder();
+        fob.setConstituentPid("qucosa:4711");
+        Document testDocument = XMLUnit.buildTestDocument(serialize(fob));
+
+        XMLAssert.assertXpathEvaluatesTo("info:fedora/qucosa:4711", "//rel:isConstituentOf/@rdf:resource", testDocument);
+    }
+
+    private String serialize(FedoraObjectBuilder fob) throws ParserConfigurationException, IOException {
         DigitalObjectDocument d = fob.build();
         StringWriter sw = new StringWriter();
         d.save(sw);
-        Document testDocument = XMLUnit.buildTestDocument(sw.toString());
-
-        XMLAssert.assertXpathExists("//Opus_Document", testDocument);
+        return sw.toString();
     }
 
 }

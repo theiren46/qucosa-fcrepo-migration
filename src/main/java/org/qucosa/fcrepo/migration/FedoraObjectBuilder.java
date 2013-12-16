@@ -36,6 +36,7 @@ public class FedoraObjectBuilder {
     private String urn;
     private Object parentCollectionPid;
     private Document qucosaXmlDocument = null;
+    private String constituentPid;
 
     public DigitalObjectDocument build() throws ParserConfigurationException {
         DigitalObjectDocument dof = DigitalObjectDocument.Factory.newInstance();
@@ -69,11 +70,20 @@ public class FedoraObjectBuilder {
         RDFDocument.RDF rdf = rdfDocument.addNewRDF();
         RDFDocument.RDF.Description desc = rdf.addNewDescription();
         desc.setAbout("info:fedora/" + pid);
-        Element e = desc.getDomNode().getOwnerDocument().createElementNS(
-                "info:fedora/fedora-system:def/relations-external#", "isMemberOfCollection");
-        e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
-                "info:fedora/" + parentCollectionPid);
-        desc.getDomNode().appendChild(e);
+        if (parentCollectionPid != null) {
+            Element e = desc.getDomNode().getOwnerDocument().createElementNS(
+                    "info:fedora/fedora-system:def/relations-external#", "isMemberOfCollection");
+            e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
+                    "info:fedora/" + parentCollectionPid);
+            desc.getDomNode().appendChild(e);
+        }
+        if (constituentPid != null) {
+            Element e = desc.getDomNode().getOwnerDocument().createElementNS(
+                    "info:fedora/fedora-system:def/relations-external#", "isConstituentOf");
+            e.setAttributeNS("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "resource",
+                    "info:fedora/" + constituentPid);
+            desc.getDomNode().appendChild(e);
+        }
         return rdfDocument;
     }
 
@@ -176,5 +186,9 @@ public class FedoraObjectBuilder {
 
     public void setQucosaXmlDocument(Document qucosaXmlDocument) {
         this.qucosaXmlDocument = qucosaXmlDocument;
+    }
+
+    public void setConstituentPid(String constituentPid) {
+        this.constituentPid = constituentPid;
     }
 }

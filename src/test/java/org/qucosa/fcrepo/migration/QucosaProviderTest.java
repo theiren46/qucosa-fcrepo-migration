@@ -63,4 +63,10 @@ public class QucosaProviderTest {
         Assert.assertEquals(2, resources.size());
     }
 
+    @Test
+    public void getsQucosaIdByURN() throws Exception {
+        String qid = qucosaProvider.getQucosaIdByURN("urn:nbn:de:bsz:14-qucosa-32825");
+        Assert.assertEquals("3282", qid);
+    }
+
 }

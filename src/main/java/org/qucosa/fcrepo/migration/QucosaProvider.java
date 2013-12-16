@@ -147,4 +147,20 @@ public class QucosaProvider {
         }
         return names;
     }
+
+    public String getQucosaIdByURN(String urn) throws SQLException {
+        String qid = null;
+        PreparedStatement stmt = null;
+        ResultSet resultSet = null;
+        try {
+            stmt = connection.prepareStatement("select document_id from document_identifiers where type='urn' and value=?");
+            stmt.setString(1, urn);
+            resultSet = stmt.executeQuery();
+            if (resultSet.next()) qid = resultSet.getString(1);
+        } finally {
+            if (resultSet != null) resultSet.close();
+            if (stmt != null) stmt.close();
+        }
+        return qid;
+    }
 }

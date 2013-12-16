@@ -58,10 +58,10 @@ public class Main {
             qucosaProvider.configure(conf);
             fedoraProvider.configure(conf);
 
-            //List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
-            int[] ids = {9375};
-            List<String> resourceNames = new ArrayList<>();
-            for (int id : ids) resourceNames.add("Opus/Document/" + id);
+            List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
+//            int[] ids = {128};
+//            List<String> resourceNames = new ArrayList<>();
+//            for (int id : ids) resourceNames.add("Opus/Document/" + id);
 
             log.info("Ingesting " + resourceNames.size() + " objects.");
 
@@ -71,7 +71,7 @@ public class Main {
 
                 if (fedoraProvider.hasObject(pid)) {
                     if (PURGE_WHEN_PRESENT) {
-                        log.info(pid + " exists. Purging...");
+                        log.trace(pid + " exists. Purging...");
                         fedoraProvider.purgeObject(pid);
                     } else {
                         log.info(pid + " exists. Skipping.");
@@ -79,7 +79,11 @@ public class Main {
                     }
                 }
 
-                doIngest(fedoraProvider, qucosaDoc, pid);
+                try {
+                    doIngest(fedoraProvider, qucosaProvider, qucosaDoc, pid);
+                } catch (Exception ex) {
+                    log.error("Ingesting " + pid + " failed: " + ex.getMessage());
+                }
 
             }
         } catch (Exception e) {
@@ -90,7 +94,7 @@ public class Main {
         }
     }
 
-    private static void doIngest(FedoraProvider fedoraProvider, Document qucosaDoc, String pid) throws XPathExpressionException, ParserConfigurationException {
+    private static void doIngest(FedoraProvider fedoraProvider, QucosaProvider qucosaProvider, Document qucosaDoc, String pid) throws Exception {
         FedoraObjectBuilder fob = new FedoraObjectBuilder();
         fob.setPid(pid);
         fob.setLabel(ats(
@@ -100,6 +104,7 @@ public class Main {
         fob.setOwnerId("qucosa");
         fob.setUrn(xp("/Opus/Opus_Document/IdentifierUrn[1]/Value", qucosaDoc));
         fob.setParentCollectionPid("qucosa:qucosa");
+        fob.setConstituentPid(determineConstituentPid(qucosaDoc, qucosaProvider));
         fob.setQucosaXmlDocument(qucosaDoc);
         DigitalObjectDocument ingestObject = fob.build();
         try {
@@ -108,6 +113,23 @@ public class Main {
         } catch (FedoraClientException fe) {
             log.error("Error ingesting " + pid);
         }
+    }
+
+    private static String determineConstituentPid(Document qucosaDoc, QucosaProvider qucosaProvider) throws Exception {
+        String referencePid = null;
+        String referenceUrn = xp("/Opus/Opus_Document/ReferenceUrn[1][" +
+                "Relation='journal' or " +
+                "Relation='issue' or " +
+                "Relation='proceeding' or " +
+                "Relation='series' or " +
+                "Relation='book']/Value", qucosaDoc);
+        if (referenceUrn != null && !referenceUrn.isEmpty()) {
+            referencePid = qucosaProvider.getQucosaIdByURN(referenceUrn);
+            if (referencePid != null) {
+                referencePid = "qucosa:" + referencePid;
+            }
+        }
+        return referencePid;
     }
 
     private static String xp(String xpath, Document doc) throws XPathExpressionException {
