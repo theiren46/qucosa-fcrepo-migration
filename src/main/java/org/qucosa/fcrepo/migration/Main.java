@@ -30,7 +30,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.exit;
@@ -53,44 +52,39 @@ public class Main {
         FedoraProvider fedoraProvider = new FedoraProvider();
         try {
             Configuration conf = getConfiguration();
-
             qucosaProvider.configure(conf);
             fedoraProvider.configure(conf);
 
             List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
+            migrateQucosaDocuments(qucosaProvider, fedoraProvider, resourceNames, PURGE_WHEN_PRESENT);
 
-//            int[] ids = {2555};
-//            List<String> resourceNames = new ArrayList<>();
-//            for (int id : ids) resourceNames.add("Opus/Document/" + id);
-
-            log.info("Ingesting " + resourceNames.size() + " objects.");
-
-            for (String resourceName : resourceNames) {
-                Document qucosaDoc = qucosaProvider.getXmlDocumentResource(resourceName);
-                String pid = "qucosa:" + resourceName.substring(resourceName.lastIndexOf("/") + 1);
-
-                if (fedoraProvider.hasObject(pid)) {
-                    if (PURGE_WHEN_PRESENT) {
-                        log.trace(pid + " exists. Purging...");
-                        fedoraProvider.purgeObject(pid);
-                    } else {
-                        log.info(pid + " exists. Skipping.");
-                        continue;
-                    }
-                }
-
-                try {
-                    doIngest(fedoraProvider, qucosaProvider, qucosaDoc, pid);
-                } catch (Exception ex) {
-                    log.error("Ingesting " + pid + " failed: " + ex.getMessage());
-                }
-
-            }
         } catch (Exception e) {
             log.error(e.getMessage());
             exit(1);
         } finally {
             qucosaProvider.release();
+        }
+    }
+
+    private static void migrateQucosaDocuments(QucosaProvider qucosaProvider, FedoraProvider fedoraProvider, List<String> resourceNames, boolean purgeWhenPresent) throws Exception {
+        log.info("Migrating " + resourceNames.size() + " objects.");
+        for (String resourceName : resourceNames) {
+            Document qucosaDoc = qucosaProvider.getXmlDocumentResource(resourceName);
+            String pid = "qucosa:" + resourceName.substring(resourceName.lastIndexOf("/") + 1);
+            if (fedoraProvider.hasObject(pid)) {
+                if (purgeWhenPresent) {
+                    log.trace(pid + " exists. Purging...");
+                    fedoraProvider.purgeObject(pid);
+                } else {
+                    log.info(pid + " exists. Skipping.");
+                    continue;
+                }
+            }
+            try {
+                doIngest(fedoraProvider, qucosaProvider, qucosaDoc, pid);
+            } catch (Exception ex) {
+                log.error("Ingesting " + pid + " failed: " + ex.getMessage());
+            }
         }
     }
 
