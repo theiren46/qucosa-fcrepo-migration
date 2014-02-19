@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/slub/qucosa-fcrepo-migration.png)](https://travis-ci.org/slub/qucosa-fcrepo-migration)
+
 # Qucosa Fedora Commons Repository Migration
 
 A utility program to migrate document data and related security information over to a Fedora Commons Repository.
