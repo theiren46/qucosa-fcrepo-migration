@@ -19,6 +19,7 @@ package org.qucosa.fcrepo.migration;
 
 import com.yourmediashelf.fedora.client.FedoraClientException;
 import fedora.fedoraSystemDef.foxml.DigitalObjectDocument;
+import fedora.fedoraSystemDef.foxml.StateType;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
@@ -105,9 +106,29 @@ public class Main {
         DigitalObjectDocument ingestObject = fob.build();
         try {
             fedoraProvider.ingest(ingestObject);
-            log.info("Ingested " + pid);
+
+            // Object state can only be set after ingesting
+            StateType.Enum objstate = mapServerstate(xp("/Opus/Opus_Document/ServerState", qucosaDoc));
+            int returnVal = fedoraProvider.modifyObjectState(pid, objstate);
+            if (returnVal == 200) {
+                log.debug("Set object state of {} to {}", pid, objstate);
+            }
+
+            log.info("Ingested {}", pid);
         } catch (FedoraClientException fe) {
-            log.error("Error ingesting " + pid);
+            log.error("Error ingesting {}: {}", pid, fe.getMessage());
+        }
+    }
+
+    private static StateType.Enum mapServerstate(String serverState) {
+        switch (serverState) {
+            case "published":
+                return StateType.A;
+            case "deleted":
+                return StateType.D;
+            case "unpublished":
+            default:
+                return StateType.I;
         }
     }
 

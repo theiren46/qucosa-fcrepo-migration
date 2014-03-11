@@ -20,14 +20,13 @@ package org.qucosa.fcrepo.migration;
 import com.yourmediashelf.fedora.client.FedoraClient;
 import com.yourmediashelf.fedora.client.FedoraClientException;
 import com.yourmediashelf.fedora.client.FedoraCredentials;
-import com.yourmediashelf.fedora.client.request.DescribeRepository;
-import com.yourmediashelf.fedora.client.request.FindObjects;
-import com.yourmediashelf.fedora.client.request.Ingest;
-import com.yourmediashelf.fedora.client.request.PurgeObject;
+import com.yourmediashelf.fedora.client.request.*;
 import com.yourmediashelf.fedora.client.response.DescribeRepositoryResponse;
+import com.yourmediashelf.fedora.client.response.FedoraResponse;
 import com.yourmediashelf.fedora.client.response.FindObjectsResponse;
 import com.yourmediashelf.fedora.generated.access.FedoraRepository;
 import fedora.fedoraSystemDef.foxml.DigitalObjectDocument;
+import fedora.fedoraSystemDef.foxml.StateType;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
@@ -82,6 +81,14 @@ public class FedoraProvider {
         Ingest ingest = new Ingest();
         ingest.content(ingestObject.newInputStream());
         ingest.execute(client);
+    }
+
+    public int modifyObjectState(String pid, StateType.Enum stateType) throws FedoraClientException {
+        ModifyObject modifyObjectRequest = new ModifyObject(pid);
+        FedoraResponse response = modifyObjectRequest
+                .state(stateType.toString())
+                .execute(client);
+        return response.getStatus();
     }
 
     public boolean hasObject(String pid) throws FedoraClientException {
