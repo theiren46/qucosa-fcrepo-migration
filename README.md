@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/slub/qucosa-fcrepo-migration.png)](https://travis-ci.org/slub/qucosa-fcrepo-migration)
+[![Build Status](https://travis-ci.org/qucosa/qucosa-fcrepo-migration.png)](https://travis-ci.org/slub/qucosa-fcrepo-migration)
 
 # Qucosa Fedora Commons Repository Migration
 
