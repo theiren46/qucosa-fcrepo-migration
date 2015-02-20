@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 SLUB Dresden
+ * Copyright (C) 2015 Saxon State and University Library Dresden (SLUB)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,32 +8,35 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.fcrepo.migration;
+package org.qucosa.migration;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.custommonkey.xmlunit.XMLAssert;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.qucosa.opus.SourceRepositoryOpus4Provider;
 import org.w3c.dom.Document;
 
 import java.sql.SQLException;
 
 public class QucosaProviderIT {
 
-    private QucosaProvider qucosaProvider;
+    private SourceRepositoryOpus4Provider qucosaProvider;
 
     @Before
     public void setUp() throws ConfigurationException, SQLException {
         Configuration conf = new SystemConfiguration();
-        qucosaProvider = new QucosaProvider();
+        qucosaProvider = new SourceRepositoryOpus4Provider();
         qucosaProvider.configure(conf);
     }
 
@@ -45,13 +48,13 @@ public class QucosaProviderIT {
     @Test
     public void retrievesOpusVersion2Document() throws Exception {
         Document doc = qucosaProvider.getXmlDocumentResource("Opus/Document/37");
-        XMLAssert.assertXpathEvaluatesTo("2.0","/Opus/@version", doc);
+        XMLAssert.assertXpathEvaluatesTo("2.0", "/Opus/@version", doc);
     }
 
     @Test
     public void retrievesDocumentWithCorrectId() throws Exception {
         Document doc = qucosaProvider.getXmlDocumentResource("Opus/Document/37");
-        XMLAssert.assertXpathEvaluatesTo("37","//DocumentId", doc);
+        XMLAssert.assertXpathEvaluatesTo("37", "//DocumentId", doc);
     }
 
 }

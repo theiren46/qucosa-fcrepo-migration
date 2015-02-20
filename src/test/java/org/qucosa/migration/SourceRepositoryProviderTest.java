@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 SLUB Dresden
+ * Copyright (C) 2015 Saxon State and University Library Dresden (SLUB)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,38 +8,42 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.fcrepo.migration;
+package org.qucosa.migration;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.qucosa.opus.SourceRepositoryOpus4Provider;
 
 import java.sql.SQLException;
 import java.util.List;
 
-public class QucosaProviderTest {
+public class SourceRepositoryProviderTest {
 
-    private QucosaProvider qucosaProvider;
+    private SourceRepositoryOpus4Provider qucosaProvider;
 
     @Before
     public void setUp() throws SQLException, ConfigurationException {
         Configuration conf = new BaseConfiguration();
-        conf.setProperty(QucosaProvider.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
-        conf.setProperty(QucosaProvider.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
-        conf.setProperty(QucosaProvider.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
+        conf.setProperty(SourceRepositoryOpus4Provider.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
+        conf.setProperty(SourceRepositoryOpus4Provider.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
+        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
                 "INIT=RUNSCRIPT FROM 'classpath:QucosaProviderTest-DB_SETUP.sql' CHARSET 'UTF-8'");
-        conf.setProperty(QucosaProvider.DB_PARAM_USER, "test");
-        conf.setProperty(QucosaProvider.DB_PARAM_PASSWORD, "test");
+        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_USER, "test");
+        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_PASSWORD, "test");
 
-        qucosaProvider = new QucosaProvider();
+        qucosaProvider = new SourceRepositoryOpus4Provider();
         qucosaProvider.configure(conf);
     }
 

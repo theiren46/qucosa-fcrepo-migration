@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 SLUB Dresden
+ * Copyright (C) 2015 Saxon State and University Library Dresden (SLUB)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,14 +8,14 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.fcrepo.migration;
+package org.qucosa.opus;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -26,6 +26,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
+import org.qucosa.migration.SourceRepositoryProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -38,9 +39,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class QucosaProvider {
-
-    private static final Logger log = LoggerFactory.getLogger(QucosaProvider.class);
+public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<Document> {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
@@ -48,6 +47,7 @@ public class QucosaProvider {
     public static final String DB_PARAM_HOST = "qucosa.db.url";
     public static final String DB_PARAM_USER = "qucosa.db.user";
     public static final String DB_PARAM_PASSWORD = "qucosa.db.passwd";
+    private static final Logger log = LoggerFactory.getLogger(SourceRepositoryOpus4Provider.class);
     private final HttpClient httpClient = new DefaultHttpClient();
     private String host;
     private String role;
@@ -65,18 +65,7 @@ public class QucosaProvider {
         connection = connectDb();
     }
 
-    private Connection connectDb() throws SQLException {
-        return DriverManager.getConnection(dburl, user, password);
-    }
-
-    private String getConfigValueOrThrowException(Configuration conf, String key) throws ConfigurationException {
-        String val = conf.getString(key, null);
-        if (val == null) {
-            throw new ConfigurationException("No config value for " + key);
-        }
-        return val;
-    }
-
+    @Override
     public Document getXmlDocumentResource(String resourceId) throws Exception {
         Pattern p = Pattern.compile("Opus/Document/(\\d+)");
         Matcher m = p.matcher(resourceId);
@@ -100,22 +89,7 @@ public class QucosaProvider {
         }
     }
 
-    public void release() {
-        try {
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            log.warn("Failed to close database connection: " + e.getMessage());
-        }
-    }
-
     @Override
-    protected void finalize() throws Throwable {
-        release();
-        super.finalize();
-    }
-
     public List<String> getResources(String pattern) throws SQLException {
         ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
@@ -132,6 +106,7 @@ public class QucosaProvider {
         return names;
     }
 
+    @Override
     public List<String> getResourcesOf(String parentResourceName) throws SQLException {
         ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
@@ -148,6 +123,7 @@ public class QucosaProvider {
         return names;
     }
 
+    @Override
     public String getQucosaIdByURN(String urn) throws SQLException {
         String qid = null;
         PreparedStatement stmt = null;
@@ -162,5 +138,33 @@ public class QucosaProvider {
             if (stmt != null) stmt.close();
         }
         return qid;
+    }
+
+    public void release() {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            log.warn("Failed to close database connection: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        release();
+        super.finalize();
+    }
+
+    private Connection connectDb() throws SQLException {
+        return DriverManager.getConnection(dburl, user, password);
+    }
+
+    private String getConfigValueOrThrowException(Configuration conf, String key) throws ConfigurationException {
+        String val = conf.getString(key, null);
+        if (val == null) {
+            throw new ConfigurationException("No config value for " + key);
+        }
+        return val;
     }
 }
