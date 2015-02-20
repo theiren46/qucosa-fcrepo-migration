@@ -69,7 +69,7 @@ public class SourceRepositoryProviderTest {
 
     @Test
     public void getsQucosaIdByURN() throws Exception {
-        String qid = qucosaProvider.getQucosaIdByURN("urn:nbn:de:bsz:14-qucosa-32825");
+        String qid = qucosaProvider.getIdByURN("urn:nbn:de:bsz:14-qucosa-32825");
         Assert.assertEquals("3282", qid);
     }
 

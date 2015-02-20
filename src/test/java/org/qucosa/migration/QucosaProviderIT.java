@@ -17,6 +17,7 @@
 
 package org.qucosa.migration;
 
+import noNamespace.OpusDocument;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
@@ -25,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.qucosa.opus.SourceRepositoryOpus4Provider;
-import org.w3c.dom.Document;
 
 import java.sql.SQLException;
 
@@ -47,14 +47,15 @@ public class QucosaProviderIT {
 
     @Test
     public void retrievesOpusVersion2Document() throws Exception {
-        Document doc = qucosaProvider.getXmlDocumentResource("Opus/Document/37");
-        XMLAssert.assertXpathEvaluatesTo("2.0", "/Opus/@version", doc);
+        OpusDocument doc = qucosaProvider.getDocument("Opus/Document/37");
+        XMLAssert.assertEquals("2.0", doc.getOpus().getVersion());
     }
 
     @Test
     public void retrievesDocumentWithCorrectId() throws Exception {
-        Document doc = qucosaProvider.getXmlDocumentResource("Opus/Document/37");
-        XMLAssert.assertXpathEvaluatesTo("37", "//DocumentId", doc);
+        OpusDocument doc = qucosaProvider.getDocument("Opus/Document/37");
+        final String id = doc.getOpus().getOpusDocument().getDocumentId().newCursor().getTextValue();
+        XMLAssert.assertEquals("37", id);
     }
 
 }

@@ -17,6 +17,7 @@
 
 package org.qucosa.opus;
 
+import noNamespace.OpusDocument;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.http.HttpResponse;
@@ -29,17 +30,13 @@ import org.apache.http.util.EntityUtils;
 import org.qucosa.migration.SourceRepositoryProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<Document> {
+public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<OpusDocument> {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
@@ -66,22 +63,16 @@ public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<D
     }
 
     @Override
-    public Document getXmlDocumentResource(String resourceId) throws Exception {
-        Pattern p = Pattern.compile("Opus/Document/(\\d+)");
-        Matcher m = p.matcher(resourceId);
-        if (!m.matches()) {
-            throw new IllegalArgumentException("Not a valid Qucosa document resource identifier: " + resourceId);
-        }
+    public OpusDocument getDocument(String resourceId) throws Exception {
+        QucosaDocumentID qid = new QucosaDocumentID(resourceId);
 
-        String id = m.group(1);
-        URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + id);
+        URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getId());
         HttpGet request = new HttpGet(uri);
         request.setParams(new BasicHttpParams().setParameter("role", role));
-
         HttpResponse response = httpClient.execute(request);
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(response.getEntity().getContent());
+            return OpusDocument.Factory.parse(response.getEntity().getContent());
         } else {
             String reason = response.getStatusLine().getReasonPhrase();
             EntityUtils.consume(response.getEntity());
@@ -89,7 +80,6 @@ public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<D
         }
     }
 
-    @Override
     public List<String> getResources(String pattern) throws SQLException {
         ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
@@ -106,7 +96,6 @@ public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<D
         return names;
     }
 
-    @Override
     public List<String> getResourcesOf(String parentResourceName) throws SQLException {
         ArrayList<String> names = new ArrayList<>();
         PreparedStatement stmt = null;
@@ -123,8 +112,7 @@ public class SourceRepositoryOpus4Provider implements SourceRepositoryProvider<D
         return names;
     }
 
-    @Override
-    public String getQucosaIdByURN(String urn) throws SQLException {
+    public String getIdByURN(String urn) throws SQLException {
         String qid = null;
         PreparedStatement stmt = null;
         ResultSet resultSet = null;

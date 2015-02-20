@@ -17,18 +17,10 @@
 
 package org.qucosa.migration;
 
-import java.util.List;
-
 /**
  * @author claussni
  * @date 20.02.15.
  */
 public interface SourceRepositoryProvider<R> {
-    R getXmlDocumentResource(String resourceId) throws Exception;
-
-    List<String> getResources(String pattern) throws Exception;
-
-    List<String> getResourcesOf(String parentResourceName) throws Exception;
-
-    String getQucosaIdByURN(String urn) throws Exception;
+    R getDocument(String resourceId) throws Exception;
 }

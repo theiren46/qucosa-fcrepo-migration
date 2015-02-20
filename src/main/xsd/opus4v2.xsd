@@ -16,8 +16,7 @@
   ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<xs:schema targetNamespace="http://www.qucosa.de/version2" xmlns:tns="http://www.qucosa.de/version2"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:annotation>
         <xs:documentation xml:lang="eng">
@@ -28,7 +27,7 @@
     <xs:element name="Opus">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="Opus_Document" minOccurs="1" maxOccurs="unbounded" type="tns:document"/>
+                <xs:element name="Opus_Document" minOccurs="1" maxOccurs="1" type="document"/>
             </xs:sequence>
             <xs:attribute name="version" type="xs:string" fixed="2.0"/>
         </xs:complexType>
@@ -57,7 +56,7 @@
     <xs:complexType name="person">
         <xs:sequence>
             <xs:element name="AcademicTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="DateOfBirth" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DateOfBirth" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="PlaceOfBirth" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Gender" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Phone" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -137,7 +136,7 @@
             <xs:element name="Language" type="xs:language" minOccurs="0" maxOccurs="1"/>
             <xs:element name="TempFile" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="FileSize" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="HashValue" type="tns:hash" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="HashValue" type="hash" minOccurs="1" maxOccurs="unbounded"/>
             <xs:element name="OaiExport" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
             <xs:element name="FrontdoorVisible" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
         </xs:sequence>
@@ -172,7 +171,7 @@
     <xs:complexType name="patent">
         <xs:all>
             <xs:element name="Countries" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="DateGranted" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DateGranted" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Number" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
             <xs:element name="YearApplied" minOccurs="0" maxOccurs="1">
                 <xs:simpleType>
@@ -187,11 +186,11 @@
 
     <xs:complexType name="document">
         <xs:sequence>
-            <xs:element name="CompletedDate" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="CompletedDate" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="CompletedYear" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1" default="0"/>
             <xs:element name="ContributingCorporation" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="CreatingCorporation" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="DateAccepted" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DateAccepted" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Edition" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Issue" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Language" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
@@ -210,7 +209,7 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="PublishedDate" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="PublishedDate" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="PublishedYear" type="xs:nonNegativeInteger" minOccurs="0" maxOccurs="1" default="0"/>
             <xs:element name="PublisherName" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="PublisherPlace" type="xs:string" minOccurs="0" maxOccurs="1"/>
@@ -225,10 +224,10 @@
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
-            <xs:element name="ServerDateModified" type="tns:date" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="ServerDatePublished" type="tns:date" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="ServerDateUnlocking" type="tns:date" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="ServerDateValid" type="tns:date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ServerDateModified" type="date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ServerDatePublished" type="date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ServerDateUnlocking" type="date" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ServerDateValid" type="date" minOccurs="0" maxOccurs="1"/>
             <xs:element name="ServerState" minOccurs="0" maxOccurs="1">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
@@ -244,55 +243,55 @@
             <xs:element name="Volume" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="FisExport" type="xs:boolean" minOccurs="0" maxOccurs="1" default="0"/>
             <xs:element name="TableOfContent" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="TitleMain" type="tns:title" minOccurs="1" maxOccurs="unbounded"/>
-            <xs:element name="TitleAbstract" type="tns:title" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="TitleParent" type="tns:title" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="TitleSub" type="tns:title" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="TitleAlternative" type="tns:title" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierIsbn" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierUrn" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierDoi" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierHandle" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierUrl" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierIssn" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierStdDoi" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierCrisLink" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierSplashUrl" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierOpus3" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierOpac" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierDeds" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierDol" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierMonarch" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="IdentifierPpn" type="tns:identifier" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceIsbn" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceUrn" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceDoi" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceHandle" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceUrl" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceIssn" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceStdDoi" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceCrisLink" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceSplashUrl" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="ReferenceUncontrolled" type="tns:reference" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="Note" type="tns:note" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="Patent" type="tns:patent" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="Licence" type="tns:licence" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonAdvisor" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonAuthor" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonContributor" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonEditor" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonReferee" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonOther" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonTranslator" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonSubmitter" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="PersonPublisher" type="tns:person" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="SubjectDdc" type="tns:subject" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="SubjectSwd" type="tns:subject" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="SubjectPsyndex" type="tns:subject" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="SubjectRvk" type="tns:subject" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="SubjectUncontrolled" type="tns:subject" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="File" type="tns:file" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="Organisation" type="tns:organisation" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="TitleMain" type="title" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="TitleAbstract" type="title" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="TitleParent" type="title" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="TitleSub" type="title" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="TitleAlternative" type="title" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierIsbn" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierUrn" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierDoi" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierHandle" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierUrl" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierIssn" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierStdDoi" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierCrisLink" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierSplashUrl" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierOpus3" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierOpac" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierDeds" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierDol" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierMonarch" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="IdentifierPpn" type="identifier" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceIsbn" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceUrn" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceDoi" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceHandle" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceUrl" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceIssn" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceStdDoi" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceCrisLink" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceSplashUrl" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ReferenceUncontrolled" type="reference" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Note" type="note" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Patent" type="patent" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Licence" type="licence" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonAdvisor" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonAuthor" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonContributor" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonEditor" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonReferee" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonOther" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonTranslator" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonSubmitter" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="PersonPublisher" type="person" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="SubjectDdc" type="subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="SubjectSwd" type="subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="SubjectPsyndex" type="subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="SubjectRvk" type="subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="SubjectUncontrolled" type="subject" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="File" type="file" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Organisation" type="organisation" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="Id" minOccurs="0" maxOccurs="1"/>
             <xs:element name="DocumentId" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>

@@ -20,42 +20,24 @@ package org.qucosa.migration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
-import org.qucosa.fedora.FedoraApiProvider;
-import org.qucosa.opus.SourceRepositoryOpus4Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 import static java.lang.System.exit;
 
 public class Main {
 
-
     private static final Logger log = LoggerFactory.getLogger(Main.class);
-    private static final boolean PURGE_WHEN_PRESENT = true;
 
     public static void main(String[] args) {
-        SourceRepositoryOpus4Provider qucosaProvider = new SourceRepositoryOpus4Provider();
-        FedoraApiProvider fedoraProvider = new FedoraApiProvider();
         try {
             Configuration conf = getConfiguration();
-            qucosaProvider.configure(conf);
-            fedoraProvider.configure(conf);
-
-            List<String> resourceNames = qucosaProvider.getResources("Opus/Document/%");
-
-            RepositoryMigrator migrator = new RepositoryMigrator();
-            migrator.migrateQucosaDocuments(qucosaProvider, fedoraProvider, resourceNames, PURGE_WHEN_PRESENT);
-
+            // TODO Migrate
         } catch (Exception e) {
             log.error(e.getMessage());
             exit(1);
-        } finally {
-            qucosaProvider.release();
         }
     }
-
 
     private static Configuration getConfiguration() throws ConfigurationException {
         return new SystemConfiguration();

@@ -15,18 +15,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.opus;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author claussni
- * @date 19.02.15.
+ * @date 20.02.15.
  */
-public interface DestinationRepositoryProvider<T> {
-    void ingest(T ingestObject) throws Exception;
+public class QucosaDocumentID {
 
-    int modifyObjectState(String pid, String state) throws Exception;
+    private static final Pattern PATTERN = Pattern.compile("Opus/Document/(\\d+)");
 
-    boolean hasObject(String pid) throws Exception;
+    private final String resourceId;
+    private final String id;
 
-    void purgeObject(String pid) throws Exception;
+    public QucosaDocumentID(String resourceId) {
+        Matcher m = PATTERN.matcher(resourceId);
+        if (!m.matches()) {
+            throw new IllegalArgumentException("Not a valid Qucosa document resource identifier: " + resourceId);
+        }
+        this.resourceId = resourceId;
+        this.id = m.group(1);
+    }
+
+    @Override
+    public String toString() {
+        return resourceId;
+    }
+
+    public String getId() {
+        return id;
+    }
 }
