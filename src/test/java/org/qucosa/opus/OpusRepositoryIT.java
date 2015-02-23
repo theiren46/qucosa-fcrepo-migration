@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.opus;
 
 import noNamespace.OpusDocument;
 import org.apache.commons.configuration.Configuration;
@@ -25,35 +25,34 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.qucosa.opus.SourceRepositoryOpus4Provider;
 
 import java.sql.SQLException;
 
-public class QucosaProviderIT {
+public class OpusRepositoryIT {
 
-    private SourceRepositoryOpus4Provider qucosaProvider;
+    private Opus4ImmutableRepository opus4Repository;
 
     @Before
     public void setUp() throws ConfigurationException, SQLException {
         Configuration conf = new SystemConfiguration();
-        qucosaProvider = new SourceRepositoryOpus4Provider();
-        qucosaProvider.configure(conf);
+        opus4Repository = new Opus4ImmutableRepository();
+        opus4Repository.configure(conf);
     }
 
     @After
     public void tearDown() {
-        qucosaProvider.release();
+        opus4Repository.release();
     }
 
     @Test
     public void retrievesOpusVersion2Document() throws Exception {
-        OpusDocument doc = qucosaProvider.getDocument("Opus/Document/37");
+        OpusDocument doc = opus4Repository.getByKey(OpusID.parse("Opus/Document/37"));
         XMLAssert.assertEquals("2.0", doc.getOpus().getVersion());
     }
 
     @Test
     public void retrievesDocumentWithCorrectId() throws Exception {
-        OpusDocument doc = qucosaProvider.getDocument("Opus/Document/37");
+        OpusDocument doc = opus4Repository.getByKey(OpusID.parse("Opus/Document/37"));
         final String id = doc.getOpus().getOpusDocument().getDocumentId().newCursor().getTextValue();
         XMLAssert.assertEquals("37", id);
     }

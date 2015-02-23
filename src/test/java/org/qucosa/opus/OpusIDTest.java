@@ -17,35 +17,20 @@
 
 package org.qucosa.opus;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.junit.Test;
 
-/**
- * @author claussni
- * @date 20.02.15.
- */
-public class QucosaDocumentID {
+import static org.junit.Assert.assertEquals;
 
-    private static final Pattern PATTERN = Pattern.compile("Opus/Document/(\\d+)");
+public class OpusIDTest {
 
-    private final String resourceId;
-    private final String id;
-
-    public QucosaDocumentID(String resourceId) {
-        Matcher m = PATTERN.matcher(resourceId);
-        if (!m.matches()) {
-            throw new IllegalArgumentException("Not a valid Qucosa document resource identifier: " + resourceId);
-        }
-        this.resourceId = resourceId;
-        this.id = m.group(1);
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionOnInvalidIdentifier() {
+        OpusID.parse("Foo");
     }
 
-    @Override
-    public String toString() {
-        return resourceId;
+    @Test
+    public void returnsId() {
+        assertEquals("1", OpusID.parse("Opus/Document/1").getId());
     }
 
-    public String getId() {
-        return id;
-    }
 }

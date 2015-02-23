@@ -15,12 +15,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.repository;
 
-/**
- * @author claussni
- * @date 20.02.15.
- */
-public interface SourceRepositoryProvider<R> {
-    R getDocument(String resourceId) throws Exception;
+public interface MutableRepository<Identifier, Document> {
+
+    Identifier ingest(Document document) throws Exception;
+
 }

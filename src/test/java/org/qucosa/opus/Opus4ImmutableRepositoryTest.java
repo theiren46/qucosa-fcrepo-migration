@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.opus;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -24,26 +24,26 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.qucosa.opus.SourceRepositoryOpus4Provider;
 
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
 
-public class SourceRepositoryProviderTest {
+public class Opus4ImmutableRepositoryTest {
 
-    private SourceRepositoryOpus4Provider qucosaProvider;
+    private Opus4ImmutableRepository qucosaProvider;
 
     @Before
     public void setUp() throws SQLException, ConfigurationException {
         Configuration conf = new BaseConfiguration();
-        conf.setProperty(SourceRepositoryOpus4Provider.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
-        conf.setProperty(SourceRepositoryOpus4Provider.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
-        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
+        conf.setProperty(Opus4ImmutableRepository.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
+        conf.setProperty(Opus4ImmutableRepository.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
+        conf.setProperty(Opus4ImmutableRepository.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
                 "INIT=RUNSCRIPT FROM 'classpath:QucosaProviderTest-DB_SETUP.sql' CHARSET 'UTF-8'");
-        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_USER, "test");
-        conf.setProperty(SourceRepositoryOpus4Provider.DB_PARAM_PASSWORD, "test");
+        conf.setProperty(Opus4ImmutableRepository.DB_PARAM_USER, "test");
+        conf.setProperty(Opus4ImmutableRepository.DB_PARAM_PASSWORD, "test");
 
-        qucosaProvider = new SourceRepositoryOpus4Provider();
+        qucosaProvider = new Opus4ImmutableRepository();
         qucosaProvider.configure(conf);
     }
 
@@ -54,23 +54,23 @@ public class SourceRepositoryProviderTest {
 
     @Test
     public void listsSubResources() throws SQLException {
-        List<String> resources = qucosaProvider.getResourcesOf("SLUB");
+        List<URI> resources = qucosaProvider.childResources(URI.create("SLUB"));
         Assert.assertFalse(resources.isEmpty());
-        Assert.assertTrue(resources.contains("Opus/Document/10"));
-        Assert.assertTrue(resources.contains("Opus/Document/20"));
+        Assert.assertTrue(resources.contains(URI.create("Opus/Document/10")));
+        Assert.assertTrue(resources.contains(URI.create("Opus/Document/20")));
     }
 
     @Test
     public void listsResourcesByPattern() throws SQLException {
-        List<String> resources = qucosaProvider.getResources("%/Document/__");
+        List<URI> resources = qucosaProvider.findResources("%/Document/__");
         Assert.assertFalse(resources.isEmpty());
         Assert.assertEquals(2, resources.size());
     }
 
     @Test
     public void getsQucosaIdByURN() throws Exception {
-        String qid = qucosaProvider.getIdByURN("urn:nbn:de:bsz:14-qucosa-32825");
-        Assert.assertEquals("3282", qid);
+        OpusID opusID = qucosaProvider.resolve(URI.create("urn:nbn:de:bsz:14-qucosa-32825"));
+        Assert.assertEquals("3282", opusID.getId());
     }
 
 }

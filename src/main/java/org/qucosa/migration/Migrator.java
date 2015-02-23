@@ -17,32 +17,22 @@
 
 package org.qucosa.migration;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.SystemConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.qucosa.opus.Opus4ImmutableRepository;
 
-import static java.lang.System.exit;
+import java.net.URI;
 
-public class Main {
+public class Migrator {
 
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
+    private final Opus4ImmutableRepository opus;
 
-    public static void main(String[] args) {
-        try {
-            Configuration conf = getConfiguration();
-
-
-            // TODO Migrate
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            exit(1);
-        }
+    public Migrator(Opus4ImmutableRepository opus) {
+        this.opus = opus;
     }
 
-    private static Configuration getConfiguration() throws ConfigurationException {
-        return new SystemConfiguration();
+    public void migrate(String identifierPattern) throws Exception {
+        for(URI id : opus.findResources(identifierPattern)) {
+            // TODO migrate
+        }
     }
 
 }
