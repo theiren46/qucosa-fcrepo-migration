@@ -18,8 +18,10 @@
 package org.qucosa.migration;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.qucosa.opus.Opus4ImmutableRepository;
+import org.qucosa.opus.OpusResourceID;
+import org.qucosa.sword.QucosaSwordDeposit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,18 +32,29 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
+        Configuration conf = getConfiguration();
+        Opus4ImmutableRepository src = new Opus4ImmutableRepository();
+        QucosaSwordDeposit dest = new QucosaSwordDeposit();
         try {
-            Configuration conf = getConfiguration();
+            src.configure(conf);
+            dest.configure(conf);
 
+            log.info("Configured source and destination repositories");
 
-            // TODO Migrate
+            Migrator migrator = new Migrator(src, dest);
+            migrator.migrateChildren(OpusResourceID.create("SLUB"));
+
+            log.info(String.format("Finished migration of %d objects",
+                    migrator.getDepositReports().size()));
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             exit(1);
+        } finally {
+            src.release();
         }
     }
 
-    private static Configuration getConfiguration() throws ConfigurationException {
+    private static Configuration getConfiguration() {
         return new SystemConfiguration();
     }
 

@@ -17,8 +17,16 @@
 
 package org.qucosa.repository;
 
-public interface ImmutableRepository<Identifier, Document> {
+import java.util.List;
 
-    Document getByKey(Identifier identifier) throws Exception;
+public interface ImmutableRepository<Identifier, Object, SearchPattern> {
+
+    Object get(Identifier identifier) throws Exception;
+
+    public Identifier resolve(SearchPattern pattern) throws Exception;
+
+    public List<Identifier> children(Identifier identifier) throws Exception;
+
+    public List<Identifier> find(SearchPattern pattern) throws Exception;
 
 }

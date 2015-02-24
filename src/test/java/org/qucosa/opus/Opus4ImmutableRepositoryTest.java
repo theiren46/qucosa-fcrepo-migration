@@ -25,7 +25,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -54,23 +53,23 @@ public class Opus4ImmutableRepositoryTest {
 
     @Test
     public void listsSubResources() throws SQLException {
-        List<URI> resources = qucosaProvider.childResources(URI.create("SLUB"));
+        List<OpusResourceID> resources = qucosaProvider.children(OpusResourceID.create("SLUB"));
         Assert.assertFalse(resources.isEmpty());
-        Assert.assertTrue(resources.contains(URI.create("Opus/Document/10")));
-        Assert.assertTrue(resources.contains(URI.create("Opus/Document/20")));
+        Assert.assertTrue(resources.contains(OpusResourceID.create("Opus/Document/10")));
+        Assert.assertTrue(resources.contains(OpusResourceID.create("Opus/Document/20")));
     }
 
     @Test
     public void listsResourcesByPattern() throws SQLException {
-        List<URI> resources = qucosaProvider.findResources("%/Document/__");
+        List<OpusResourceID> resources = qucosaProvider.find("%/Document/__");
         Assert.assertFalse(resources.isEmpty());
         Assert.assertEquals(2, resources.size());
     }
 
     @Test
     public void getsQucosaIdByURN() throws Exception {
-        OpusID opusID = qucosaProvider.resolve(URI.create("urn:nbn:de:bsz:14-qucosa-32825"));
-        Assert.assertEquals("3282", opusID.getId());
+        OpusResourceID opusResourceID = qucosaProvider.resolve("urn:nbn:de:bsz:14-qucosa-32825");
+        Assert.assertEquals("3282", opusResourceID.getIdentifier());
     }
 
 }

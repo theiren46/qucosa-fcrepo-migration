@@ -15,22 +15,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.opus;
+package org.qucosa.sword;
 
-import org.junit.Test;
+import org.apache.commons.configuration.Configuration;
+import org.qucosa.repository.DepositRepository;
 
-import static org.junit.Assert.assertEquals;
-
-public class OpusIDTest {
-
-    @Test(expected = IllegalArgumentException.class)
-    public void throwsExceptionOnInvalidIdentifier() {
-        OpusID.parse("Foo");
+public class QucosaSwordDeposit implements DepositRepository<Object, Object> {
+    @Override
+    public Object ingest(Object o) throws Exception {
+        // TODO Implement SWORD ingest
+        return null;
     }
 
-    @Test
-    public void returnsId() {
-        assertEquals("1", OpusID.parse("Opus/Document/1").getId());
+    public void configure(Configuration conf) {
+        // TODO Configure SWORD connection
     }
-
 }

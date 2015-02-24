@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
-import org.qucosa.repository.ImmutableRegistry;
 import org.qucosa.repository.ImmutableRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +36,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Opus4ImmutableRepository implements
-        ImmutableRepository<OpusID, OpusDocument>,
-        ImmutableRegistry<URI, OpusID> {
+public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourceID, OpusDocument, String> {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
@@ -66,8 +63,8 @@ public class Opus4ImmutableRepository implements
     }
 
     @Override
-    public OpusDocument getByKey(OpusID qid) throws Exception {
-        URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getId());
+    public OpusDocument get(OpusResourceID qid) throws Exception {
+        URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getIdentifier());
         HttpGet request = new HttpGet(uri);
         request.setParams(new BasicHttpParams().setParameter("role", role));
         HttpResponse response = httpClient.execute(request);
@@ -82,27 +79,27 @@ public class Opus4ImmutableRepository implements
     }
 
     @Override
-    public OpusID resolve(URI uri) throws SQLException {
-        OpusID opusID = null;
+    public OpusResourceID resolve(String pattern) throws SQLException {
+        OpusResourceID opusResourceID = null;
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
             stmt = connection.prepareStatement("select document_id from document_identifiers where type='urn' and value=?");
-            stmt.setString(1, uri.toString());
+            stmt.setString(1, pattern);
             resultSet = stmt.executeQuery();
             if (resultSet.next()) {
-                opusID = OpusID.parse(OpusID.NS_OPUS_DOCUMENT + "/" + resultSet.getString(1));
+                opusResourceID = OpusResourceID.create(OpusResourceID.NS_OPUS_DOCUMENT + "/" + resultSet.getString(1));
             }
         } finally {
             if (resultSet != null) resultSet.close();
             if (stmt != null) stmt.close();
         }
-        return opusID;
+        return opusResourceID;
     }
 
     @Override
-    public List<URI> childResources(URI uri) throws SQLException {
-        ArrayList<URI> names = new ArrayList<>();
+    public List<OpusResourceID> children(OpusResourceID opusResourceID) throws SQLException {
+        ArrayList<OpusResourceID> opusResourceIDs = new ArrayList<>();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
@@ -110,21 +107,21 @@ public class Opus4ImmutableRepository implements
                     "select r1.name as name" +
                             " from resources r1, resources r2" +
                             " where r1.parent_id=r2.id and r2.name=?");
-            stmt.setString(1, uri.toString());
+            stmt.setString(1, opusResourceID.toString());
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
-                names.add(URI.create(resultSet.getString("name")));
+                opusResourceIDs.add(OpusResourceID.create(resultSet.getString("name")));
             }
         } finally {
             if (resultSet != null) resultSet.close();
             if (stmt != null) stmt.close();
         }
-        return names;
+        return opusResourceIDs;
     }
 
     @Override
-    public List<URI> findResources(String pattern) throws SQLException {
-        ArrayList<URI> names = new ArrayList<>();
+    public List<OpusResourceID> find(String pattern) throws SQLException {
+        ArrayList<OpusResourceID> names = new ArrayList<>();
         PreparedStatement stmt = null;
         ResultSet resultSet = null;
         try {
@@ -132,7 +129,7 @@ public class Opus4ImmutableRepository implements
             stmt.setString(1, pattern);
             resultSet = stmt.executeQuery();
             while (resultSet.next()) {
-                names.add(URI.create(resultSet.getString("name")));
+                names.add(OpusResourceID.create(resultSet.getString("name")));
             }
         } finally {
             if (resultSet != null) resultSet.close();

@@ -17,8 +17,8 @@
 
 package org.qucosa.repository;
 
-public interface MutableRepository<Identifier, Document> {
+public interface DepositRepository<IngestReceipt, Deposit> {
 
-    Identifier ingest(Document document) throws Exception;
+    IngestReceipt ingest(Deposit deposit) throws Exception;
 
 }

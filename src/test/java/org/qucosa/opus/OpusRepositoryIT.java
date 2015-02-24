@@ -46,13 +46,13 @@ public class OpusRepositoryIT {
 
     @Test
     public void retrievesOpusVersion2Document() throws Exception {
-        OpusDocument doc = opus4Repository.getByKey(OpusID.parse("Opus/Document/37"));
+        OpusDocument doc = opus4Repository.get(OpusResourceID.create("Opus/Document/37"));
         XMLAssert.assertEquals("2.0", doc.getOpus().getVersion());
     }
 
     @Test
     public void retrievesDocumentWithCorrectId() throws Exception {
-        OpusDocument doc = opus4Repository.getByKey(OpusID.parse("Opus/Document/37"));
+        OpusDocument doc = opus4Repository.get(OpusResourceID.create("Opus/Document/37"));
         final String id = doc.getOpus().getOpusDocument().getDocumentId().newCursor().getTextValue();
         XMLAssert.assertEquals("37", id);
     }
