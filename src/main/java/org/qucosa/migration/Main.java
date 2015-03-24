@@ -19,8 +19,8 @@ package org.qucosa.migration;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.qucosa.camel.CamelCavalry;
 import org.qucosa.opus.Opus4ImmutableRepository;
-import org.qucosa.opus.OpusResourceID;
 import org.qucosa.sword.QucosaSwordDeposit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,14 +38,10 @@ public class Main {
         try {
             src.configure(conf);
             dest.configure(conf);
-
             log.info("Configured source and destination repositories");
 
-            Migrator migrator = new Migrator(src, dest);
-            migrator.migrateChildren(OpusResourceID.create("SLUB"));
+            new CamelCavalry().call();
 
-            log.info(String.format("Finished migration of %d objects",
-                    migrator.getDepositReports().size()));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exit(1);
