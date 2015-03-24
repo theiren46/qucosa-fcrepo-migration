@@ -17,7 +17,6 @@
 
 package org.qucosa.camel;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.qucosa.opus.OpusResourceID;
 
@@ -39,10 +38,7 @@ public class QucosaStagingRoute extends RouteBuilder {
 
         from("direct:qucosa-webapi")
                 .log("Requesting Qucosa XML for ${body}")
-                .transform(simple("${body.identifier}"))
-                .setHeader(Exchange.HTTP_METHOD, constant("GET"))
-                .setHeader(Exchange.HTTP_PATH, body())
-                .to("http://sdvqucosa-app04/opus4/webapi/document/")
+                .beanRef("qucosaDataSource", "get")
                 .to("direct:processing");
 
         from("direct:processing")
