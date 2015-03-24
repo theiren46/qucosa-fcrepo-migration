@@ -31,13 +31,10 @@ public class QucosaStagingRoute extends RouteBuilder {
 
         from("direct:qucosa-resources")
                 .log("Processing elements of resource: ${body}")
-                .setHeader("parent", simple("${body}"))
-                .setBody(constant("select r1.name as name from resources r1, resources r2 where r1.parent_id=r2.id and r2.name = :?parent"))
-                .to("jdbc:qucosaDataSource?useHeadersAsParameters=true")
+                .convertBodyTo(OpusResourceID.class)
+                .beanRef("qucosaDataSource", "children")
                 .log("${body.size} elements")
                 .split(body())
-                .transform(simple("${body[name]}"))
-                .transform(body(OpusResourceID.class))
                 .to("direct:qucosa-webapi");
 
         from("direct:qucosa-webapi")

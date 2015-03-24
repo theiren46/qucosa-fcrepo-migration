@@ -17,10 +17,11 @@
 
 package org.qucosa.camel;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
+import org.qucosa.opus.Opus4ImmutableRepository;
+import org.qucosa.sword.QucosaSwordDeposit;
 
 /**
  * @author claussni
@@ -28,14 +29,18 @@ import org.apache.camel.impl.SimpleRegistry;
  */
 public class CamelCavalry {
 
-    public void call() {
-        MysqlDataSource mysqlDataSource = new MysqlDataSource();
-        mysqlDataSource.setURL("jdbc:mysql://sdvqucosa-dbms04/qucosa-mandant");
-        mysqlDataSource.setUser("qucosa-ro");
-        mysqlDataSource.setPassword("qucosa-ro");
+    private final Opus4ImmutableRepository srcRepo;
+    private final QucosaSwordDeposit destRepo;
 
+    public CamelCavalry(Opus4ImmutableRepository src, QucosaSwordDeposit dest) {
+        this.srcRepo = src;
+        this.destRepo = dest;
+    }
+
+    public void call() {
         SimpleRegistry registry = new SimpleRegistry();
-        registry.put("qucosaDataSource", mysqlDataSource);
+        registry.put("qucosaDataSource", srcRepo);
+        registry.put("swordDeposit", destRepo);
 
         DefaultCamelContext ctx = new DefaultCamelContext(registry);
         ctx.setStreamCaching(true);

@@ -40,7 +40,7 @@ public class Main {
             dest.configure(conf);
             log.info("Configured source and destination repositories");
 
-            new CamelCavalry().call();
+            new CamelCavalry(src, dest).call();
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
