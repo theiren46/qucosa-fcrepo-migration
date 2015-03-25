@@ -21,7 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.spi.Registry;
-import org.qucosa.opus.Opus4ImmutableRepository;
+import org.qucosa.opus.Opus4Repository;
 import org.qucosa.opus.OpusResourceID;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class QucosaResourcesProcessor implements Processor {
         Registry reg = exchange.getContext().getRegistry();
         Message msg = exchange.getIn();
 
-        Opus4ImmutableRepository repo = (Opus4ImmutableRepository) reg.lookupByName("qucosaDataSource");
+        Opus4Repository repo = (Opus4Repository) reg.lookupByName("qucosaDataSource");
         if (repo == null) {
             throw new Exception("No instance of 'qucosaDataSource' found in context registry.");
         }

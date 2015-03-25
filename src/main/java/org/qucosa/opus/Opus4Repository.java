@@ -27,7 +27,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
-import org.qucosa.repository.ImmutableRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourceID, OpusDocument, String> {
+public class Opus4Repository {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
@@ -44,7 +43,7 @@ public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourc
     public static final String DB_PARAM_HOST = "qucosa.db.url";
     public static final String DB_PARAM_USER = "qucosa.db.user";
     public static final String DB_PARAM_PASSWORD = "qucosa.db.passwd";
-    private static final Logger log = LoggerFactory.getLogger(Opus4ImmutableRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(Opus4Repository.class);
     private final HttpClient httpClient = new DefaultHttpClient();
     private String host;
     private String role;
@@ -62,7 +61,6 @@ public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourc
         connection = connectDb();
     }
 
-    @Override
     public OpusDocument get(OpusResourceID qid) throws Exception {
         URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getIdentifier());
         HttpGet request = new HttpGet(uri);
@@ -78,7 +76,6 @@ public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourc
         }
     }
 
-    @Override
     public OpusResourceID resolve(String pattern) throws SQLException {
         OpusResourceID opusResourceID = null;
         PreparedStatement stmt = null;
@@ -97,7 +94,6 @@ public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourc
         return opusResourceID;
     }
 
-    @Override
     public List<OpusResourceID> children(OpusResourceID opusResourceID) throws SQLException {
         ArrayList<OpusResourceID> opusResourceIDs = new ArrayList<>();
         PreparedStatement stmt = null;
@@ -119,7 +115,6 @@ public class Opus4ImmutableRepository implements ImmutableRepository<OpusResourc
         return opusResourceIDs;
     }
 
-    @Override
     public List<OpusResourceID> find(String pattern) throws SQLException {
         ArrayList<OpusResourceID> names = new ArrayList<>();
         PreparedStatement stmt = null;

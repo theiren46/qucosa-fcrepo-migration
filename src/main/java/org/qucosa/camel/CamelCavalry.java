@@ -21,8 +21,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
-import org.qucosa.opus.Opus4ImmutableRepository;
-import org.qucosa.sword.QucosaSwordDeposit;
+import org.qucosa.opus.Opus4Repository;
 
 /**
  * @author claussni
@@ -32,27 +31,23 @@ public class CamelCavalry {
 
     private CamelContext ctx;
 
-    public CamelCavalry(Opus4ImmutableRepository src, QucosaSwordDeposit dest) {
-        setup(src, dest);
+    public CamelCavalry(Opus4Repository src) throws Exception {
+        setup(src);
     }
 
-    protected void setup(
-            Opus4ImmutableRepository opus4ImmutableRepository,
-            QucosaSwordDeposit qucosaSwordDeposit) {
-
+    protected void setup(Opus4Repository opus4Repository) throws Exception {
         SimpleRegistry registry = new SimpleRegistry();
-        registry.put("qucosaDataSource", opus4ImmutableRepository);
-        registry.put("swordDeposit", qucosaSwordDeposit);
+        registry.put("qucosaDataSource", opus4Repository);
 
         ctx = new DefaultCamelContext(registry);
         ctx.setStreamCaching(true);
         ctx.setAllowUseOriginalMessage(false);
 
+        ctx.addRoutes(new QucosaStagingRoute());
     }
 
     public void call() {
         try {
-            ctx.addRoutes(new QucosaStagingRoute());
             ctx.start();
 
             ProducerTemplate template = ctx.createProducerTemplate();
@@ -63,6 +58,5 @@ public class CamelCavalry {
             e.printStackTrace();
         }
     }
-
 
 }
