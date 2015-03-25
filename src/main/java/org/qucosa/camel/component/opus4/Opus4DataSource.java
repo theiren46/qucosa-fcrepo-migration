@@ -35,7 +35,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Opus4Repository {
+public class Opus4DataSource {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
@@ -44,7 +44,7 @@ public class Opus4Repository {
     public static final String DB_PARAM_USER = "qucosa.db.user";
     public static final String DB_PARAM_PASSWORD = "qucosa.db.passwd";
     public static final String DATA_SOURCE_NAME = "opus4DataSource";
-    private static final Logger log = LoggerFactory.getLogger(Opus4Repository.class);
+    private static final Logger log = LoggerFactory.getLogger(Opus4DataSource.class);
     private String host;
     private String role;
     private String dburl;

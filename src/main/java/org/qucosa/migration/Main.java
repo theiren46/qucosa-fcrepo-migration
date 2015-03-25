@@ -17,9 +17,9 @@
 
 package org.qucosa.migration;
 
+import org.apache.camel.ProducerTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
-import org.qucosa.camel.component.opus4.Opus4Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,25 +30,20 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        Configuration conf = getConfiguration();
-        Opus4Repository src = new Opus4Repository();
         try {
-            src.configure(conf);
-            log.info("Configured source and destination repositories");
+            Configuration conf = new SystemConfiguration();
+            StagingContext ctx = new StagingContext(conf);
+            ctx.start();
 
-            log.info("Calling the Camel Cavalry!");
-            new CamelCavalry(src).call();
+            // kick-off SLUB object staging
+            ProducerTemplate template = ctx.createProducerTemplate();
+            template.sendBody("direct:tenantMigration", "SLUB");
 
+            ctx.stop();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exit(1);
-        } finally {
-            src.release();
         }
-    }
-
-    private static Configuration getConfiguration() {
-        return new SystemConfiguration();
     }
 
 }

@@ -30,9 +30,9 @@ public class Opus4ResourcesProcessor implements Processor {
         Registry reg = exchange.getContext().getRegistry();
         Message msg = exchange.getIn();
 
-        Opus4Repository repo = (Opus4Repository) reg.lookupByName(Opus4Repository.DATA_SOURCE_NAME);
+        Opus4DataSource repo = (Opus4DataSource) reg.lookupByName(Opus4DataSource.DATA_SOURCE_NAME);
         if (repo == null) {
-            throw new Exception("No instance of " + Opus4Repository.DATA_SOURCE_NAME +
+            throw new Exception("No instance of " + Opus4DataSource.DATA_SOURCE_NAME +
                     " found in context registry.");
         }
 

@@ -35,4 +35,10 @@ public class Opus4Component extends DefaultComponent {
         throw new Exception("Unknown endpoint URI:" + remaining);
     }
 
+    @Override
+    protected void doShutdown() throws Exception {
+        ((Opus4DataSource)
+                getCamelContext().getRegistry().lookupByName(Opus4DataSource.DATA_SOURCE_NAME)
+        ).release();
+    }
 }

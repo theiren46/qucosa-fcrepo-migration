@@ -28,21 +28,21 @@ import org.junit.Test;
 import java.sql.SQLException;
 import java.util.List;
 
-public class Opus4RepositoryTest {
+public class Opus4DataSourceTest {
 
-    private Opus4Repository qucosaProvider;
+    private Opus4DataSource qucosaProvider;
 
     @Before
     public void setUp() throws SQLException, ConfigurationException {
         Configuration conf = new BaseConfiguration();
-        conf.setProperty(Opus4Repository.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
-        conf.setProperty(Opus4Repository.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
-        conf.setProperty(Opus4Repository.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
+        conf.setProperty(Opus4DataSource.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
+        conf.setProperty(Opus4DataSource.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
+        conf.setProperty(Opus4DataSource.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
                 "INIT=RUNSCRIPT FROM 'classpath:QucosaProviderTest-DB_SETUP.sql' CHARSET 'UTF-8'");
-        conf.setProperty(Opus4Repository.DB_PARAM_USER, "test");
-        conf.setProperty(Opus4Repository.DB_PARAM_PASSWORD, "test");
+        conf.setProperty(Opus4DataSource.DB_PARAM_USER, "test");
+        conf.setProperty(Opus4DataSource.DB_PARAM_PASSWORD, "test");
 
-        qucosaProvider = new Opus4Repository();
+        qucosaProvider = new Opus4DataSource();
         qucosaProvider.configure(conf);
     }
 
