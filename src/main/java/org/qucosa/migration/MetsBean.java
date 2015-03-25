@@ -17,12 +17,18 @@
 
 package org.qucosa.migration;
 
+import gov.loc.mets.MdSecType;
+import gov.loc.mets.MdSecType.MdWrap;
 import gov.loc.mets.MetsDocument;
+import gov.loc.mets.MetsDocument.Mets;
+import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 
 import javax.xml.namespace.QName;
+
+import static gov.loc.mets.MdSecType.MdWrap.MDTYPE.OTHER;
 
 public class MetsBean implements Processor {
 
@@ -31,17 +37,27 @@ public class MetsBean implements Processor {
         Message msg = exchange.getIn();
 
         MetsDocument metsDocument = MetsDocument.Factory.newInstance();
-        MetsDocument.Mets metsRecord = metsDocument.addNewMets();
+        Mets metsRecord = metsDocument.addNewMets();
         addXsiSchemaLocation(metsRecord, "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd");
+
+        OpusDocument opusDocument = msg.getBody(OpusDocument.class);
+        embedQucosaXml(metsRecord, opusDocument);
 
         msg.setBody(metsDocument);
     }
 
-    private void addXsiSchemaLocation(MetsDocument.Mets mets, String schemaLocation) {
+    private void embedQucosaXml(Mets metsRecord, OpusDocument opusDocument) {
+        MdSecType dmdSection = metsRecord.addNewDmdSec();
+        dmdSection.setID("QUCOSA_XML");
+        MdWrap mdWrap = dmdSection.addNewMdWrap();
+        mdWrap.setMDTYPE(OTHER);
+        mdWrap.addNewXmlData().set(opusDocument);
+    }
+
+    private void addXsiSchemaLocation(Mets mets, String schemaLocation) {
         mets.newCursor().setAttributeText(
                 new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"),
                 schemaLocation);
     }
-
 
 }
