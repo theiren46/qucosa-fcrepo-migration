@@ -18,7 +18,6 @@
 package org.qucosa.camel.component;
 
 import org.apache.camel.Converter;
-import org.qucosa.opus.OpusResourceID;
 
 /**
  * @author claussni

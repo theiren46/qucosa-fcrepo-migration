@@ -18,7 +18,7 @@
 package org.qucosa.camel;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.qucosa.opus.OpusResourceID;
+import org.qucosa.camel.component.OpusResourceID;
 
 /**
  * @author claussni

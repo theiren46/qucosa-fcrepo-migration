@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.opus;
+package org.qucosa.camel.component;
 
 import noNamespace.OpusDocument;
 import org.apache.commons.configuration.Configuration;

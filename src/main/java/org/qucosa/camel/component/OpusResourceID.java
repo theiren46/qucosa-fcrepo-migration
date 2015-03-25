@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.opus;
+package org.qucosa.camel.component;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

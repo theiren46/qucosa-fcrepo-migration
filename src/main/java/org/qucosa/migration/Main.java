@@ -20,7 +20,7 @@ package org.qucosa.migration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
 import org.qucosa.camel.CamelCavalry;
-import org.qucosa.opus.Opus4Repository;
+import org.qucosa.camel.component.Opus4Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

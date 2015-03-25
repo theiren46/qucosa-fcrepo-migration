@@ -18,6 +18,7 @@
 package org.qucosa.opus;
 
 import org.junit.Test;
+import org.qucosa.camel.component.OpusResourceID;
 
 import static org.junit.Assert.*;
 

@@ -21,8 +21,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.spi.Registry;
-import org.qucosa.opus.Opus4Repository;
-import org.qucosa.opus.OpusResourceID;
 
 import java.util.List;
 

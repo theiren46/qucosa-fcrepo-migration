@@ -24,6 +24,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.qucosa.camel.component.Opus4Repository;
+import org.qucosa.camel.component.OpusResourceID;
 
 import java.sql.SQLException;
 import java.util.List;
