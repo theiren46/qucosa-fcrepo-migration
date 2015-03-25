@@ -15,4 +15,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-org.qucosa.camel.component.OpusResourceIDConverter
+class=org.qucosa.camel.component.QucosaComponent

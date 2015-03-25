@@ -17,6 +17,7 @@
 
 package org.qucosa.camel;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
@@ -29,28 +30,33 @@ import org.qucosa.sword.QucosaSwordDeposit;
  */
 public class CamelCavalry {
 
-    private final Opus4ImmutableRepository srcRepo;
-    private final QucosaSwordDeposit destRepo;
+    private CamelContext ctx;
 
     public CamelCavalry(Opus4ImmutableRepository src, QucosaSwordDeposit dest) {
-        this.srcRepo = src;
-        this.destRepo = dest;
+        setup(src, dest);
+    }
+
+    protected void setup(
+            Opus4ImmutableRepository opus4ImmutableRepository,
+            QucosaSwordDeposit qucosaSwordDeposit) {
+
+        SimpleRegistry registry = new SimpleRegistry();
+        registry.put("qucosaDataSource", opus4ImmutableRepository);
+        registry.put("swordDeposit", qucosaSwordDeposit);
+
+        ctx = new DefaultCamelContext(registry);
+        ctx.setStreamCaching(true);
+        ctx.setAllowUseOriginalMessage(false);
+
     }
 
     public void call() {
-        SimpleRegistry registry = new SimpleRegistry();
-        registry.put("qucosaDataSource", srcRepo);
-        registry.put("swordDeposit", destRepo);
-
-        DefaultCamelContext ctx = new DefaultCamelContext(registry);
-        ctx.setStreamCaching(true);
-
         try {
             ctx.addRoutes(new QucosaStagingRoute());
             ctx.start();
 
             ProducerTemplate template = ctx.createProducerTemplate();
-            template.sendBody("direct:qucosa-resources", "SLUB");
+            template.sendBody("direct:tenantMigration", "SLUB");
 
             ctx.stop();
         } catch (Exception e) {

@@ -27,24 +27,21 @@ import org.qucosa.opus.OpusResourceID;
 public class QucosaStagingRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
-
-        from("direct:qucosa-resources")
-                .log("Processing elements of resource: ${body}")
+        from("direct:tenantMigration")
+                .log("Processing elements of tenant resource: ${body}")
                 .convertBodyTo(OpusResourceID.class)
-                .beanRef("qucosaDataSource", "children")
-                .log("${body.size} elements")
+                .to("qucosa://resources")
+                .log("Found ${body.size} elements")
+//                .transform(simple("${body[1]}"))
                 .split(body())
-                .to("direct:qucosa-webapi");
+                .to("direct:documentMigration");
 
-        from("direct:qucosa-webapi")
+        from("direct:documentMigration")
+                .threads()
                 .log("Requesting Qucosa XML for ${body}")
-                .beanRef("qucosaDataSource", "get")
-                .to("direct:processing");
-
-        from("direct:processing")
+                .to("qucosa://documents")
                 .log("Processing...")
-                .bean(OpusXmlBeansProcessor.class);
+                .to("qucosa://migrations");
 //                .to("stream:out");
-
     }
 }

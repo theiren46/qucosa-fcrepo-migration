@@ -40,6 +40,7 @@ public class Main {
             dest.configure(conf);
             log.info("Configured source and destination repositories");
 
+            log.info("Calling the Camel Cavalry!");
             new CamelCavalry(src, dest).call();
 
         } catch (Exception e) {

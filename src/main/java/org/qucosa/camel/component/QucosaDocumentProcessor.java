@@ -15,38 +15,36 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel;
+package org.qucosa.camel.component;
 
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.xmlbeans.XmlOptions;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.apache.camel.spi.Registry;
+import org.qucosa.opus.Opus4ImmutableRepository;
+import org.qucosa.opus.OpusResourceID;
 
 /**
  * @author claussni
- * @date 23.03.15.
+ * @date 24.03.15.
  */
-public class OpusXmlBeansProcessor implements Processor {
+public class QucosaDocumentProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
+        Registry reg = exchange.getContext().getRegistry();
         Message msg = exchange.getIn();
-        OpusDocument doc = msg.getBody(OpusDocument.class);
-        if (doc != null) {
-            dumpToExchange(exchange, doc);
-        } else {
-            throw new Exception("Cannot parse " + msg.getMessageId());
-        }
-    }
 
-    private void dumpToExchange(Exchange exchange, OpusDocument doc) throws IOException {
-        Writer w = new StringWriter();
-        doc.save(w, new XmlOptions().setSavePrettyPrint());
-        w.flush();
-        exchange.getOut().setBody(w.toString());
+        Opus4ImmutableRepository repo = (Opus4ImmutableRepository) reg.lookupByName("qucosaDataSource");
+        if (repo == null) {
+            throw new Exception("No instance of 'qucosaDataSource' found in context registry.");
+        }
+
+        OpusResourceID res = (OpusResourceID) msg.getBody();
+
+        if (res.isDocumentId()) {
+            OpusDocument doc = repo.get(res);
+            msg.setBody(doc);
+        }
     }
 }
