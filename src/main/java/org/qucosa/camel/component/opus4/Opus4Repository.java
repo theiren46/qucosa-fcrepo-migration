@@ -24,14 +24,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,9 +72,10 @@ public class Opus4Repository {
     }
 
     public OpusDocument get(Opus4ResourceID qid) throws Exception {
-        URI uri = new URI(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getIdentifier());
-        HttpGet request = new HttpGet(uri);
-        request.setParams(new BasicHttpParams().setParameter("role", role));
+        URIBuilder uriBuilder = new URIBuilder(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getIdentifier());
+        uriBuilder.setParameter("role", role);
+        HttpGet request = new HttpGet(uriBuilder.build());
+
         HttpResponse response = httpClient.execute(request);
 
         if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
