@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.opus;
+package org.qucosa.camel.component.opus4;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -24,8 +24,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.qucosa.camel.component.Opus4Repository;
-import org.qucosa.camel.component.OpusResourceID;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -55,23 +53,23 @@ public class Opus4RepositoryTest {
 
     @Test
     public void listsSubResources() throws SQLException {
-        List<OpusResourceID> resources = qucosaProvider.children(OpusResourceID.create("SLUB"));
+        List<Opus4ResourceID> resources = qucosaProvider.children(Opus4ResourceID.create("SLUB"));
         Assert.assertFalse(resources.isEmpty());
-        Assert.assertTrue(resources.contains(OpusResourceID.create("Opus/Document/10")));
-        Assert.assertTrue(resources.contains(OpusResourceID.create("Opus/Document/20")));
+        Assert.assertTrue(resources.contains(Opus4ResourceID.create("Opus/Document/10")));
+        Assert.assertTrue(resources.contains(Opus4ResourceID.create("Opus/Document/20")));
     }
 
     @Test
     public void listsResourcesByPattern() throws SQLException {
-        List<OpusResourceID> resources = qucosaProvider.find("%/Document/__");
+        List<Opus4ResourceID> resources = qucosaProvider.find("%/Document/__");
         Assert.assertFalse(resources.isEmpty());
         Assert.assertEquals(2, resources.size());
     }
 
     @Test
     public void getsQucosaIdByURN() throws Exception {
-        OpusResourceID opusResourceID = qucosaProvider.resolve("urn:nbn:de:bsz:14-qucosa-32825");
-        Assert.assertEquals("3282", opusResourceID.getIdentifier());
+        Opus4ResourceID opus4ResourceID = qucosaProvider.resolve("urn:nbn:de:bsz:14-qucosa-32825");
+        Assert.assertEquals("3282", opus4ResourceID.getIdentifier());
     }
 
 }

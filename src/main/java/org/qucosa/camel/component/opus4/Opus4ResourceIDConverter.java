@@ -15,20 +15,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component;
+package org.qucosa.camel.component.opus4;
 
 import org.apache.camel.Converter;
 
-/**
- * @author claussni
- * @date 23.03.15.
- */
 @Converter
-public class OpusResourceIDConverter {
+public class Opus4ResourceIDConverter {
 
     @Converter
-    public OpusResourceID toOpusResourceId(String s) {
-        return OpusResourceID.create(s);
+    public Opus4ResourceID toOpusResourceId(String s) {
+        return Opus4ResourceID.create(s);
     }
 
 }

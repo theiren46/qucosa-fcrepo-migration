@@ -15,18 +15,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel;
+package org.qucosa.migration;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
-import org.qucosa.camel.component.Opus4Repository;
+import org.qucosa.camel.component.opus4.Opus4Repository;
 
-/**
- * @author claussni
- * @date 23.03.15.
- */
 public class CamelCavalry {
 
     private CamelContext ctx;
@@ -37,7 +33,7 @@ public class CamelCavalry {
 
     protected void setup(Opus4Repository opus4Repository) throws Exception {
         SimpleRegistry registry = new SimpleRegistry();
-        registry.put("qucosaDataSource", opus4Repository);
+        registry.put(Opus4Repository.DATA_SOURCE_NAME, opus4Repository);
 
         ctx = new DefaultCamelContext(registry);
         ctx.setStreamCaching(true);

@@ -15,33 +15,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel;
+package org.qucosa.migration;
 
 import org.apache.camel.builder.RouteBuilder;
-import org.qucosa.camel.component.OpusResourceID;
+import org.qucosa.camel.component.opus4.Opus4ResourceID;
 
-/**
- * @author claussni
- * @date 23.03.15.
- */
 public class QucosaStagingRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("direct:tenantMigration")
                 .log("Processing elements of tenant resource: ${body}")
-                .convertBodyTo(OpusResourceID.class)
-                .to("qucosa://resources")
+                .convertBodyTo(Opus4ResourceID.class)
+                .to("qucosa:resources")
                 .log("Found ${body.size} elements")
-//                .transform(simple("${body[1]}"))
-                .split(body())
-                .to("direct:documentMigration");
+                .transform(simple("${body[1]}"))
+//                .split(body()).parallelProcessing()
+                .to("direct:documentTransformation");
 
-        from("direct:documentMigration")
+        from("direct:documentTransformation")
                 .threads()
                 .log("Requesting Qucosa XML for ${body}")
-                .to("qucosa://documents")
-                .log("Processing...")
-                .to("qucosa://migrations");
+                .to("qucosa:documents")
+                .to("direct:transformations");
 //                .to("stream:out");
+
+        from("direct:transformations")
+                .log("Processing...")
+                .bean(MetsBean.class)
+                .to("stream:out");
     }
 }

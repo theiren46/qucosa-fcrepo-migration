@@ -15,34 +15,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component;
+package org.qucosa.migration;
 
-import noNamespace.OpusDocument;
+import gov.loc.mets.MetsDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.camel.spi.Registry;
 
-/**
- * @author claussni
- * @date 24.03.15.
- */
-public class QucosaDocumentProcessor implements Processor {
+import javax.xml.namespace.QName;
+
+public class MetsBean implements Processor {
+
     @Override
     public void process(Exchange exchange) throws Exception {
-        Registry reg = exchange.getContext().getRegistry();
         Message msg = exchange.getIn();
 
-        Opus4Repository repo = (Opus4Repository) reg.lookupByName("qucosaDataSource");
-        if (repo == null) {
-            throw new Exception("No instance of 'qucosaDataSource' found in context registry.");
-        }
+        MetsDocument metsDocument = MetsDocument.Factory.newInstance();
+        MetsDocument.Mets metsRecord = metsDocument.addNewMets();
+        addXsiSchemaLocation(metsRecord, "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd");
 
-        OpusResourceID res = (OpusResourceID) msg.getBody();
-
-        if (res.isDocumentId()) {
-            OpusDocument doc = repo.get(res);
-            msg.setBody(doc);
-        }
+        msg.setBody(metsDocument);
     }
+
+    private void addXsiSchemaLocation(MetsDocument.Mets mets, String schemaLocation) {
+        mets.newCursor().setAttributeText(
+                new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"),
+                schemaLocation);
+    }
+
+
 }

@@ -15,12 +15,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component;
+package org.qucosa.camel.component.opus4;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class OpusResourceID {
+public class Opus4ResourceID {
 
     public static final String NS_OPUS_DOCUMENT = "Opus/Document";
     private static final Pattern PATTERN = Pattern.compile(NS_OPUS_DOCUMENT + "/(\\d+)");
@@ -28,12 +28,12 @@ public class OpusResourceID {
     private final String namespace;
     private final String identifier;
 
-    private OpusResourceID(String namespace, String id) {
+    private Opus4ResourceID(String namespace, String id) {
         this.namespace = namespace;
         this.identifier = id;
     }
 
-    public static OpusResourceID create(String resourceId) {
+    public static Opus4ResourceID create(String resourceId) {
         if (resourceId == null || resourceId.isEmpty()) {
             throw new IllegalArgumentException("Not a valid Opus resource identifier: " + resourceId);
         }
@@ -51,7 +51,7 @@ public class OpusResourceID {
             id = resourceId;
         }
 
-        return new OpusResourceID(ns, id);
+        return new Opus4ResourceID(ns, id);
     }
 
     @Override
@@ -69,7 +69,7 @@ public class OpusResourceID {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof OpusResourceID) && (toString().equals(obj.toString()));
+        return (obj instanceof Opus4ResourceID) && (toString().equals(obj.toString()));
     }
 
     @Override

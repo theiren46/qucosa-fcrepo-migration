@@ -15,33 +15,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component;
+package org.qucosa.camel.component.opus4;
 
+import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.spi.Registry;
 
-import java.util.List;
+public class Opus4DocumentProcessor implements Processor {
 
-/**
- * @author claussni
- * @date 24.03.15.
- */
-public class QucosaResourcesProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         Registry reg = exchange.getContext().getRegistry();
         Message msg = exchange.getIn();
 
-        Opus4Repository repo = (Opus4Repository) reg.lookupByName("qucosaDataSource");
+        Opus4Repository repo = (Opus4Repository) reg.lookupByName(Opus4Repository.DATA_SOURCE_NAME);
         if (repo == null) {
-            throw new Exception("No instance of 'qucosaDataSource' found in context registry.");
+            throw new Exception("No instance of " + Opus4Repository.DATA_SOURCE_NAME
+                    + " found in context registry.");
         }
 
-        OpusResourceID res = (OpusResourceID) msg.getBody();
-        List<OpusResourceID> resourceIDs = repo.children(res);
-        msg.setBody(resourceIDs);
+        Opus4ResourceID res = (Opus4ResourceID) msg.getBody();
+
+        if (res.isDocumentId()) {
+            OpusDocument doc = repo.get(res);
+            msg.setBody(doc);
+        }
     }
 }
-

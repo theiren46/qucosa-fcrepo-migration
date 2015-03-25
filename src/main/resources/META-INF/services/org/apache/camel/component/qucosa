@@ -15,4 +15,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-class=org.qucosa.camel.component.QucosaComponent
+class=org.qucosa.camel.component.opus4.Opus4Component

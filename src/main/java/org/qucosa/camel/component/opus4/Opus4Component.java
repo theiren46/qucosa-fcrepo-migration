@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component;
+package org.qucosa.camel.component.opus4;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
@@ -23,21 +23,14 @@ import org.apache.camel.impl.ProcessorEndpoint;
 
 import java.util.Map;
 
-/**
- * @author claussni
- * @date 24.03.15.
- */
-public class QucosaComponent extends DefaultComponent {
+public class Opus4Component extends DefaultComponent {
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         if (remaining.startsWith("resources")) {
-            return new ProcessorEndpoint(uri, this, new QucosaResourcesProcessor());
+            return new ProcessorEndpoint(uri, this, new Opus4ResourcesProcessor());
         }
         if (remaining.startsWith("documents")) {
-            return new ProcessorEndpoint(uri, this, new QucosaDocumentProcessor());
-        }
-        if (remaining.startsWith("migrations")) {
-            return new ProcessorEndpoint(uri, this, new QucosaMigrationsProcessor());
+            return new ProcessorEndpoint(uri, this, new Opus4DocumentProcessor());
         }
         throw new Exception("Unknown endpoint URI:" + remaining);
     }
