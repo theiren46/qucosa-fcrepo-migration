@@ -39,7 +39,6 @@ public class Opus4DataSource {
 
     public static final String WEBAPI_DOCUMENT_RESOURCE_PATH = "/document";
     public static final String WEBAPI_PARAM_QUCOSA_HOST = "qucosa.host";
-    public static final String WEBAPI_PARAM_QUCOSA_ROLE = "qucosa.role";
     public static final String DB_PARAM_HOST = "qucosa.db.url";
     public static final String DB_PARAM_USER = "qucosa.db.user";
     public static final String DB_PARAM_PASSWORD = "qucosa.db.passwd";
@@ -55,7 +54,6 @@ public class Opus4DataSource {
 
     public void configure(Configuration conf) throws ConfigurationException, SQLException {
         host = getConfigValueOrThrowException(conf, WEBAPI_PARAM_QUCOSA_HOST);
-        role = getConfigValueOrThrowException(conf, WEBAPI_PARAM_QUCOSA_ROLE);
         dburl = getConfigValueOrThrowException(conf, DB_PARAM_HOST);
         user = getConfigValueOrThrowException(conf, DB_PARAM_USER);
         password = getConfigValueOrThrowException(conf, DB_PARAM_PASSWORD);
@@ -73,7 +71,6 @@ public class Opus4DataSource {
 
     public OpusDocument get(Opus4ResourceID qid) throws Exception {
         URIBuilder uriBuilder = new URIBuilder(host + WEBAPI_DOCUMENT_RESOURCE_PATH + "/" + qid.getIdentifier());
-        uriBuilder.setParameter("role", role);
         HttpGet request = new HttpGet(uriBuilder.build());
 
         HttpResponse response = httpClient.execute(request);

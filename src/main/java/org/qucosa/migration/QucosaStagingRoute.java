@@ -34,13 +34,11 @@ public class QucosaStagingRoute extends RouteBuilder {
 
         from("direct:documentTransformation")
                 .threads()
-                .log("Requesting Qucosa XML for ${body}")
+                .convertBodyTo(Opus4ResourceID.class)
                 .to("qucosa:documents")
                 .to("direct:transformations");
-//                .to("stream:out");
 
         from("direct:transformations")
-                .log("Processing...")
                 .bean(MetsBean.class)
                 .to("stream:out");
     }

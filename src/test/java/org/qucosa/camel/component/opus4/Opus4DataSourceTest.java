@@ -36,7 +36,6 @@ public class Opus4DataSourceTest {
     public void setUp() throws SQLException, ConfigurationException {
         Configuration conf = new BaseConfiguration();
         conf.setProperty(Opus4DataSource.WEBAPI_PARAM_QUCOSA_HOST, "http://www.example.com");
-        conf.setProperty(Opus4DataSource.WEBAPI_PARAM_QUCOSA_ROLE, "admin");
         conf.setProperty(Opus4DataSource.DB_PARAM_HOST, "jdbc:h2:mem:test;" +
                 "INIT=RUNSCRIPT FROM 'classpath:QucosaProviderTest-DB_SETUP.sql' CHARSET 'UTF-8'");
         conf.setProperty(Opus4DataSource.DB_PARAM_USER, "test");
