@@ -31,14 +31,24 @@ public class Main {
 
     public static void main(String[] args) {
         try {
+            CommandLineOptions options = new CommandLineOptions(args);
             Configuration conf = new SystemConfiguration();
             StagingContext ctx = new StagingContext(conf);
             ctx.start();
 
-            // kick-off SLUB object staging
             ProducerTemplate template = ctx.createProducerTemplate();
-//            template.sendBody("direct:tenantMigration", "SLUB");
-            template.sendBody("direct:documentTransformation", "Opus/Document/10008");
+
+            switch (options.getMode()) {
+                case "tenant":
+                    template.sendBody("direct:tenantMigration", options.getTenantId());
+                    break;
+                case "document":
+                    template.sendBody("direct:documentTransformation", "Opus/Document/" + options.getDocumentId());
+                    break;
+                default:
+                    System.err.println("Nothing to migrate. No options given?");
+                    break;
+            }
 
             ctx.stop();
         } catch (Exception e) {
@@ -46,5 +56,6 @@ public class Main {
             exit(1);
         }
     }
+
 
 }
