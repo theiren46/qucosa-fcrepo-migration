@@ -28,8 +28,7 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .convertBodyTo(Opus4ResourceID.class)
                 .to("qucosa:resources")
                 .log("Found ${body.size} elements")
-                .transform(simple("${body[1]}"))
-//                .split(body()).parallelProcessing()
+                .split(body()).parallelProcessing()
                 .to("direct:documentTransformation");
 
         from("direct:documentTransformation")
