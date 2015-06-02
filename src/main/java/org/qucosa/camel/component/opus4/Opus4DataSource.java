@@ -45,7 +45,6 @@ public class Opus4DataSource {
     public static final String DATA_SOURCE_NAME = "opus4DataSource";
     private static final Logger log = LoggerFactory.getLogger(Opus4DataSource.class);
     private String host;
-    private String role;
     private String dburl;
     private String user;
     private String password;
@@ -145,6 +144,7 @@ public class Opus4DataSource {
         try {
             if (connection != null) {
                 connection.close();
+                log.debug("Closed database connection to " + dburl);
             }
         } catch (SQLException e) {
             log.warn("Failed to close database connection: " + e.getMessage());
@@ -158,7 +158,9 @@ public class Opus4DataSource {
     }
 
     private Connection connectDb() throws SQLException {
-        return DriverManager.getConnection(dburl, user, password);
+        final Connection connection = DriverManager.getConnection(dburl, user, password);
+        log.debug("Established JDBC connection to " + dburl);
+        return connection;
     }
 
     private String getConfigValueOrThrowException(Configuration conf, String key) throws ConfigurationException {
