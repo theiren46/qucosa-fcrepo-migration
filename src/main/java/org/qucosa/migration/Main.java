@@ -37,7 +37,8 @@ public class Main {
 
             // kick-off SLUB object staging
             ProducerTemplate template = ctx.createProducerTemplate();
-            template.sendBody("direct:tenantMigration", "SLUB");
+//            template.sendBody("direct:tenantMigration", "SLUB");
+            template.sendBody("direct:documentTransformation", "Opus/Document/10008");
 
             ctx.stop();
         } catch (Exception e) {
