@@ -44,12 +44,12 @@ public class Opus4DataSource {
     public static final String DB_PARAM_PASSWORD = "qucosa.db.passwd";
     public static final String DATA_SOURCE_NAME = "opus4DataSource";
     private static final Logger log = LoggerFactory.getLogger(Opus4DataSource.class);
-    private String host;
-    private String dburl;
-    private String user;
-    private String password;
     private Connection connection;
+    private String dburl;
+    private String host;
     private HttpClient httpClient;
+    private String password;
+    private String user;
 
     public void configure(Configuration conf) throws ConfigurationException, SQLException {
         host = getConfigValueOrThrowException(conf, WEBAPI_PARAM_QUCOSA_HOST);

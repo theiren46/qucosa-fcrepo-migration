@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.migration.processors;
 
 import gov.loc.mets.MdSecType;
 import gov.loc.mets.MdSecType.MdWrap;
@@ -30,7 +30,9 @@ import javax.xml.namespace.QName;
 
 import static gov.loc.mets.MdSecType.MdWrap.MDTYPE.OTHER;
 
-public class MetsBean implements Processor {
+public class MetsGenerator implements Processor {
+
+    public static final String METS_SCHEMA_LOCATION = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd";
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -38,7 +40,7 @@ public class MetsBean implements Processor {
 
         MetsDocument metsDocument = MetsDocument.Factory.newInstance();
         Mets metsRecord = metsDocument.addNewMets();
-        addXsiSchemaLocation(metsRecord, "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd");
+        addXsiSchemaLocation(metsRecord, METS_SCHEMA_LOCATION);
 
         OpusDocument opusDocument = msg.getBody(OpusDocument.class);
         embedQucosaXml(metsRecord, opusDocument);

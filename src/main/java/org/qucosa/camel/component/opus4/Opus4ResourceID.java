@@ -24,9 +24,8 @@ public class Opus4ResourceID {
 
     public static final String NS_OPUS_DOCUMENT = "Opus/Document";
     private static final Pattern PATTERN = Pattern.compile(NS_OPUS_DOCUMENT + "/(\\d+)");
-
-    private final String namespace;
     private final String identifier;
+    private final String namespace;
 
     private Opus4ResourceID(String namespace, String id) {
         this.namespace = namespace;

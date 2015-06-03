@@ -20,6 +20,7 @@ package org.qucosa.migration;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.qucosa.migration.contexts.StagingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

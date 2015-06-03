@@ -4,19 +4,20 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import static java.lang.System.err;
 import static java.lang.System.exit;
 
 public class CommandLineOptions {
 
     @Option(
-            name="--document",
+            name = "--document",
             aliases = "-d",
             usage = "ID of a single document to migrate",
             forbids = "--tenant")
-    private String documentId = null;
+    private Integer documentId = null;
 
     @Option(
-            name="--tenant",
+            name = "--tenant",
             aliases = "-t",
             usage = "ID of tenant to migrate all of it's documents",
             forbids = "--document")
@@ -27,13 +28,14 @@ public class CommandLineOptions {
         try {
             parser.parseArgument(args);
         } catch (CmdLineException e) {
-            parser.printUsage(System.err);
+            err.println(e.getMessage());
+            parser.printUsage(err);
             exit(1);
         }
 
     }
 
-    public String getDocumentId() {
+    public int getDocumentId() {
         return documentId;
     }
 

@@ -15,10 +15,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.migration.routes;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
+import org.qucosa.migration.processors.MetsGenerator;
 
 public class QucosaStagingRoute extends RouteBuilder {
     @Override
@@ -38,7 +39,7 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .to("direct:transformations");
 
         from("direct:transformations")
-                .bean(MetsBean.class)
+                .bean(MetsGenerator.class)
                 .to("stream:out");
     }
 }

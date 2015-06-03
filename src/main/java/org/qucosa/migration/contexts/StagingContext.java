@@ -15,12 +15,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration;
+package org.qucosa.migration.contexts;
 
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4DataSource;
+import org.qucosa.migration.routes.QucosaStagingRoute;
 
 public class StagingContext extends DefaultCamelContext {
 
