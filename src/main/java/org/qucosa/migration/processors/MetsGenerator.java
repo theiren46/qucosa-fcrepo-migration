@@ -21,18 +21,40 @@ import gov.loc.mets.MdSecType;
 import gov.loc.mets.MdSecType.MdWrap;
 import gov.loc.mets.MetsDocument;
 import gov.loc.mets.MetsDocument.Mets;
+import gov.loc.mods.v3.ModsDefinition;
+import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.TitleInfoDefinition;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.util.HashMap;
 
+import static gov.loc.mets.MdSecType.MdWrap.MDTYPE.MODS;
 import static gov.loc.mets.MdSecType.MdWrap.MDTYPE.OTHER;
 
 public class MetsGenerator implements Processor {
 
     public static final String METS_SCHEMA_LOCATION = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd";
+    public static final String MODS_SCHEMA_LOCATION = "http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd";
+    private static final Logger log = LoggerFactory.getLogger(MetsGenerator.class);
+    private static final XmlOptions xmlOptions;
+
+    static {
+        xmlOptions = new XmlOptions();
+        xmlOptions.setSavePrettyPrint();
+        xmlOptions.setSaveAggressiveNamespaces();
+        xmlOptions.setSaveSuggestedPrefixes(new HashMap() {{
+            put("http://www.loc.gov/METS/", "mets");
+            put("http://www.loc.gov/mods/v3", "mods");
+        }});
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -44,8 +66,30 @@ public class MetsGenerator implements Processor {
 
         OpusDocument opusDocument = msg.getBody(OpusDocument.class);
         embedQucosaXml(metsRecord, opusDocument);
+        generateBasicMods(metsRecord);
+
+        if (log.isDebugEnabled()) {
+            log.debug("\n" + metsDocument.xmlText(xmlOptions));
+        }
 
         msg.setBody(metsDocument);
+    }
+
+    private void generateBasicMods(Mets metsDocument) {
+        MdSecType dmdSection = metsDocument.addNewDmdSec();
+        dmdSection.setID("MODS_XML");
+        MdWrap mdWrap = dmdSection.addNewMdWrap();
+        mdWrap.setMDTYPE(MODS);
+
+        final ModsDocument modsDocument = ModsDocument.Factory.newInstance();
+        final ModsDefinition modsRecord = modsDocument.addNewMods();
+        addXsiSchemaLocation(modsDocument, MODS_SCHEMA_LOCATION);
+
+        final TitleInfoDefinition titleInfo = modsRecord.addNewTitleInfo();
+        titleInfo.setLang("ger");
+        titleInfo.setUsage(org.apache.xmlbeans.XmlString.Factory.newValue("primary"));
+
+        mdWrap.addNewXmlData().set(modsDocument);
     }
 
     private void embedQucosaXml(Mets metsRecord, OpusDocument opusDocument) {
@@ -53,11 +97,12 @@ public class MetsGenerator implements Processor {
         dmdSection.setID("QUCOSA_XML");
         MdWrap mdWrap = dmdSection.addNewMdWrap();
         mdWrap.setMDTYPE(OTHER);
+        mdWrap.setOTHERMDTYPE("QUCOSA-XML");
         mdWrap.addNewXmlData().set(opusDocument);
     }
 
-    private void addXsiSchemaLocation(Mets mets, String schemaLocation) {
-        mets.newCursor().setAttributeText(
+    private void addXsiSchemaLocation(XmlObject xml, String schemaLocation) {
+        xml.newCursor().setAttributeText(
                 new QName("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation"),
                 schemaLocation);
     }

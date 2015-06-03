@@ -39,7 +39,6 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .to("direct:transformations");
 
         from("direct:transformations")
-                .bean(MetsGenerator.class)
-                .to("stream:out");
+                .bean(MetsGenerator.class);
     }
 }
