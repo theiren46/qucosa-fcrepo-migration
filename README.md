@@ -19,7 +19,7 @@ The qucosa-fcrepo-migration program is a Maven project and as such can be build 
 $ mvn package
 ```
 
-This will generate a runnable JAR file `target/fcrepo-migration-<VERSION>.jar` for execution on the command line.
+This will generate a runnable JAR file `target/qucosa-fcrepo-migration-<VERSION>.jar` for execution on the command line.
 
 ## Usage
 
