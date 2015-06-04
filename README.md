@@ -2,12 +2,14 @@
 
 # Qucosa Fedora Commons Repository Migration
 
-A utility program to migrate Qucosa documents, files and related security information over to a Fedora Commons Repository.
+A utility program to migrate Qucosa documents, files and related security information over to a Fedora Commons Repository. It uses Apache Camel to route data from staging to transformation to finally store completely transformed Qucosa Fedora objects.
+
+*Ultimately the defined Camel components (opus-component, sword-component, fcrepo3-component, qucosamigration-component) could be split out into to separate projects and used in externally defined routes running in Apache Karaf, for example.*
 
 ## Description
 
-1. Extracts Qucosa information and generates Qucosa METS
-2. Connects to Fedora Commons via SWORD service to ingest these files
+1. Extracts Qucosa information and generates [Qucosa METS](https://github.com/qucosa/qucosa-sword-filehandler/wiki/Qucosa-Media-Type)
+2. Connects to Fedora Commons via [SWORD service](https://github.com/slub/sword-fedora) to ingest these files
 3. Qucosa IDs that have been downloaded or ingested will not be ingested any more
 
 ## Building
