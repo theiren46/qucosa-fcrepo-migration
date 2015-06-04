@@ -28,14 +28,13 @@ public class Opus4ResourcesProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         Registry reg = exchange.getContext().getRegistry();
-        Message msg = exchange.getIn();
-
         Opus4DataSource repo = (Opus4DataSource) reg.lookupByName(Opus4DataSource.DATA_SOURCE_NAME);
         if (repo == null) {
             throw new Exception("No instance of " + Opus4DataSource.DATA_SOURCE_NAME +
                     " found in context registry.");
         }
 
+        Message msg = exchange.getIn();
         Opus4ResourceID res = (Opus4ResourceID) msg.getBody();
         List<Opus4ResourceID> resourceIDs = repo.children(res);
         msg.setBody(resourceIDs);

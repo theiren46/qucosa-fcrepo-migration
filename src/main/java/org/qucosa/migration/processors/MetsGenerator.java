@@ -25,6 +25,7 @@ import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.TitleInfoDefinition;
 import noNamespace.OpusDocument;
+import noNamespace.Title;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -63,10 +64,11 @@ public class MetsGenerator implements Processor {
         MetsDocument metsDocument = MetsDocument.Factory.newInstance();
         Mets metsRecord = metsDocument.addNewMets();
         addXsiSchemaLocation(metsRecord, METS_SCHEMA_LOCATION);
+        addXsiSchemaLocation(metsRecord, MODS_SCHEMA_LOCATION);
 
         OpusDocument opusDocument = msg.getBody(OpusDocument.class);
         embedQucosaXml(metsRecord, opusDocument);
-        generateBasicMods(metsRecord);
+        generateBasicMods(metsRecord, opusDocument);
 
         if (log.isDebugEnabled()) {
             log.debug("\n" + metsDocument.xmlText(xmlOptions));
@@ -75,19 +77,32 @@ public class MetsGenerator implements Processor {
         msg.setBody(metsDocument);
     }
 
-    private void generateBasicMods(Mets metsDocument) {
+    private void generateBasicMods(Mets metsDocument, OpusDocument opusDocument) {
         MdSecType dmdSection = metsDocument.addNewDmdSec();
         dmdSection.setID("MODS_XML");
         MdWrap mdWrap = dmdSection.addNewMdWrap();
         mdWrap.setMDTYPE(MODS);
+        mdWrap.setMIMETYPE("application/mods+xml");
 
         final ModsDocument modsDocument = ModsDocument.Factory.newInstance();
         final ModsDefinition modsRecord = modsDocument.addNewMods();
-        addXsiSchemaLocation(modsDocument, MODS_SCHEMA_LOCATION);
+
+        String lang;
+        String title;
+
+        final Title[] titles = opusDocument.getOpus().getOpusDocument().getTitleMainArray();
+        if (titles.length > 0) {
+            lang = titles[0].getLanguage();
+            title = titles[0].getValue();
+        } else {
+            lang = "";
+            title = "";
+        }
 
         final TitleInfoDefinition titleInfo = modsRecord.addNewTitleInfo();
-        titleInfo.setLang("ger");
+        titleInfo.setLang(lang);
         titleInfo.setUsage(org.apache.xmlbeans.XmlString.Factory.newValue("primary"));
+        titleInfo.addNewTitle().setStringValue(title);
 
         mdWrap.addNewXmlData().set(modsDocument);
     }
@@ -98,6 +113,7 @@ public class MetsGenerator implements Processor {
         MdWrap mdWrap = dmdSection.addNewMdWrap();
         mdWrap.setMDTYPE(OTHER);
         mdWrap.setOTHERMDTYPE("QUCOSA-XML");
+        mdWrap.setMIMETYPE("application/xml");
         mdWrap.addNewXmlData().set(opusDocument);
     }
 

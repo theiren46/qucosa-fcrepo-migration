@@ -21,6 +21,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4DataSource;
+import org.qucosa.camel.component.sword.SwordConnection;
 import org.qucosa.migration.routes.QucosaStagingRoute;
 
 public class StagingContext extends DefaultCamelContext {
@@ -35,8 +36,12 @@ public class StagingContext extends DefaultCamelContext {
         Opus4DataSource opus4DataSource = new Opus4DataSource();
         opus4DataSource.configure(conf);
 
+        SwordConnection swordConnection = new SwordConnection();
+        swordConnection.configure(conf);
+
         SimpleRegistry simpleRegistry = new SimpleRegistry();
         simpleRegistry.put(Opus4DataSource.DATA_SOURCE_NAME, opus4DataSource);
+        simpleRegistry.put(SwordConnection.DATA_SOURCE_NAME, swordConnection);
         setRegistry(simpleRegistry);
 
         setStreamCaching(true);

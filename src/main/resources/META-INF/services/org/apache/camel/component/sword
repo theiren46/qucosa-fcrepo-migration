@@ -15,5 +15,4 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-org.qucosa.camel.component.opus4.Opus4ResourceIDConverter
-org.qucosa.camel.component.sword.SwordDepositConverter
+class=org.qucosa.camel.component.sword.SwordComponent

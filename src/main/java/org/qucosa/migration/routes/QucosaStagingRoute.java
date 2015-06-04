@@ -19,6 +19,7 @@ package org.qucosa.migration.routes;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
+import org.qucosa.camel.component.sword.SwordDeposit;
 import org.qucosa.migration.processors.MetsGenerator;
 
 public class QucosaStagingRoute extends RouteBuilder {
@@ -39,6 +40,8 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .to("direct:transformations");
 
         from("direct:transformations")
-                .bean(MetsGenerator.class);
+                .bean(MetsGenerator.class)
+                .convertBodyTo(SwordDeposit.class)
+                .to("sword:deposit");
     }
 }
