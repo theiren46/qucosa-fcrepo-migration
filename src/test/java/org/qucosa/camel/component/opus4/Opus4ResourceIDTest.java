@@ -15,38 +15,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.opus;
+package org.qucosa.camel.component.opus4;
 
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class OpusResourceIDTest {
+public class Opus4ResourceIDTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionOnEmptyIdentifier() {
-        OpusResourceID.create("");
+        Opus4ResourceID.create("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionOnNullIdentifier() {
-        OpusResourceID.create(null);
+        Opus4ResourceID.create(null);
     }
 
     @Test
     public void returnsId() {
-        assertEquals("1", OpusResourceID.create("Opus/Document/1").getIdentifier());
+        assertEquals("1", Opus4ResourceID.create("Opus/Document/1").getIdentifier());
     }
 
     @Test
     public void isIdentifiedAsDocumentId() {
-        assertTrue(OpusResourceID.create("Opus/Document/1").isDocumentId());
+        assertTrue(Opus4ResourceID.create("Opus/Document/1").isDocumentId());
     }
 
     @Test
     public void resourceIdWithoutNamespaceIsValid() {
         try {
-            OpusResourceID.create("SLUB");
+            Opus4ResourceID.create("SLUB");
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
@@ -54,19 +54,19 @@ public class OpusResourceIDTest {
 
     @Test
     public void serializationOfNamespacedIdentifierCanBeParsedAgain() {
-        OpusResourceID opusResourceID = OpusResourceID.create("Opus/Document/1234");
-        assertEquals(opusResourceID.toString(), OpusResourceID.create(opusResourceID.toString()).toString());
+        Opus4ResourceID opus4ResourceID = Opus4ResourceID.create("Opus/Document/1234");
+        assertEquals(opus4ResourceID.toString(), Opus4ResourceID.create(opus4ResourceID.toString()).toString());
     }
 
     @Test
     public void serializationCanBeParsedAgain() {
-        OpusResourceID opusResourceID = OpusResourceID.create("SLUB");
-        assertEquals(opusResourceID.toString(), OpusResourceID.create(opusResourceID.toString()).toString());
+        Opus4ResourceID opus4ResourceID = Opus4ResourceID.create("SLUB");
+        assertEquals(opus4ResourceID.toString(), Opus4ResourceID.create(opus4ResourceID.toString()).toString());
     }
 
     @Test
     public void implementsEquals() {
-        assertEquals(OpusResourceID.create("TEST"), OpusResourceID.create("TEST"));
+        assertEquals(Opus4ResourceID.create("TEST"), Opus4ResourceID.create("TEST"));
     }
 
 }

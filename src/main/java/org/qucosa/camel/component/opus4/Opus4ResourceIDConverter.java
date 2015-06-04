@@ -15,10 +15,17 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.repository;
+package org.qucosa.camel.component.opus4;
 
-public interface DepositRepository<IngestReceipt, Deposit> {
+import org.apache.camel.Converter;
 
-    IngestReceipt ingest(Deposit deposit) throws Exception;
+@Converter
+public class Opus4ResourceIDConverter {
+
+    @Converter
+    public Opus4ResourceID toOpusResourceId(String s) {
+        return Opus4ResourceID.create(s);
+    }
 
 }
+
