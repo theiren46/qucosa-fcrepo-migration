@@ -32,12 +32,18 @@ public class CommandLineOptions {
             usage = "ID of a single document to migrate",
             forbids = "--tenant")
     private Integer documentId = null;
-
+    @Option(
+            name = "--noop",
+            aliases = "-n",
+            usage = "Will issue SWORD Noop operation on deposit"
+    )
+    private Boolean noop = false;
     @Option(
             name = "--tenant",
             aliases = "-t",
             usage = "ID of tenant to migrate all of it's documents",
-            forbids = "--document")
+            forbids = "--document"
+    )
     private String tenantId = null;
 
     public CommandLineOptions(String[] args) {
@@ -64,5 +70,9 @@ public class CommandLineOptions {
         if (documentId != null) return "document";
         if (tenantId != null) return "tenant";
         return "";
+    }
+
+    public Boolean getNoop() {
+        return noop;
     }
 }

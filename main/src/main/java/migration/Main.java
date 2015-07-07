@@ -33,7 +33,10 @@ public class Main {
     public static void main(String[] args) {
         try {
             CommandLineOptions options = new CommandLineOptions(args);
+
+            System.setProperty("sword.noop", String.valueOf(options.getNoop()));
             Configuration conf = new SystemConfiguration();
+
             StagingContext ctx = new StagingContext(conf);
             ctx.start();
 
