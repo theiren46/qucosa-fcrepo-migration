@@ -17,10 +17,13 @@
 
 package migration.processors;
 
+import gov.loc.mets.FileType;
+import gov.loc.mets.FileType.FLocat;
 import gov.loc.mets.MdSecType;
 import gov.loc.mets.MdSecType.MdWrap;
 import gov.loc.mets.MetsDocument;
 import gov.loc.mets.MetsDocument.Mets;
+import gov.loc.mets.MetsType.FileSec.FileGrp;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.TitleInfoDefinition;
@@ -37,7 +40,9 @@ import org.slf4j.LoggerFactory;
 import javax.xml.namespace.QName;
 import java.util.HashMap;
 
-import static gov.loc.mets.MdSecType.MdWrap.*;
+import static gov.loc.mets.FileType.FLocat.LOCTYPE.URL;
+import static gov.loc.mets.MdSecType.MdWrap.MDTYPE;
+import static gov.loc.mets.MetsType.FileSec;
 
 public class MetsGenerator implements Processor {
 
@@ -68,12 +73,34 @@ public class MetsGenerator implements Processor {
         OpusDocument opusDocument = msg.getBody(OpusDocument.class);
         embedQucosaXml(metsRecord, opusDocument);
         generateBasicMods(metsRecord, opusDocument);
+        attachUploadFileSections(metsRecord, opusDocument);
 
         if (log.isDebugEnabled()) {
             log.debug("\n" + metsDocument.xmlText(xmlOptions));
         }
 
         msg.setBody(metsDocument);
+    }
+
+    private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument) {
+        FileSec fileSec = metsRecord.addNewFileSec();
+        FileGrp fileGrp = fileSec.addNewFileGrp();
+
+        fileGrp.setUSE("ORIGINAL");
+
+        int i = 0;
+        for (noNamespace.File opusFile : opusDocument.getOpus().getOpusDocument().getFileArray()) {
+            FileType metsFile = fileGrp.addNewFile();
+            metsFile.setID("ATT-" + i);
+            metsFile.setMIMETYPE(opusFile.getMimeType());
+            i++;
+            FLocat fLocat = metsFile.addNewFLocat();
+            fLocat.setLOCTYPE(URL);
+            fLocat.setTitle(opusFile.getLabel());
+            fLocat.setHref("http://.../" + opusFile.getPathName());
+            // TODO Add CHECKSUM and CHECKSUMTYPE as attribute here
+        }
+
     }
 
     private void generateBasicMods(Mets metsDocument, OpusDocument opusDocument) {
