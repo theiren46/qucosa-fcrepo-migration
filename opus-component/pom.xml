@@ -29,6 +29,14 @@
     <artifactId>opus-component</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.15</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
