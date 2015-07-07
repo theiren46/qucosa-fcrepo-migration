@@ -47,7 +47,7 @@ public class StagingContext extends DefaultCamelContext {
         setStreamCaching(true);
         setAllowUseOriginalMessage(false);
 
-        addRoutes(new QucosaStagingRoute());
+        addRoutes(new QucosaStagingRoute(conf));
     }
 
 }

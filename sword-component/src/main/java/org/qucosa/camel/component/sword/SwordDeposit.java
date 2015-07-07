@@ -20,9 +20,13 @@ package org.qucosa.camel.component.sword;
 public class SwordDeposit {
 
     private String body;
+    private String collection;
+    private String contentType;
 
-    public SwordDeposit(String body) {
+    public SwordDeposit(String body, String contentType, String collection) {
         this.body = body;
+        this.contentType = contentType;
+        this.collection = collection;
     }
 
     public String getBody() {
@@ -30,11 +34,11 @@ public class SwordDeposit {
     }
 
     public String getContentType() {
-        return "application/vnd.qucosa.mets+xml";
+        return contentType;
     }
 
     public String getCollection() {
-        return "qucosa:all";
+        return collection;
     }
 
 }

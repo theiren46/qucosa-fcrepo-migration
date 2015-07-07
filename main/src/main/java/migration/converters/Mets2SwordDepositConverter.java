@@ -15,29 +15,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.camel.component.sword;
+package migration.converters;
 
+import gov.loc.mets.MetsDocument;
+import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.apache.camel.Processor;
-import org.apache.camel.spi.Registry;
+import org.qucosa.camel.component.sword.SwordDeposit;
 
-public class SwordDepositProcessor implements Processor {
+@Converter
+public class Mets2SwordDepositConverter {
 
-    @Override
-    public void process(Exchange exchange) throws Exception {
-        Registry reg = exchange.getContext().getRegistry();
-        SwordConnection connection = (SwordConnection) reg.lookupByName(SwordConnection.DATA_SOURCE_NAME);
-        if (connection == null) {
-            throw new Exception("No instance of " + SwordConnection.DATA_SOURCE_NAME +
-                    " found in context registry.");
-        }
-
+    @Converter
+    public SwordDeposit toSwordDeposit(MetsDocument metsDocument, Exchange exchange) {
         Message msg = exchange.getIn();
-        SwordDeposit body = (SwordDeposit) msg.getBody();
-
-        final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
-        connection.deposit(body, noopHeader);
+        return new SwordDeposit(
+                metsDocument.xmlText(),
+                msg.getHeader("Content-Type").toString(),
+                msg.getHeader("Collection").toString());
     }
 
 }

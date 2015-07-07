@@ -19,9 +19,18 @@ package migration.routes;
 
 import migration.processors.MetsGenerator;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
+import org.qucosa.camel.component.sword.SwordDeposit;
 
 public class QucosaStagingRoute extends RouteBuilder {
+
+    private final Configuration config;
+
+    public QucosaStagingRoute(Configuration configuration) {
+        this.config = configuration;
+    }
+
     @Override
     public void configure() throws Exception {
         from("direct:tenantMigration")
@@ -36,10 +45,11 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
                 .to("qucosa:documents")
-                .to("direct:transformations");
-
-        from("direct:transformations")
                 .bean(MetsGenerator.class)
+                .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
+                .setHeader("Collection", constant("qucosa:all"))
+                .convertBodyTo(SwordDeposit.class)
+                .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .to("sword:deposit");
     }
 }
