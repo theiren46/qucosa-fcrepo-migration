@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration.routes;
+package org.qucosa.migration.routes;
 
-import migration.processors.MetsGenerator;
+import org.qucosa.migration.processors.MetsGenerator;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;

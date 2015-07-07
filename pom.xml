@@ -141,7 +141,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>migration.Main</mainClass>
+                            <mainClass>org.qucosa.migration.Main</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
@@ -154,7 +154,7 @@
                 <version>1.3.2</version>
                 <configuration>
                     <executable>java</executable>
-                    <mainClass>migration.Main</mainClass>
+                    <mainClass>org.qucosa.migration.Main</mainClass>
                 </configuration>
             </plugin>
 

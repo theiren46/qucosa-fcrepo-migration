@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration.processors;
+package org.qucosa.migration.processors;
 
 import gov.loc.mets.FileType;
 import gov.loc.mets.FileType.FLocat;

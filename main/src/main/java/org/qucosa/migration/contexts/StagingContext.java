@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration.contexts;
+package org.qucosa.migration.contexts;
 
-import migration.routes.QucosaStagingRoute;
+import org.qucosa.migration.routes.QucosaStagingRoute;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.SimpleRegistry;
 import org.apache.commons.configuration.Configuration;

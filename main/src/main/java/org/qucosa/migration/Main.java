@@ -15,9 +15,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package migration;
+package org.qucosa.migration;
 
-import migration.contexts.StagingContext;
+import org.qucosa.migration.contexts.StagingContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
