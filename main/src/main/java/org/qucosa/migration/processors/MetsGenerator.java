@@ -32,7 +32,6 @@ import noNamespace.Title;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
@@ -51,7 +50,7 @@ import static gov.loc.mets.MetsType.FileSec;
 public class MetsGenerator implements Processor {
 
     public static final String METS_SCHEMA_LOCATION = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd";
-    public static final String MODS_SCHEMA_LOCATION = "http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-5.xsd";
+    public static final String MODS_SCHEMA_LOCATION = "http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd";
     private static final Logger log = LoggerFactory.getLogger(MetsGenerator.class);
     private static final XmlOptions xmlOptions;
 
