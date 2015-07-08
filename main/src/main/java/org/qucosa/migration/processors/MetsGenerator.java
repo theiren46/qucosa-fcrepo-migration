@@ -39,6 +39,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -86,7 +88,8 @@ public class MetsGenerator implements Processor {
         msg.setBody(metsDocument);
     }
 
-    private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument, java.net.URL baseFileUrl) {
+    private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument, java.net.URL baseFileUrl)
+            throws URISyntaxException {
         FileSec fileSec = metsRecord.addNewFileSec();
         FileGrp fileGrp = fileSec.addNewFileGrp();
 
@@ -101,11 +104,18 @@ public class MetsGenerator implements Processor {
             FLocat fLocat = metsFile.addNewFLocat();
             fLocat.setLOCTYPE(URL);
             fLocat.setTitle(opusFile.getLabel());
-            fLocat.setHref(
-                    baseFileUrl.toExternalForm()
+
+
+            URI href = new URI(
+                    baseFileUrl.getProtocol(),
+                    baseFileUrl.getPath()
                             + "/"
                             + extractOpusDocumentId(opusDocument)
-                            + "/" + opusFile.getPathName());
+                            + "/"
+                            + opusFile.getPathName(),
+                    null);
+            fLocat.setHref(href.toASCIIString());
+
             // TODO Add CHECKSUM and CHECKSUMTYPE as attribute here
         }
 
