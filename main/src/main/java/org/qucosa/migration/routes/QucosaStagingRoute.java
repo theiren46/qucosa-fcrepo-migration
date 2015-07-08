@@ -45,6 +45,7 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
                 .to("qucosa:documents")
+                .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
                 .bean(MetsGenerator.class)
                 .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
                 .setHeader("Collection", constant("qucosa:all"))

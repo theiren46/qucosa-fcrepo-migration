@@ -32,12 +32,14 @@ import noNamespace.Title;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.net.URL;
 import java.util.HashMap;
 
 import static gov.loc.mets.FileType.FLocat.LOCTYPE.URL;
@@ -73,7 +75,9 @@ public class MetsGenerator implements Processor {
         OpusDocument opusDocument = msg.getBody(OpusDocument.class);
         embedQucosaXml(metsRecord, opusDocument);
         generateBasicMods(metsRecord, opusDocument);
-        attachUploadFileSections(metsRecord, opusDocument);
+
+        URL fileUrl = new URL(msg.getHeader("Qucosa-File-Url").toString());
+        attachUploadFileSections(metsRecord, opusDocument, fileUrl);
 
         if (log.isDebugEnabled()) {
             log.debug("\n" + metsDocument.xmlText(xmlOptions));
@@ -82,7 +86,7 @@ public class MetsGenerator implements Processor {
         msg.setBody(metsDocument);
     }
 
-    private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument) {
+    private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument, java.net.URL baseFileUrl) {
         FileSec fileSec = metsRecord.addNewFileSec();
         FileGrp fileGrp = fileSec.addNewFileGrp();
 
@@ -97,10 +101,18 @@ public class MetsGenerator implements Processor {
             FLocat fLocat = metsFile.addNewFLocat();
             fLocat.setLOCTYPE(URL);
             fLocat.setTitle(opusFile.getLabel());
-            fLocat.setHref("http://.../" + opusFile.getPathName());
+            fLocat.setHref(
+                    baseFileUrl.toExternalForm()
+                            + "/"
+                            + extractOpusDocumentId(opusDocument)
+                            + "/" + opusFile.getPathName());
             // TODO Add CHECKSUM and CHECKSUMTYPE as attribute here
         }
 
+    }
+
+    private String extractOpusDocumentId(OpusDocument opusDocument) {
+        return opusDocument.getOpus().getOpusDocument().getDocumentId().getDomNode().getFirstChild().getNodeValue();
     }
 
     private void generateBasicMods(Mets metsDocument, OpusDocument opusDocument) {
