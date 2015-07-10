@@ -27,6 +27,7 @@ import gov.loc.mets.MetsType.FileSec.FileGrp;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.TitleInfoDefinition;
+import noNamespace.File;
 import noNamespace.OpusDocument;
 import noNamespace.Title;
 import org.apache.camel.Exchange;
@@ -38,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.namespace.QName;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -88,7 +90,7 @@ public class MetsGenerator implements Processor {
     }
 
     private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument, java.net.URL baseFileUrl)
-            throws URISyntaxException {
+            throws URISyntaxException, MalformedURLException {
         FileSec fileSec = metsRecord.addNewFileSec();
         FileGrp fileGrp = fileSec.addNewFileGrp();
 
@@ -104,20 +106,27 @@ public class MetsGenerator implements Processor {
             fLocat.setLOCTYPE(URL);
             fLocat.setTitle(opusFile.getLabel());
 
+            URI href = buildProperlyEscapedURI(opusDocument, baseFileUrl, opusFile);
 
-            URI href = new URI(
-                    baseFileUrl.getProtocol(),
-                    baseFileUrl.getPath()
-                            + "/"
-                            + extractOpusDocumentId(opusDocument)
-                            + "/"
-                            + opusFile.getPathName(),
-                    null);
             fLocat.setHref(href.toASCIIString());
 
             // TODO Add CHECKSUM and CHECKSUMTYPE as attribute here
         }
 
+    }
+
+    private URI buildProperlyEscapedURI(OpusDocument opusDocument, URL baseFileUrl, File opusFile)
+            throws MalformedURLException, URISyntaxException {
+        URL url = new URL(baseFileUrl,
+                extractOpusDocumentId(opusDocument) + "/" + opusFile.getPathName());
+        return new URI(
+                url.getProtocol(),
+                url.getUserInfo(),
+                url.getHost(),
+                url.getPort(),
+                url.getPath(),
+                url.getQuery(),
+                url.getRef());
     }
 
     private String extractOpusDocumentId(OpusDocument opusDocument) {
