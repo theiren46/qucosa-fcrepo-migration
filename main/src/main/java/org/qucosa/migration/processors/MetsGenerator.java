@@ -28,6 +28,7 @@ import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.TitleInfoDefinition;
 import noNamespace.File;
+import noNamespace.Hash;
 import noNamespace.OpusDocument;
 import noNamespace.Title;
 import org.apache.camel.Exchange;
@@ -90,7 +91,7 @@ public class MetsGenerator implements Processor {
     }
 
     private void attachUploadFileSections(Mets metsRecord, OpusDocument opusDocument, java.net.URL baseFileUrl)
-            throws URISyntaxException, MalformedURLException {
+            throws Exception {
         FileSec fileSec = metsRecord.addNewFileSec();
         FileGrp fileGrp = fileSec.addNewFileGrp();
 
@@ -100,19 +101,50 @@ public class MetsGenerator implements Processor {
         for (noNamespace.File opusFile : opusDocument.getOpus().getOpusDocument().getFileArray()) {
             FileType metsFile = fileGrp.addNewFile();
             metsFile.setID("ATT-" + i);
-            metsFile.setMIMETYPE(opusFile.getMimeType());
             i++;
+            metsFile.setMIMETYPE(opusFile.getMimeType());
+
+            Hash bestHash = selectBestHash(opusFile);
+            if (bestHash != null) {
+                metsFile.setCHECKSUM(bestHash.getValue());
+                metsFile.setCHECKSUMTYPE(
+                        FileType.CHECKSUMTYPE.Enum.forString(
+                                translateQucosaHashType(bestHash.getType())));
+            }
+
             FLocat fLocat = metsFile.addNewFLocat();
+            URI href = buildProperlyEscapedURI(opusDocument, baseFileUrl, opusFile);
             fLocat.setLOCTYPE(URL);
+            fLocat.setHref(href.toASCIIString());
             fLocat.setTitle(opusFile.getLabel());
 
-            URI href = buildProperlyEscapedURI(opusDocument, baseFileUrl, opusFile);
-
-            fLocat.setHref(href.toASCIIString());
-
-            // TODO Add CHECKSUM and CHECKSUMTYPE as attribute here
         }
 
+    }
+
+    private String translateQucosaHashType(String qucosaHashType) throws Exception {
+        switch (qucosaHashType) {
+            case "md5":
+                return "MD5";
+            case "sha512":
+                return "SHA-512";
+            default:
+                throw new Exception("Unknown hash type: " + qucosaHashType);
+        }
+    }
+
+    private Hash selectBestHash(File opusFile) {
+        Hash bestHash = null;
+        for (Hash h : opusFile.getHashValueArray()) {
+            if (bestHash == null) {
+                bestHash = h;
+            } else {
+                if (h.getType().equals("sha512")) {
+                    bestHash = h;
+                }
+            }
+        }
+        return bestHash;
     }
 
     private URI buildProperlyEscapedURI(OpusDocument opusDocument, URL baseFileUrl, File opusFile)
