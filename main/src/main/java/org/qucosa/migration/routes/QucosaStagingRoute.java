@@ -17,11 +17,11 @@
 
 package org.qucosa.migration.routes;
 
-import org.qucosa.migration.processors.MetsGenerator;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
 import org.qucosa.camel.component.sword.SwordDeposit;
+import org.qucosa.migration.processors.MetsGenerator;
 
 public class QucosaStagingRoute extends RouteBuilder {
 
@@ -44,6 +44,7 @@ public class QucosaStagingRoute extends RouteBuilder {
         from("direct:documentTransformation")
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
+                .setHeader("Slug", simple("qucosa:${body.identifier}"))
                 .to("qucosa:documents")
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
                 .bean(MetsGenerator.class)

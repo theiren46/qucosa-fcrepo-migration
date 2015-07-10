@@ -37,7 +37,8 @@ public class SwordDepositProcessor implements Processor {
         SwordDeposit body = (SwordDeposit) msg.getBody();
 
         final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
-        connection.deposit(body, noopHeader);
+        final String slugHeader = (String) msg.getHeader("Slug");
+        connection.deposit(body, noopHeader, slugHeader);
     }
 
 }
