@@ -149,8 +149,10 @@ public class MetsGenerator implements Processor {
 
     private URI buildProperlyEscapedURI(OpusDocument opusDocument, URL baseFileUrl, File opusFile)
             throws MalformedURLException, URISyntaxException {
-        URL url = new URL(baseFileUrl,
-                extractOpusDocumentId(opusDocument) + "/" + opusFile.getPathName());
+        URL url = new URL(baseFileUrl.toExternalForm()
+                + "/"
+                + extractOpusDocumentId(opusDocument)
+                + "/" + opusFile.getPathName());
         return new URI(
                 url.getProtocol(),
                 url.getUserInfo(),
