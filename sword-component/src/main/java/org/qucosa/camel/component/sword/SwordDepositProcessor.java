@@ -29,6 +29,7 @@ public class SwordDepositProcessor implements Processor {
         Registry reg = exchange.getContext().getRegistry();
         SwordConnection connection = (SwordConnection) reg.lookupByName(SwordConnection.DATA_SOURCE_NAME);
         if (connection == null) {
+            exchange.getIn().setFault(true);
             throw new Exception("No instance of " + SwordConnection.DATA_SOURCE_NAME +
                     " found in context registry.");
         }
