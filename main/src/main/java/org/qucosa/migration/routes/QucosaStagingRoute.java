@@ -17,11 +17,14 @@
 
 package org.qucosa.migration.routes;
 
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.configuration.Configuration;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
 import org.qucosa.camel.component.sword.SwordDeposit;
 import org.qucosa.migration.processors.MetsGenerator;
+
+import java.util.concurrent.TimeUnit;
 
 public class QucosaStagingRoute extends RouteBuilder {
 
@@ -34,6 +37,7 @@ public class QucosaStagingRoute extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("direct:tenantMigration")
+                .routeId("tenant-documents-route")
                 .log("Processing elements of tenant resource: ${body}")
                 .convertBodyTo(Opus4ResourceID.class)
                 .to("qucosa:resources")
@@ -42,6 +46,7 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .to("direct:documentTransformation");
 
         from("direct:documentTransformation")
+                .routeId("build-deposit-route")
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
                 .setHeader("Slug", simple("qucosa:${body.identifier}"))
@@ -51,7 +56,21 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
                 .setHeader("Collection", constant("qucosa:all"))
                 .convertBodyTo(SwordDeposit.class)
+                .to("direct:deposit");
+
+        from("direct:deposit")
+                .routeId("deposit-route")
+                .errorHandler(deadLetterChannel("direct:dead")
+                        .maximumRedeliveries(5)
+                        .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
+                        .asyncDelayedRedelivery()
+                        .retryAttemptedLogLevel(LoggingLevel.WARN))
+                .threads()
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .to("sword:deposit");
+
+        from("direct:dead")
+                .routeId("dead-letter-route")
+                .log(LoggingLevel.ERROR, "Failed:\n${body.body}");
     }
 }
