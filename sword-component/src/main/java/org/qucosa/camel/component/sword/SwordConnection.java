@@ -56,8 +56,6 @@ public class SwordConnection {
 
     private HttpClient prepareHttpClient() {
         PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager();
-        connectionManager.setMaxTotal(200);
-        connectionManager.setDefaultMaxPerRoute(100);
 
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY,
