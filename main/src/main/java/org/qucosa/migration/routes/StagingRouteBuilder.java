@@ -26,30 +26,38 @@ import org.qucosa.migration.processors.MetsGenerator;
 
 import java.util.concurrent.TimeUnit;
 
-public class QucosaStagingRoute extends RouteBuilder {
+public class StagingRouteBuilder extends RouteBuilder {
 
     private final Configuration config;
 
-    public QucosaStagingRoute(Configuration configuration) {
+    public StagingRouteBuilder(Configuration configuration) {
         this.config = configuration;
     }
 
     @Override
     public void configure() throws Exception {
-        from("direct:tenantMigration")
-                .routeId("tenant-documents-route")
+        from("direct:staging")
+                .routeId("staging")
+                .log("Staging resource: ${body}")
+                .convertBodyTo(Opus4ResourceID.class)
+                .choice()
+                .when(simple("${body.isDocumentId}")).to("direct:staging:document")
+                .otherwise().to("direct:staging:tenant");
+
+        from("direct:staging:tenant")
+                .routeId("stage-tenant")
                 .log("Processing elements of tenant resource: ${body}")
                 .convertBodyTo(Opus4ResourceID.class)
                 .to("opus4:resources")
                 .log("Found ${body.size} elements")
                 .split(body()).parallelProcessing()
-                .to("direct:documentTransformation");
+                .to("direct:staging:document");
 
-        from("direct:documentTransformation")
-                .routeId("build-deposit-route")
+        from("direct:staging:document")
+                .routeId("stage-document")
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
-                .setHeader("Slug", simple("opus4:${body.identifier}"))
+                .setHeader("Slug", simple("qucosa:${body.identifier}"))
                 .to("opus4:documents")
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
                 .bean(MetsGenerator.class)
@@ -60,7 +68,7 @@ public class QucosaStagingRoute extends RouteBuilder {
 
         from("direct:deposit")
                 .routeId("deposit-route")
-                .errorHandler(deadLetterChannel("direct:dead")
+                .errorHandler(deadLetterChannel("direct:deposit:dead")
                         .maximumRedeliveries(5)
                         .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
                         .asyncDelayedRedelivery()
@@ -69,8 +77,8 @@ public class QucosaStagingRoute extends RouteBuilder {
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .to("sword:deposit");
 
-        from("direct:dead")
-                .routeId("dead-letter-route")
+        from("direct:deposit:dead")
+                .routeId("deposit-error")
                 .log(LoggingLevel.ERROR, "Failed:\n${body.body}");
     }
 }

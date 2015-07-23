@@ -27,11 +27,11 @@ import static java.lang.System.exit;
 public class CommandLineOptions {
 
     @Option(
-            name = "--document",
-            aliases = "-d",
-            usage = "ID of a single document to migrate",
-            forbids = "--tenant")
-    private Integer documentId = null;
+            name = "--mappings",
+            aliases = "-m",
+            usage = "Comma separated list of mappings to apply when transforming a staged resource"
+    )
+    private String[] mappings = {};
     @Option(
             name = "--noop",
             aliases = "-n",
@@ -39,12 +39,16 @@ public class CommandLineOptions {
     )
     private Boolean noop = false;
     @Option(
-            name = "--tenant",
+            name = "--stage-resource",
+            aliases = "-s",
+            usage = "Opus ID of a single document or tenant for staging")
+    private String stageResource = null;
+    @Option(
+            name = "--transform-resource",
             aliases = "-t",
-            usage = "ID of tenant to migrate all of it's documents",
-            forbids = "--document"
+            usage = "ID of already staged resource for transformation"
     )
-    private String tenantId = null;
+    private String transformResource = null;
 
     public CommandLineOptions(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
@@ -58,21 +62,19 @@ public class CommandLineOptions {
 
     }
 
-    public int getDocumentId() {
-        return documentId;
-    }
-
-    public String getTenantId() {
-        return tenantId;
-    }
-
-    public String getMode() {
-        if (documentId != null) return "document";
-        if (tenantId != null) return "tenant";
-        return "";
-    }
-
     public Boolean getNoop() {
         return noop;
+    }
+
+    public String[] getMappings() {
+        return mappings;
+    }
+
+    public String getStageResource() {
+        return stageResource;
+    }
+
+    public String getTransformResource() {
+        return transformResource;
     }
 }

@@ -76,7 +76,7 @@ public class SwordConnection {
         return val;
     }
 
-    public void deposit(SwordDeposit deposit, Boolean noop, String slugHeader) throws Exception {
+    public HttpResponse deposit(SwordDeposit deposit, Boolean noop, String slugHeader) throws Exception {
         URIBuilder uriBuilder = new URIBuilder(url + "/" + deposit.getCollection());
         HttpPost httpPost = new HttpPost(uriBuilder.build());
         httpPost.setHeader("X-No-Op", String.valueOf(noop));
@@ -108,5 +108,7 @@ public class SwordConnection {
             String reason = response.getStatusLine().getReasonPhrase();
             throw new Exception(reason);
         }
+
+        return response;
     }
 }

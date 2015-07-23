@@ -21,6 +21,7 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
 import org.apache.camel.spi.Registry;
+import org.apache.http.HttpResponse;
 
 public class SwordDepositProcessor implements Processor {
 
@@ -39,7 +40,9 @@ public class SwordDepositProcessor implements Processor {
 
         final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
         final String slugHeader = (String) msg.getHeader("Slug");
-        connection.deposit(body, noopHeader, slugHeader);
+        HttpResponse httpResponse = connection.deposit(body, noopHeader, slugHeader);
+
+        exchange.getIn().setBody(httpResponse);
     }
 
 }

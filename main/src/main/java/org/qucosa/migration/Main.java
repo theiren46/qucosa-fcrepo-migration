@@ -17,10 +17,11 @@
 
 package org.qucosa.migration;
 
-import org.qucosa.migration.contexts.StagingContext;
+import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.SystemConfiguration;
+import org.qucosa.migration.contexts.MigrationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,35 +32,62 @@ public class Main {
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
+        CommandLineOptions options = new CommandLineOptions(args);
+        System.setProperty("sword.noop", String.valueOf(options.getNoop()));
+
+        Configuration conf = new SystemConfiguration();
+        MigrationContext ctx = null;
         try {
-            CommandLineOptions options = new CommandLineOptions(args);
+            Boolean isStaging = (options.getStageResource() != null);
+            Boolean isTransforming = (options.getTransformResource() != null);
 
-            System.setProperty("sword.noop", String.valueOf(options.getNoop()));
-            Configuration conf = new SystemConfiguration();
-
-            StagingContext ctx = new StagingContext(conf);
+            ctx = new MigrationContext(conf, isStaging, isTransforming);
             ctx.start();
 
-            ProducerTemplate template = ctx.createProducerTemplate();
-
-            switch (options.getMode()) {
-                case "tenant":
-                    template.sendBody("direct:tenantMigration", options.getTenantId());
-                    break;
-                case "document":
-                    template.sendBody("direct:documentTransformation", "Opus/Document/" + options.getDocumentId());
-                    break;
-                default:
-                    System.err.println("Nothing to migrate. No options given?");
-                    break;
-            }
-
-            ctx.stop();
+            if (isStaging) sendStagingExchange(options, ctx);
+            if (isTransforming) sendTransformationExchange(options, ctx);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exit(1);
+        } finally {
+            if (ctx != null) try {
+                ctx.stop();
+            } catch (Exception e) {
+                System.out.println("Error shutting down Camel: " + e.getMessage());
+                e.printStackTrace();
+                exit(1);
+            }
         }
     }
 
+    private static void sendTransformationExchange(CommandLineOptions options, CamelContext ctx) {
+        ProducerTemplate template = ctx.createProducerTemplate();
+        String routingSlip = buildRoutingSlip(options);
+        if (routingSlip.isEmpty()) {
+            template.sendBody("direct:transforming", options.getTransformResource());
+        } else {
+            template.sendBodyAndHeader(
+                    "direct:transforming", options.getTransformResource(),
+                    "transformations", routingSlip);
+        }
+    }
+
+    private static void sendStagingExchange(CommandLineOptions options, CamelContext ctx) {
+        ProducerTemplate template = ctx.createProducerTemplate();
+        template.sendBody("direct:staging", options.getStageResource());
+    }
+
+    private static String buildRoutingSlip(CommandLineOptions options) {
+        StringBuilder sb = new StringBuilder();
+        for (String m : options.getMappings()) {
+            sb.append("direct:")
+                    .append(m.toLowerCase())
+                    .append(',');
+        }
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
+        return sb.toString();
+    }
 
 }
