@@ -18,14 +18,25 @@
 package org.qucosa.migration.routes;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 
 public class TransformationRouteBuilder extends RouteBuilder {
+    static public String extractPID(HttpResponse httpResponse) throws Exception {
+        Header locationHeader = httpResponse.getFirstHeader("Location");
+        if (locationHeader == null) {
+            throw new Exception("No location header in HTTP response.");
+        }
+        String locationStr = locationHeader.getValue();
+        return locationStr.substring(locationStr.lastIndexOf('/') + 1);
+    }
+
     @Override
     public void configure() throws Exception {
-
-        from("direct:transforming")
-                .routingSlip(header("transformations")).ignoreInvalidEndpoints()
-                .to("stream:out");
-
+        from("direct:transform")
+                .routeId("transforming")
+                .bean(TransformationRouteBuilder.class, "extractPID")
+                .log("${body}")
+                .routingSlip(header("transformations")).ignoreInvalidEndpoints();
     }
 }

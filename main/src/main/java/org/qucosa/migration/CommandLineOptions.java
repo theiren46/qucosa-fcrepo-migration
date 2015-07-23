@@ -29,7 +29,7 @@ public class CommandLineOptions {
     @Option(
             name = "--mappings",
             aliases = "-m",
-            usage = "Comma separated list of mappings to apply when transforming a staged resource"
+            usage = "Comma separated list of mappings to apply when transforming a staged resource."
     )
     private String[] mappings = {};
     @Option(
@@ -43,6 +43,12 @@ public class CommandLineOptions {
             aliases = "-s",
             usage = "Opus ID of a single document or tenant for staging")
     private String stageResource = null;
+    @Option(
+            name = "--stage-transform",
+            usage = "Applies transformation to staged resources if --stage-resource is given.",
+            depends = "--stage-resource"
+    )
+    private Boolean stageTransform = false;
     @Option(
             name = "--transform-resource",
             aliases = "-t",
@@ -76,5 +82,9 @@ public class CommandLineOptions {
 
     public String getTransformResource() {
         return transformResource;
+    }
+
+    public Boolean isStageTransform() {
+        return stageTransform;
     }
 }

@@ -35,17 +35,21 @@ public class Main {
         CommandLineOptions options = new CommandLineOptions(args);
         System.setProperty("sword.noop", String.valueOf(options.getNoop()));
 
-        Configuration conf = new SystemConfiguration();
         MigrationContext ctx = null;
         try {
-            Boolean isStaging = (options.getStageResource() != null);
-            Boolean isTransforming = (options.getTransformResource() != null);
+            Boolean hasStagingResource = (options.getStageResource() != null);
+            Boolean hasTransformResource = (options.getTransformResource() != null);
+            Boolean isTransforming = hasTransformResource
+                    || (options.getMappings().length > 0)
+                    || (options.isStageTransform());
+            System.setProperty("transforming", String.valueOf(isTransforming));
 
-            ctx = new MigrationContext(conf, isStaging, isTransforming);
+            Configuration conf = new SystemConfiguration();
+            ctx = new MigrationContext(conf, hasStagingResource, isTransforming);
             ctx.start();
 
-            if (isStaging) sendStagingExchange(options, ctx);
-            if (isTransforming) sendTransformationExchange(options, ctx);
+            if (hasStagingResource) sendStagingExchange(options, ctx);
+            if (hasTransformResource) sendTransformationExchange(options, ctx);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exit(1);
@@ -64,10 +68,10 @@ public class Main {
         ProducerTemplate template = ctx.createProducerTemplate();
         String routingSlip = buildRoutingSlip(options);
         if (routingSlip.isEmpty()) {
-            template.sendBody("direct:transforming", options.getTransformResource());
+            template.sendBody("direct:transform", options.getTransformResource());
         } else {
             template.sendBodyAndHeader(
-                    "direct:transforming", options.getTransformResource(),
+                    "direct:transform", options.getTransformResource(),
                     "transformations", routingSlip);
         }
     }

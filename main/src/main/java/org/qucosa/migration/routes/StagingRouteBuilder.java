@@ -75,7 +75,9 @@ public class StagingRouteBuilder extends RouteBuilder {
                         .retryAttemptedLogLevel(LoggingLevel.WARN))
                 .threads()
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
-                .to("sword:deposit");
+                .to("sword:deposit")
+                .choice().when(constant(config.getBoolean("transforming")))
+                .to("direct:transform");
 
         from("direct:deposit:dead")
                 .routeId("deposit-error")
