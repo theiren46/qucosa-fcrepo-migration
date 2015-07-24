@@ -20,13 +20,19 @@ package org.qucosa.migration.routes;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.RouteDefinition;
+import org.qucosa.migration.processors.transformations.MappingProcessor;
+import org.qucosa.migration.processors.transformations.TitleInfoProcessor;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
 
 public class TransformationRouteBuilder extends RouteBuilder {
     @Override
     public void configure() throws Exception {
+        configureTransformationPipeline();
+
         from("direct:transform")
                 .routeId("transform")
                 .to("direct:ds:prepare")
@@ -62,5 +68,26 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .to("http://localhost:8080/fedora")
                 .convertBodyTo(String.class)
                 .bean(ModsDocument.Factory.class, "parse(${body})");
+    }
+
+    private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
+        Class[] pipeline = {
+                TitleInfoProcessor.class
+        };
+
+        RouteDefinition all = from("direct:transform:all")
+                .routeId("all-transformations")
+                .log("Defaulting to perform all available transformations");
+
+        for (Class c : pipeline) {
+            MappingProcessor mp = (MappingProcessor) c.newInstance();
+            String uri = "direct:transform:" + mp.getLabel();
+
+            all.to(uri);
+            from(uri)
+                    .routeId("transform-" + mp.getLabel())
+                    .log("Processing...")
+                    .process(mp);
+        }
     }
 }

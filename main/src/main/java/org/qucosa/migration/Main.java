@@ -84,12 +84,14 @@ public class Main {
     private static String buildRoutingSlip(CommandLineOptions options) {
         StringBuilder sb = new StringBuilder();
         for (String m : options.getMappings()) {
-            sb.append("direct:")
+            sb.append("direct:transform:")
                     .append(m.toLowerCase())
                     .append(',');
         }
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);
+        } else {
+            sb.append("direct:transform:all");
         }
         return sb.toString();
     }
