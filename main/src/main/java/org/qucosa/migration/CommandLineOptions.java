@@ -45,8 +45,10 @@ public class CommandLineOptions {
     private String stageResource = null;
     @Option(
             name = "--stage-transform",
-            usage = "Applies transformation to staged resources if --stage-resource is given.",
-            depends = "--stage-resource"
+            usage = "Applies transformation to staged resources if --stage-resource is given.\n" +
+                    "Since it requires a successful deposit, it doesn't work with --noop.",
+            depends = "--stage-resource",
+            forbids = "--noop"
     )
     private Boolean stageTransform = false;
     @Option(
