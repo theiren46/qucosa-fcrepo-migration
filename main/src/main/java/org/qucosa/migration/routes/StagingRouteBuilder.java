@@ -20,6 +20,8 @@ package org.qucosa.migration.routes;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.commons.configuration.Configuration;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
 import org.qucosa.camel.component.sword.SwordDeposit;
 import org.qucosa.migration.processors.MetsGenerator;
@@ -33,6 +35,16 @@ public class StagingRouteBuilder extends RouteBuilder {
     public StagingRouteBuilder(Configuration configuration) {
         this.config = configuration;
     }
+
+    static public String extractPID(HttpResponse httpResponse) throws Exception {
+        Header locationHeader = httpResponse.getFirstHeader("Location");
+        if (locationHeader == null) {
+            throw new Exception("No location header in HTTP response.");
+        }
+        String locationStr = locationHeader.getValue();
+        return locationStr.substring(locationStr.lastIndexOf('/') + 1);
+    }
+
 
     @Override
     public void configure() throws Exception {
@@ -77,6 +89,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .to("sword:deposit")
                 .choice().when(constant(config.getBoolean("transforming")))
+                .transform(method(StagingRouteBuilder.class, "extractPID"))
                 .to("direct:transform");
 
         from("direct:deposit:dead")

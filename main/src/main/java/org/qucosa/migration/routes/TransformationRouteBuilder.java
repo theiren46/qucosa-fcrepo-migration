@@ -17,26 +17,50 @@
 
 package org.qucosa.migration.routes;
 
+import gov.loc.mods.v3.ModsDocument;
+import noNamespace.OpusDocument;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
+
+import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
 
 public class TransformationRouteBuilder extends RouteBuilder {
-    static public String extractPID(HttpResponse httpResponse) throws Exception {
-        Header locationHeader = httpResponse.getFirstHeader("Location");
-        if (locationHeader == null) {
-            throw new Exception("No location header in HTTP response.");
-        }
-        String locationStr = locationHeader.getValue();
-        return locationStr.substring(locationStr.lastIndexOf('/') + 1);
-    }
-
     @Override
     public void configure() throws Exception {
         from("direct:transform")
-                .routeId("transforming")
-                .bean(TransformationRouteBuilder.class, "extractPID")
-                .log("${body}")
+                .routeId("transform")
+                .to("direct:ds:prepare")
+                .multicast(aggregateHashBy(header("DSID")))
+                .parallelProcessing()
+                .stopOnException()
+                .to("direct:ds:qucosaxml", "direct:ds:mods")
+                .end()
                 .routingSlip(header("transformations")).ignoreInvalidEndpoints();
+
+        from("direct:ds:prepare")
+                .routeId("prepare-getting-datastream")
+                .setHeader("PID", body())
+                .setProperty("httpClient.authenticationPreemptive", constant(true))
+                .setProperty("httpClient.authMethod", constant("Basic"))
+                .setProperty("httpClient.authUsername", constant("fedoraAdmin"))
+                .setProperty("httpClient.authPassword", constant("fedoraAdmin"))
+                .setHeader(Exchange.HTTP_METHOD, constant("GET"))
+                .setBody(constant(""));
+
+        from("direct:ds:qucosaxml")
+                .routeId("get-qucosaxml")
+                .setHeader("DSID", constant("QUCOSA-XML"))
+                .setHeader(Exchange.HTTP_PATH, simple("/objects/${header[PID]}/datastreams/${header[DSID]}/content"))
+                .to("http://localhost:8080/fedora")
+                .convertBodyTo(String.class)
+                .bean(OpusDocument.Factory.class, "parse(${body})");
+
+        from("direct:ds:mods")
+                .routeId("get-mods")
+                .setHeader("DSID", constant("MODS"))
+                .setHeader(Exchange.HTTP_PATH, simple("/objects/${header[PID]}/datastreams/${header[DSID]}/content"))
+                .to("http://localhost:8080/fedora")
+                .convertBodyTo(String.class)
+                .bean(ModsDocument.Factory.class, "parse(${body})");
     }
 }
