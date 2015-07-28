@@ -22,17 +22,18 @@ import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public abstract class MappingProcessor implements Processor {
@@ -105,19 +106,28 @@ public abstract class MappingProcessor implements Processor {
         return this.changes;
     }
 
-    protected XmlObject selectOrCreate(String elementName, XmlObject xmlObject) throws XPathExpressionException, XmlException {
+    protected XmlObject select(String elementName, XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
-        cursor.toChild(new QName(NS_MODS_V3, elementName));
-        XmlObject result = cursor.getObject();
-
-        if (result == null) {
-            cursor.insertElement(elementName, NS_MODS_V3);
-            cursor.toPrevSibling();
-            result = cursor.getObject();
-            signalChanges();
+        if (cursor.toChild(new QName(NS_MODS_V3, elementName))) {
+            return cursor.getObject();
         }
-
         cursor.dispose();
-        return result;
+        return null;
+    }
+
+    public String languageEncoding(String code) {
+        if (code != null) {
+            if (code.length() != 3) {
+                return Locale.forLanguageTag(code).getISO3Language();
+            }
+        }
+        return code;
+    }
+
+    protected Boolean nodeExists(String expression, XmlObject object) throws XPathExpressionException {
+        final XPath xPath = getXPath();
+        xPath.reset();
+        return (Boolean) xPath.evaluate(expression,
+                object.getDomNode().cloneNode(true), XPathConstants.BOOLEAN);
     }
 }

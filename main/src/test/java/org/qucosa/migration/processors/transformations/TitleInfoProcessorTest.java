@@ -21,8 +21,9 @@ import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.StringPlusLanguage;
 import noNamespace.OpusDocument;
+import noNamespace.Title;
 import org.apache.xmlbeans.XmlException;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -31,16 +32,17 @@ import static org.junit.Assert.*;
 
 public class TitleInfoProcessorTest {
 
-    private static ModsDocument inputModsDocument;
-    private static OpusDocument inputOpusDocument;
-    private static MappingProcessor processor = new TitleInfoProcessor();
+    private ModsDocument inputModsDocument;
+    private OpusDocument inputOpusDocument;
+    private MappingProcessor processor = new TitleInfoProcessor();
 
-    @BeforeClass
-    public static void setup() throws IOException, XmlException {
-        inputModsDocument = ModsDocument.Factory.parse(
-                TitleInfoProcessorTest.class.getResourceAsStream("/mods/base_mods.xml"));
-        inputOpusDocument = OpusDocument.Factory.parse(
-                TitleInfoProcessorTest.class.getResourceAsStream("/opus/titleinfo.xml"));
+    @Before
+    public void setupBasisDatastreams() throws IOException, XmlException {
+        inputModsDocument = ModsDocument.Factory.newInstance();
+        inputModsDocument.addNewMods();
+
+        inputOpusDocument = OpusDocument.Factory.newInstance();
+        inputOpusDocument.addNewOpus().addNewOpusDocument();
     }
 
     @Test
@@ -50,34 +52,57 @@ public class TitleInfoProcessorTest {
 
     @Test
     public void extractsTitleMain() throws Exception {
+        final String language = "ger";
+        final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
+        addTitleMain(language, value);
+
         ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
 
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
-        assertEquals("ger", outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
-        assertEquals("Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung",
+        assertEquals(language, outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
+        assertEquals(value,
                 outputMods.getTitleInfoArray(0).getTitleArray(0).getStringValue());
     }
 
     @Test
     public void extractsTitleSub() throws Exception {
+        final String language = "eng";
+        final String value = "The Incredibly Strange Creatures Who Stopped Living and Became Mixed-Up Zombies";
+        addTitleSub(language, value);
+
         ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
 
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
-        assertEquals("eng", outputMods.getTitleInfoArray(0).getSubTitleArray(0).getLang());
-        assertEquals("The Incredibly Strange Creatures Who Stopped Living and Became Mixed-Up Zombies",
+        assertEquals(language, outputMods.getTitleInfoArray(0).getSubTitleArray(0).getLang());
+        assertEquals(value,
                 outputMods.getTitleInfoArray(0).getSubTitleArray(0).getStringValue());
     }
 
     @Test
     public void noChangesWhenTitleMainAlreadyPresent() throws Exception {
+        final String language = "ger";
+        final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
+        addTitleMain(language, value);
+
         StringPlusLanguage title = inputModsDocument.getMods().addNewTitleInfo().addNewTitle();
-        title.setLang("ger");
-        title.setStringValue("Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung");
+        title.setLang(language);
+        title.setStringValue(value);
 
         processor.process(inputOpusDocument, inputModsDocument);
 
         assertFalse(processor.hasChanges());
     }
 
+    private void addTitleMain(String language, String value) {
+        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleMain();
+        ot.setLanguage(language);
+        ot.setValue(value);
+    }
+
+    private void addTitleSub(String language, String value) {
+        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleSub();
+        ot.setLanguage(language);
+        ot.setValue(value);
+    }
 
 }
