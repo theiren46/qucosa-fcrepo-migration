@@ -49,7 +49,7 @@ public class MigrationContext extends DefaultCamelContext {
             addRoutes(new StagingRouteBuilder(conf));
         }
 
-        if (isTransforming) addRoutes(new TransformationRouteBuilder());
+        if (isTransforming) addRoutes(new TransformationRouteBuilder(conf));
 
         setStreamCaching(true);
         setAllowUseOriginalMessage(false);

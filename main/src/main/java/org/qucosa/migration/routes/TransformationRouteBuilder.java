@@ -20,16 +20,26 @@ package org.qucosa.migration.routes;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.BasicAuthenticationHttpClientConfigurer;
 import org.apache.camel.component.http.HttpEndpoint;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.qucosa.migration.processors.transformations.MappingProcessor;
 import org.qucosa.migration.processors.transformations.TitleInfoProcessor;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
 
 public class TransformationRouteBuilder extends RouteBuilder {
+
+    private final Configuration configuration;
+
+    public TransformationRouteBuilder(Configuration conf) {
+        this.configuration = conf;
+    }
+
     @Override
     public void configure() throws Exception {
         configureTransformationPipeline();
@@ -44,7 +54,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .routingSlip(header("transformations")).ignoreInvalidEndpoints()
                 .to("direct:ds:update");
 
-        final String uri = "http://localhost:8080/fedora";
+        final String uri = getConfigValueOrThrowException("fedora.url");
         final String datastreamPath = "/objects/${header[PID]}/datastreams/${header[DSID]}";
 
         from("direct:ds:qucosaxml")
@@ -77,19 +87,22 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .choice()
 
                 .when(simple("${exchangeProperty[MODS_CHANGES]} == true"))
-                .log("Update ${header[PID]}")
+                .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
                 .setHeader("DSID", constant("MODS"))
                 .setHeader(Exchange.HTTP_METHOD, constant("PUT"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
+                .setHeader(Exchange.CONTENT_TYPE, constant("application/mods+xml"))
                 .convertBodyTo(String.class)
                 .to(uri)
 
                 .otherwise()
-                .log("Update skipped: No changes in MODS datastream for ${header[PID]}");
+                .log(LoggingLevel.DEBUG, "Update skipped: No changes in MODS datastream for ${header[PID]}");
 
         HttpEndpoint httpEndpoint = (HttpEndpoint) getContext().getEndpoint(uri);
         httpEndpoint.setHttpClientConfigurer(
-                new BasicAuthenticationHttpClientConfigurer(false, "fedoraAdmin", "fedoraAdmin"));
+                new BasicAuthenticationHttpClientConfigurer(false,
+                        getConfigValueOrThrowException("sword.user"),
+                        getConfigValueOrThrowException("sword.password")));
     }
 
     private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
@@ -111,5 +124,13 @@ public class TransformationRouteBuilder extends RouteBuilder {
                     .log("Processing...")
                     .process(mp);
         }
+    }
+
+    private String getConfigValueOrThrowException(String key) throws ConfigurationException {
+        String val = configuration.getString(key, null);
+        if (val == null) {
+            throw new ConfigurationException("No config value for " + key);
+        }
+        return val;
     }
 }
