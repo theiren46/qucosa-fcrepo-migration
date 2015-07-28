@@ -26,6 +26,7 @@ import gov.loc.mets.MetsDocument.Mets;
 import gov.loc.mets.MetsType.FileSec.FileGrp;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.StringPlusLanguage;
 import gov.loc.mods.v3.TitleInfoDefinition;
 import noNamespace.File;
 import noNamespace.Hash;
@@ -190,9 +191,9 @@ public class MetsGenerator implements Processor {
         }
 
         final TitleInfoDefinition titleInfo = modsRecord.addNewTitleInfo();
-        titleInfo.setLang(lang);
-        titleInfo.setUsage(org.apache.xmlbeans.XmlString.Factory.newValue("primary"));
-        titleInfo.addNewTitle().setStringValue(title);
+        StringPlusLanguage mt = titleInfo.addNewTitle();
+        mt.setStringValue(title);
+        mt.setLang(lang);
 
         mdWrap.addNewXmlData().set(modsDocument);
     }
