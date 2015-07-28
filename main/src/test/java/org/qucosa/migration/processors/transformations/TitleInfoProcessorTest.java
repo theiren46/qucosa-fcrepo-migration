@@ -93,6 +93,16 @@ public class TitleInfoProcessorTest {
         assertFalse(processor.hasChanges());
     }
 
+    @Test
+    public void noLanguageAttributeIfNoLanguageSpecified() throws Exception {
+        final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
+        addTitleMain(null, value);
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        assertNull(outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
+    }
+
     private void addTitleMain(String language, String value) {
         Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleMain();
         ot.setLanguage(language);
