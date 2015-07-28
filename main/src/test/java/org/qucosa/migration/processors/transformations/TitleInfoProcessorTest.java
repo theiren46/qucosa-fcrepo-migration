@@ -19,24 +19,21 @@ package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.StringPlusLanguage;
 import noNamespace.OpusDocument;
 import org.apache.xmlbeans.XmlException;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class TitleInfoProcessorTest {
 
     private static ModsDocument inputModsDocument;
     private static OpusDocument inputOpusDocument;
     private static MappingProcessor processor = new TitleInfoProcessor();
-
-    private ModsDefinition outputMods;
 
     @BeforeClass
     public static void setup() throws IOException, XmlException {
@@ -46,18 +43,15 @@ public class TitleInfoProcessorTest {
                 TitleInfoProcessorTest.class.getResourceAsStream("/opus/titleinfo.xml"));
     }
 
-    @Before
-    public void runProcessor() {
-        outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
-    }
-
     @Test
     public void hasCorrectLabel() {
         assertEquals("titleinfo", processor.getLabel());
     }
 
     @Test
-    public void extractsTitleMain() {
+    public void extractsTitleMain() throws Exception {
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
         assertEquals("ger", outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
         assertEquals("Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung",
@@ -65,11 +59,25 @@ public class TitleInfoProcessorTest {
     }
 
     @Test
-    public void extractsTitleSub() {
+    public void extractsTitleSub() throws Exception {
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
         assertEquals("eng", outputMods.getTitleInfoArray(0).getSubTitleArray(0).getLang());
         assertEquals("The Incredibly Strange Creatures Who Stopped Living and Became Mixed-Up Zombies",
                 outputMods.getTitleInfoArray(0).getSubTitleArray(0).getStringValue());
     }
+
+    @Test
+    public void noChangesWhenTitleMainAlreadyPresent() throws Exception {
+        StringPlusLanguage title = inputModsDocument.getMods().addNewTitleInfo().addNewTitle();
+        title.setLang("ger");
+        title.setStringValue("Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung");
+
+        processor.process(inputOpusDocument, inputModsDocument);
+
+        assertFalse(processor.hasChanges());
+    }
+
 
 }
