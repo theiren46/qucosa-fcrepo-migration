@@ -18,45 +18,16 @@
 package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.ModsDefinition;
-import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.StringPlusLanguage;
-import noNamespace.OpusDocument;
 import noNamespace.Title;
-import org.apache.xmlbeans.XmlException;
-import org.custommonkey.xmlunit.NamespaceContext;
-import org.custommonkey.xmlunit.SimpleNamespaceContext;
 import org.custommonkey.xmlunit.XMLAssert;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
-public class TitleInfoProcessorTest {
+public class TitleInfoProcessorTest extends ProcessorTestBase {
 
-    static {
-        NamespaceContext ctx = new SimpleNamespaceContext(
-                new HashMap() {{
-                    put("mods", MappingProcessor.NS_MODS_V3);
-                }});
-        XMLUnit.setXpathNamespaceContext(ctx);
-    }
-
-    private ModsDocument inputModsDocument;
-    private OpusDocument inputOpusDocument;
     private MappingProcessor processor = new TitleInfoProcessor();
-
-    @Before
-    public void setupBasisDatastreams() throws IOException, XmlException {
-        inputModsDocument = ModsDocument.Factory.newInstance();
-        inputModsDocument.addNewMods();
-
-        inputOpusDocument = OpusDocument.Factory.newInstance();
-        inputOpusDocument.addNewOpus().addNewOpusDocument();
-    }
 
     @Test
     public void hasCorrectLabel() {
