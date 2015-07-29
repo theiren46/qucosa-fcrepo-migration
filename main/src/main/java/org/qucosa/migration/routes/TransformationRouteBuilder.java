@@ -27,6 +27,7 @@ import org.apache.camel.component.http.HttpEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.qucosa.migration.processors.transformations.IdentifierProcessor;
 import org.qucosa.migration.processors.transformations.MappingProcessor;
 import org.qucosa.migration.processors.transformations.TitleInfoProcessor;
 
@@ -107,7 +108,8 @@ public class TransformationRouteBuilder extends RouteBuilder {
 
     private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
         Class[] pipeline = {
-                TitleInfoProcessor.class
+                TitleInfoProcessor.class,
+                IdentifierProcessor.class
         };
 
         RouteDefinition all = from("direct:transform:all")

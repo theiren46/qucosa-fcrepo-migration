@@ -30,10 +30,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public abstract class MappingProcessor implements Processor {
     public static final String NS_MODS_V3 = "http://www.loc.gov/mods/v3";
@@ -111,6 +108,17 @@ public abstract class MappingProcessor implements Processor {
         XmlObject result = cursor.toNextSelection() ? cursor.getObject() : null;
         cursor.dispose();
         return result;
+    }
+
+    protected List<XmlObject> selectAll(String query, XmlObject xmlObject) {
+        List<XmlObject> results = new ArrayList<>();
+        XmlCursor cursor = xmlObject.newCursor();
+        cursor.selectPath("declare namespace mods='" + NS_MODS_V3 + "'" + query);
+        while (cursor.toNextSelection()) {
+            results.add(cursor.getObject());
+        }
+        cursor.dispose();
+        return results;
     }
 
 
