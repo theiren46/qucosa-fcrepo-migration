@@ -77,7 +77,8 @@ public abstract class MappingProcessor implements Processor {
         Map m = (Map) exchange.getIn().getBody();
         changes = false;
         ModsDocument result = process((OpusDocument) m.get("QUCOSA-XML"), (ModsDocument) m.get("MODS"));
-        exchange.getIn().setBody(result);
+        m.put("MODS", result);
+        exchange.getIn().setBody(m);
         exchange.setProperty("MODS_CHANGES", changes);
     }
 

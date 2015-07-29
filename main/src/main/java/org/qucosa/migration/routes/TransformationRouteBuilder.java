@@ -93,7 +93,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("PUT"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
                 .setHeader(Exchange.CONTENT_TYPE, constant("application/mods+xml"))
-                .convertBodyTo(String.class)
+                .transform(simple("${body[MODS]}")).convertBodyTo(String.class)
                 .to(uri)
 
                 .otherwise()
