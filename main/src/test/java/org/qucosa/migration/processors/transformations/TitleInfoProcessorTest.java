@@ -23,14 +23,27 @@ import gov.loc.mods.v3.StringPlusLanguage;
 import noNamespace.OpusDocument;
 import noNamespace.Title;
 import org.apache.xmlbeans.XmlException;
+import org.custommonkey.xmlunit.NamespaceContext;
+import org.custommonkey.xmlunit.SimpleNamespaceContext;
+import org.custommonkey.xmlunit.XMLAssert;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import static org.junit.Assert.*;
 
 public class TitleInfoProcessorTest {
+
+    static {
+        NamespaceContext ctx = new SimpleNamespaceContext(
+                new HashMap() {{
+                    put("mods", MappingProcessor.NS_MODS_V3);
+                }});
+        XMLUnit.setXpathNamespaceContext(ctx);
+    }
 
     private ModsDocument inputModsDocument;
     private OpusDocument inputOpusDocument;
@@ -79,6 +92,19 @@ public class TitleInfoProcessorTest {
     }
 
     @Test
+    public void extractsTitleAlternative() throws Exception {
+        final String language = "ger";
+        final String value = "Schülerecho";
+        addTitleAlternative(language, value);
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:titleInfo[@type='alternative']/mods:title[@lang='" + language + "' and text()='" + value + "']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
+    @Test
     public void noChangesWhenTitleMainAlreadyPresent() throws Exception {
         final String language = "ger";
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
@@ -115,4 +141,9 @@ public class TitleInfoProcessorTest {
         ot.setValue(value);
     }
 
+    private void addTitleAlternative(String language, String value) {
+        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleAlternative();
+        ot.setLanguage(language);
+        ot.setValue(value);
+    }
 }

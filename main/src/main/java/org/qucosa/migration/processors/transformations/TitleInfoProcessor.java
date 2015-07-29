@@ -26,11 +26,14 @@ import noNamespace.Title;
 
 import javax.xml.xpath.XPathExpressionException;
 
+import static gov.loc.mods.v3.TitleInfoDefinition.Type.ALTERNATIVE;
+
 public class TitleInfoProcessor extends MappingProcessor {
     @Override
     public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
         ModsDefinition modsDefinition = modsDocument.getMods();
         mapTitleElements(opusDocument, modsDefinition);
+        mapTitleAlternativeElements(opusDocument, modsDefinition);
         return modsDocument;
     }
 
@@ -38,9 +41,11 @@ public class TitleInfoProcessor extends MappingProcessor {
             throws XPathExpressionException {
 
         TitleInfoDefinition titleInfoDefinition =
-                (TitleInfoDefinition) select("titleInfo", modsDefinition);
+                (TitleInfoDefinition) select("mods:titleInfo", modsDefinition);
 
-        if (titleInfoDefinition == null) {
+        if (titleInfoDefinition == null
+                && (nodeExists("TitleMain", opusDocument.getOpus().getOpusDocument())
+                || nodeExists("TitleSub", opusDocument.getOpus().getOpusDocument()))) {
             titleInfoDefinition = modsDefinition.addNewTitleInfo();
             signalChanges();
         }
@@ -49,7 +54,35 @@ public class TitleInfoProcessor extends MappingProcessor {
         mapTitleMainElements(opusDocument, titleInfoDefinition);
     }
 
-    private void mapTitleSubElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition) throws XPathExpressionException {
+    private void mapTitleAlternativeElements(OpusDocument opusDocument, ModsDefinition modsDefinition) throws XPathExpressionException {
+        TitleInfoDefinition titleInfoDefinition =
+                (TitleInfoDefinition) select("mods:titleInfo[@type='alternative']", modsDefinition);
+
+        if (titleInfoDefinition == null
+                && nodeExists("TitleAlternative", opusDocument.getOpus().getOpusDocument())) {
+            titleInfoDefinition = modsDefinition.addNewTitleInfo();
+            titleInfoDefinition.setType(ALTERNATIVE);
+            signalChanges();
+        }
+
+        mapTitleAlternativeElements(opusDocument, titleInfoDefinition);
+    }
+
+    private void mapTitleAlternativeElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
+            throws XPathExpressionException {
+        for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleAlternativeArray()) {
+            String query = splQuery("mods:title", languageEncoding(ot.getLanguage()), ot.getValue());
+            if (!nodeExists(query, titleInfoDefinition)) {
+                StringPlusLanguage mt = titleInfoDefinition.addNewTitle();
+                mt.setLang(ot.getLanguage());
+                mt.setStringValue(ot.getValue());
+                signalChanges();
+            }
+        }
+    }
+
+    private void mapTitleSubElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
+            throws XPathExpressionException {
         for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleSubArray()) {
             String query = splQuery("mods:subTitle", languageEncoding(ot.getLanguage()), ot.getValue());
             if (!nodeExists(query, titleInfoDefinition)) {
@@ -61,7 +94,8 @@ public class TitleInfoProcessor extends MappingProcessor {
         }
     }
 
-    private void mapTitleMainElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition) throws XPathExpressionException {
+    private void mapTitleMainElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
+            throws XPathExpressionException {
         for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleMainArray()) {
             String query = splQuery("mods:title", languageEncoding(ot.getLanguage()), ot.getValue());
             if (!nodeExists(query, titleInfoDefinition)) {

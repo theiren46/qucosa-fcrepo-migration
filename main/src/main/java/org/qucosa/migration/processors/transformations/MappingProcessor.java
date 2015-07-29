@@ -106,14 +106,14 @@ public abstract class MappingProcessor implements Processor {
         return this.changes;
     }
 
-    protected XmlObject select(String elementName, XmlObject xmlObject) {
+    protected XmlObject select(String query, XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
-        if (cursor.toChild(new QName(NS_MODS_V3, elementName))) {
-            return cursor.getObject();
-        }
+        cursor.selectPath("declare namespace mods='" + NS_MODS_V3 + "'" + query);
+        XmlObject result = cursor.toNextSelection() ? cursor.getObject() : null;
         cursor.dispose();
-        return null;
+        return result;
     }
+
 
     public String languageEncoding(String code) {
         if (code != null) {
