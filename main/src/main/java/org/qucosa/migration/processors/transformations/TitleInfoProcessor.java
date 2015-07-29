@@ -54,7 +54,9 @@ public class TitleInfoProcessor extends MappingProcessor {
         mapTitleMainElements(opusDocument, titleInfoDefinition);
     }
 
-    private void mapTitleAlternativeElements(OpusDocument opusDocument, ModsDefinition modsDefinition) throws XPathExpressionException {
+    private void mapTitleAlternativeElements(OpusDocument opusDocument, ModsDefinition modsDefinition)
+            throws XPathExpressionException {
+
         TitleInfoDefinition titleInfoDefinition =
                 (TitleInfoDefinition) select("mods:titleInfo[@type='alternative']", modsDefinition);
 
@@ -70,6 +72,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
     private void mapTitleAlternativeElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
             throws XPathExpressionException {
+
         for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleAlternativeArray()) {
             String query = splQuery("mods:title", languageEncoding(ot.getLanguage()), ot.getValue());
             if (!nodeExists(query, titleInfoDefinition)) {
@@ -83,6 +86,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
     private void mapTitleSubElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
             throws XPathExpressionException {
+
         for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleSubArray()) {
             String query = splQuery("mods:subTitle", languageEncoding(ot.getLanguage()), ot.getValue());
             if (!nodeExists(query, titleInfoDefinition)) {
@@ -96,6 +100,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
     private void mapTitleMainElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
             throws XPathExpressionException {
+
         for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleMainArray()) {
             String query = splQuery("mods:title", languageEncoding(ot.getLanguage()), ot.getValue());
             if (!nodeExists(query, titleInfoDefinition)) {
