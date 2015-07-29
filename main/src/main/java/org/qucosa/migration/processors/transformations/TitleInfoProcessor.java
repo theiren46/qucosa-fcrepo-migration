@@ -36,61 +36,64 @@ public class TitleInfoProcessor extends MappingProcessor {
     private void mapTitleElements(OpusDocument opusDocument, ModsDefinition modsDefinition)
             throws XPathExpressionException {
 
-        TitleInfoDefinition titleInfoDefinition =
-                (TitleInfoDefinition) select("mods:titleInfo", modsDefinition);
-
-        if (titleInfoDefinition == null
-                && (nodeExists("TitleMain", opusDocument.getOpus().getOpusDocument())
+        if ((nodeExists("TitleMain", opusDocument.getOpus().getOpusDocument())
                 || nodeExists("TitleSub", opusDocument.getOpus().getOpusDocument()))) {
-            titleInfoDefinition = modsDefinition.addNewTitleInfo();
-            signalChanges();
-        }
 
-        mapTitleSubElements(opusDocument, titleInfoDefinition);
-        mapTitleMainElements(opusDocument, titleInfoDefinition);
+            TitleInfoDefinition titleInfoDefinition =
+                    (TitleInfoDefinition) select("mods:titleInfo", modsDefinition);
+
+            if (titleInfoDefinition == null) {
+                titleInfoDefinition = modsDefinition.addNewTitleInfo();
+                signalChanges();
+            }
+
+            mapTitleSubElements(opusDocument, titleInfoDefinition);
+            mapTitleMainElements(opusDocument, titleInfoDefinition);
+        }
     }
 
     private void mapTitleAlternativeElements(OpusDocument opusDocument, ModsDefinition modsDefinition)
             throws XPathExpressionException {
 
-        TitleInfoDefinition titleInfoDefinition =
-                (TitleInfoDefinition) select("mods:titleInfo[@type='alternative']", modsDefinition);
+        if (nodeExists("TitleAlternative", opusDocument.getOpus().getOpusDocument())) {
 
-        if (titleInfoDefinition == null
-                && nodeExists("TitleAlternative", opusDocument.getOpus().getOpusDocument())) {
-            titleInfoDefinition = modsDefinition.addNewTitleInfo();
-            titleInfoDefinition.setType(TitleInfoDefinition.Type.ALTERNATIVE);
-            signalChanges();
+            TitleInfoDefinition titleInfoDefinition =
+                    (TitleInfoDefinition) select("mods:titleInfo[@type='alternative']", modsDefinition);
+
+            if (titleInfoDefinition == null) {
+                titleInfoDefinition = modsDefinition.addNewTitleInfo();
+                titleInfoDefinition.setType(TitleInfoDefinition.Type.ALTERNATIVE);
+                signalChanges();
+            }
+
+            mapTitleAlternativeElements(opusDocument, titleInfoDefinition);
         }
-
-        mapTitleAlternativeElements(opusDocument, titleInfoDefinition);
     }
 
     private void mapTitleParentElements(OpusDocument opusDocument, ModsDefinition modsDefinition)
             throws XPathExpressionException {
 
-        if (!nodeExists("TitleParent", opusDocument.getOpus().getOpusDocument())) {
-            return;
+        if (nodeExists("TitleParent", opusDocument.getOpus().getOpusDocument())) {
+
+            RelatedItemDefinition relatedItemDefinition =
+                    (RelatedItemDefinition) select("mods:relatedItem[@type='series']", modsDefinition);
+
+            if (relatedItemDefinition == null) {
+                relatedItemDefinition = modsDefinition.addNewRelatedItem();
+                relatedItemDefinition.setType(RelatedItemDefinition.Type.SERIES);
+                signalChanges();
+            }
+
+            TitleInfoDefinition titleInfoDefinition =
+                    (TitleInfoDefinition) select("mods:titleInfo", relatedItemDefinition);
+
+            if (titleInfoDefinition == null) {
+                titleInfoDefinition = relatedItemDefinition.addNewTitleInfo();
+                signalChanges();
+            }
+
+            mapTitleParentElements(opusDocument, titleInfoDefinition);
         }
-
-        RelatedItemDefinition relatedItemDefinition =
-                (RelatedItemDefinition) select("mods:relatedItem[@type='series']", modsDefinition);
-
-        if (relatedItemDefinition == null) {
-            relatedItemDefinition = modsDefinition.addNewRelatedItem();
-            relatedItemDefinition.setType(RelatedItemDefinition.Type.SERIES);
-            signalChanges();
-        }
-
-        TitleInfoDefinition titleInfoDefinition =
-                (TitleInfoDefinition) select("mods:titleInfo", relatedItemDefinition);
-
-        if (titleInfoDefinition == null) {
-            titleInfoDefinition = relatedItemDefinition.addNewTitleInfo();
-            signalChanges();
-        }
-
-        mapTitleParentElements(opusDocument, titleInfoDefinition);
     }
 
     private void mapTitleAlternativeElements(OpusDocument opusDocument, TitleInfoDefinition titleInfoDefinition)
