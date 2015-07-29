@@ -25,13 +25,14 @@ import org.apache.camel.impl.DefaultExchange;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
 
 public class MappingProcessorTest {
 
     @Test
-    public void setsChangesPropertyToExhangeIfProcessorReportsChanges() throws Exception {
+    public void setsChangesPropertyToExchangeIfProcessorReportsChanges() throws Exception {
         MappingProcessor mappingProcessor = new MappingProcessor() {
             @Override
             public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) {
@@ -50,6 +51,29 @@ public class MappingProcessorTest {
         mappingProcessor.process(exchange);
 
         assertTrue((Boolean) exchange.getProperty("MODS_CHANGES"));
+    }
+
+    @Test
+    public void returnsMapInExchangeBody() throws Exception {
+        MappingProcessor mappingProcessor = new MappingProcessor() {
+            @Override
+            public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+                return null;
+            }
+        };
+
+        Exchange exchange = new DefaultExchange(new DefaultCamelContext());
+        exchange.getIn().setBody(new HashMap<String, Object>() {{
+            put("QUCOSA-XML", null);
+            put("MODS", null);
+        }});
+
+        mappingProcessor.process(exchange);
+
+        final Object body = exchange.getIn().getBody();
+        assertTrue(body instanceof Map);
+        assertTrue(((Map)body).containsKey("QUCOSA-XML"));
+        assertTrue(((Map)body).containsKey("MODS"));
     }
 
 }
