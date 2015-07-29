@@ -105,6 +105,21 @@ public class TitleInfoProcessorTest {
     }
 
     @Test
+    public void extractsTitleParent() throws Exception {
+        final String language = "ger";
+        final String value = "Forschungsberichte des Instituts für Wirtschaftsinformatik";
+        addTitleParent(language, value);
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:relatedItem[@type='series']/mods:titleInfo/" +
+                        "mods:title[@lang='" + language + "' and text()='" + value + "']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
+
+    @Test
     public void noChangesWhenTitleMainAlreadyPresent() throws Exception {
         final String language = "ger";
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
@@ -143,6 +158,12 @@ public class TitleInfoProcessorTest {
 
     private void addTitleAlternative(String language, String value) {
         Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleAlternative();
+        ot.setLanguage(language);
+        ot.setValue(value);
+    }
+
+    private void addTitleParent(String language, String value) {
+        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleParent();
         ot.setLanguage(language);
         ot.setValue(value);
     }
