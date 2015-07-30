@@ -48,8 +48,15 @@ public class Main {
             ctx = new MigrationContext(conf, hasStagingResource, isTransforming);
             ctx.start();
 
-            if (hasStagingResource) sendStagingExchange(options, ctx);
-            if (hasTransformResource) sendTransformationExchange(options, ctx);
+            final String routingSlip = buildTransformationRoutingSlip(options);
+
+            if (hasStagingResource) {
+                sendExchange("direct:staging", options.getStageResource(), ctx, routingSlip);
+            }
+
+            if (hasTransformResource) {
+                sendExchange("direct:transform", options.getTransformResource(), ctx, routingSlip);
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             exit(1);
@@ -64,24 +71,18 @@ public class Main {
         }
     }
 
-    private static void sendTransformationExchange(CommandLineOptions options, CamelContext ctx) {
+    private static void sendExchange(String endpointUri, String resource, CamelContext ctx, String routingSlip) {
         ProducerTemplate template = ctx.createProducerTemplate();
-        String routingSlip = buildRoutingSlip(options);
         if (routingSlip.isEmpty()) {
-            template.sendBody("direct:transform", options.getTransformResource());
+            template.sendBody(endpointUri, resource);
         } else {
             template.sendBodyAndHeader(
-                    "direct:transform", options.getTransformResource(),
+                    endpointUri, resource,
                     "transformations", routingSlip);
         }
     }
 
-    private static void sendStagingExchange(CommandLineOptions options, CamelContext ctx) {
-        ProducerTemplate template = ctx.createProducerTemplate();
-        template.sendBody("direct:staging", options.getStageResource());
-    }
-
-    private static String buildRoutingSlip(CommandLineOptions options) {
+    private static String buildTransformationRoutingSlip(CommandLineOptions options) {
         StringBuilder sb = new StringBuilder();
         for (String m : options.getMappings()) {
             sb.append("direct:transform:")
