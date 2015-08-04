@@ -18,17 +18,10 @@
 package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.*;
-import noNamespace.Date;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 
 import javax.xml.xpath.XPathExpressionException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 import static gov.loc.mods.v3.CodeOrText.CODE;
 import static gov.loc.mods.v3.DateDefinition.Encoding.ISO_8601;
@@ -62,13 +55,31 @@ public class PublicationInfoProcessor extends MappingProcessor {
             }
 
             if (hasCompletedDate) mapCompletedDate(opus, oid);
+            if (hasCompletedYear) mapCompletedYear(opus, oid);
 
         }
     }
 
+    private void mapCompletedYear(Document opus, OriginInfoDefinition oid) {
+        final String mappedCompletedYear = dateEncoding(opus.getCompletedYear());
+
+        DateDefinition dateIssuedDefinition = (DateDefinition)
+                select("mods:dateIssued[@encoding='iso8601']", oid);
+
+        if (dateIssuedDefinition == null) {
+            dateIssuedDefinition = oid.addNewDateIssued();
+            dateIssuedDefinition.setEncoding(ISO_8601);
+            signalChanges();
+        }
+
+        if (!dateIssuedDefinition.getStringValue().equals(mappedCompletedYear)) {
+            dateIssuedDefinition.setStringValue(mappedCompletedYear);
+            signalChanges();
+        }
+    }
+
     private void mapCompletedDate(Document opus, OriginInfoDefinition oid) {
-        Date completedDate = opus.getCompletedDate();
-        final String dateEncoding = dateEncoding(completedDate);
+        final String mappedDateEncoding = dateEncoding(opus.getCompletedDate());
 
         DateOtherDefinition dateOther = (DateOtherDefinition)
                 select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
@@ -78,29 +89,13 @@ public class PublicationInfoProcessor extends MappingProcessor {
             dateOther = oid.addNewDateOther();
             dateOther.setEncoding(ISO_8601);
             dateOther.setType("submission");
+            signalChanges();
         }
 
-        dateOther.setStringValue(dateEncoding);
-        signalChanges();
-    }
-
-    private String dateEncoding(Date date) {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-        TimeZone tz;
-        GregorianCalendar cal;
-        if (date.getTimezone() != null) {
-            tz = SimpleTimeZone.getTimeZone(date.getTimezone());
-            cal = new GregorianCalendar(tz);
-        } else {
-            cal = new GregorianCalendar();
+        if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
+            dateOther.setStringValue(mappedDateEncoding);
+            signalChanges();
         }
-
-        cal.set(Calendar.YEAR, date.getYear().intValue());
-        cal.set(Calendar.MONTH, date.getMonth().intValue() - 1);
-        cal.set(Calendar.DAY_OF_MONTH, date.getDay().intValue());
-
-        return dateFormat.format(cal.getTime());
     }
 
     private void mapLanguageElement(Document opus, ModsDefinition mods) throws XPathExpressionException {

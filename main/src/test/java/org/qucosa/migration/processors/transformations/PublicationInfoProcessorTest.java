@@ -54,10 +54,21 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
 
         ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
 
-
         XMLAssert.assertXpathExists(
                 "//mods:originInfo[@eventType='publication']/" +
                         "mods:dateOther[@encoding='iso8601' and @type='submission' and text()='2009-06-04']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void extractsCompletedYear() throws Exception {
+        inputOpusDocument.getOpus().getOpusDocument().setCompletedYear(BigInteger.valueOf(2009));
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:dateIssued[@encoding='iso8601' and text()='2009']",
                 outputMods.getDomNode().getOwnerDocument());
     }
 

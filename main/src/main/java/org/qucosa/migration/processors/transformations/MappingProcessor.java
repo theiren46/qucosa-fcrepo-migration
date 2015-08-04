@@ -30,6 +30,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.math.BigInteger;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class MappingProcessor implements Processor {
@@ -137,5 +140,31 @@ public abstract class MappingProcessor implements Processor {
         xPath.reset();
         return (Boolean) xPath.evaluate(expression,
                 object.getDomNode().cloneNode(true), XPathConstants.BOOLEAN);
+    }
+
+    protected String dateEncoding(BigInteger year) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy");
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.YEAR, year.intValue());
+        return dateFormat.format(cal.getTime());
+    }
+
+    protected String dateEncoding(noNamespace.Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        TimeZone tz;
+        GregorianCalendar cal;
+        if (date.getTimezone() != null) {
+            tz = SimpleTimeZone.getTimeZone(date.getTimezone());
+            cal = new GregorianCalendar(tz);
+        } else {
+            cal = new GregorianCalendar();
+        }
+
+        cal.set(Calendar.YEAR, date.getYear().intValue());
+        cal.set(Calendar.MONTH, date.getMonth().intValue() - 1);
+        cal.set(Calendar.DAY_OF_MONTH, date.getDay().intValue());
+
+        return dateFormat.format(cal.getTime());
     }
 }
