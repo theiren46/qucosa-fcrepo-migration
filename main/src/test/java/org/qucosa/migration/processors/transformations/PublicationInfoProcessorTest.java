@@ -18,8 +18,11 @@
 package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.ModsDefinition;
+import noNamespace.Date;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 public class PublicationInfoProcessorTest extends ProcessorTestBase {
 
@@ -35,6 +38,26 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
         XMLAssert.assertXpathExists(
                 "//mods:language[@usage='primary']/" +
                         "mods:languageTerm[@authority='iso639-2b' and @type='code' and text()='" + lang + "']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void extractsCompletedDate() throws Exception {
+        Date ocd = inputOpusDocument.getOpus().getOpusDocument().addNewCompletedDate();
+        ocd.setYear(BigInteger.valueOf(2009));
+        ocd.setMonth(BigInteger.valueOf(6));
+        ocd.setDay(BigInteger.valueOf(4));
+        ocd.setHour(BigInteger.valueOf(12));
+        ocd.setMinute(BigInteger.valueOf(9));
+        ocd.setSecond(BigInteger.valueOf(40));
+        ocd.setTimezone("GMT-2");
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:dateOther[@encoding='iso8601' and @type='submission' and text()='2009-06-04']",
                 outputMods.getDomNode().getOwnerDocument());
     }
 
