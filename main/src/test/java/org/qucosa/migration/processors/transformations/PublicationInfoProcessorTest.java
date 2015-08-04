@@ -61,6 +61,25 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void extractsDateAccepted() throws Exception {
+        Date ocd = inputOpusDocument.getOpus().getOpusDocument().addNewDateAccepted();
+        ocd.setYear(BigInteger.valueOf(2009));
+        ocd.setMonth(BigInteger.valueOf(6));
+        ocd.setDay(BigInteger.valueOf(20));
+        ocd.setHour(BigInteger.valueOf(0));
+        ocd.setMinute(BigInteger.valueOf(0));
+        ocd.setSecond(BigInteger.valueOf(0));
+        ocd.setTimezone("GMT-1");
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:dateOther[@encoding='iso8601' and @type='defense' and text()='2009-06-20']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
+    @Test
     public void extractsCompletedYear() throws Exception {
         inputOpusDocument.getOpus().getOpusDocument().setCompletedYear(BigInteger.valueOf(2009));
 

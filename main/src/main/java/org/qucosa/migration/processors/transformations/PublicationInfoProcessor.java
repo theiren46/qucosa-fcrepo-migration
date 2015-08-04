@@ -58,8 +58,29 @@ public class PublicationInfoProcessor extends MappingProcessor {
 
             if (hasCompletedDate) mapCompletedDate(opus, oid);
             if (hasCompletedYear) mapCompletedYear(opus, oid);
+            if (hasDateAccepted) mapDateAccepted(opus, oid);
             if (hasEdition) mapEdition(opus, oid);
 
+        }
+    }
+
+    private void mapDateAccepted(Document opus, OriginInfoDefinition oid) {
+        final String mappedDateEncoding = dateEncoding(opus.getDateAccepted());
+
+        DateOtherDefinition dateOther = (DateOtherDefinition)
+                select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
+                        "iso8601", "defense"), oid);
+
+        if (dateOther == null) {
+            dateOther = oid.addNewDateOther();
+            dateOther.setEncoding(ISO_8601);
+            dateOther.setType("defense");
+            signalChanges();
+        }
+
+        if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
+            dateOther.setStringValue(mappedDateEncoding);
+            signalChanges();
         }
     }
 
