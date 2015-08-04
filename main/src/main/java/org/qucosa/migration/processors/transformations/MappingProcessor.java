@@ -75,7 +75,7 @@ public abstract class MappingProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         Map m = (Map) exchange.getIn().getBody();
-        changes = false;
+        changes = (boolean) exchange.getProperty("MODS_CHANGES", false);
         ModsDocument result = process((OpusDocument) m.get("QUCOSA-XML"), (ModsDocument) m.get("MODS"));
         m.put("MODS", result);
         exchange.getIn().setBody(m);
