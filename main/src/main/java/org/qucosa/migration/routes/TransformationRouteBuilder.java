@@ -29,6 +29,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.qucosa.migration.processors.transformations.IdentifierProcessor;
 import org.qucosa.migration.processors.transformations.MappingProcessor;
+import org.qucosa.migration.processors.transformations.PublicationInfoProcessor;
 import org.qucosa.migration.processors.transformations.TitleInfoProcessor;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
@@ -109,7 +110,8 @@ public class TransformationRouteBuilder extends RouteBuilder {
     private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
         Class[] pipeline = {
                 TitleInfoProcessor.class,
-                IdentifierProcessor.class
+                IdentifierProcessor.class,
+                PublicationInfoProcessor.class
         };
 
         RouteDefinition all = from("direct:transform:all")
