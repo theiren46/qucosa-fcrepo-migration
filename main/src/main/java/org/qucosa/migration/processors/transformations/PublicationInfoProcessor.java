@@ -20,6 +20,7 @@ package org.qucosa.migration.processors.transformations;
 import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
+import org.apache.xmlbeans.XmlString;
 
 import javax.xml.xpath.XPathExpressionException;
 
@@ -42,8 +43,9 @@ public class PublicationInfoProcessor extends MappingProcessor {
     private void mapOriginInfoElements(Document opus, ModsDefinition mods) throws XPathExpressionException {
         final Boolean hasCompletedDate = nodeExists("CompletedDate", opus);
         final Boolean hasCompletedYear = nodeExists("CompletedYear", opus);
-        if (hasCompletedDate || hasCompletedYear
-                || nodeExists("DateAccepted", opus)) {
+        final Boolean hasDateAccepted = nodeExists("DateAccepted", opus);
+        final Boolean hasEdition = nodeExists("Edition", opus);
+        if (hasCompletedDate || hasCompletedYear || hasDateAccepted || hasEdition) {
 
             OriginInfoDefinition oid = (OriginInfoDefinition)
                     select("mods:originInfo[@eventType='publication']", mods);
@@ -56,7 +58,25 @@ public class PublicationInfoProcessor extends MappingProcessor {
 
             if (hasCompletedDate) mapCompletedDate(opus, oid);
             if (hasCompletedYear) mapCompletedYear(opus, oid);
+            if (hasEdition) mapEdition(opus, oid);
 
+        }
+    }
+
+    private void mapEdition(Document opus, OriginInfoDefinition oid) {
+        String opusEdition = opus.getEdition();
+
+        XmlString edition = (XmlString)
+                select("mods:edition", oid);
+
+        if (edition == null) {
+            edition = oid.addNewEdition();
+            signalChanges();
+        }
+
+        if (!edition.getStringValue().equals(opusEdition)) {
+            edition.setStringValue(opusEdition);
+            signalChanges();
         }
     }
 

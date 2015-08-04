@@ -72,4 +72,16 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
                 outputMods.getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void extractsEdition() throws Exception {
+        inputOpusDocument.getOpus().getOpusDocument().setEdition("2nd. Edition");
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:edition[text()='2nd. Edition']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
 }
