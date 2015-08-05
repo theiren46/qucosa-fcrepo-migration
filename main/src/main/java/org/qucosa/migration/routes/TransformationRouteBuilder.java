@@ -27,10 +27,7 @@ import org.apache.camel.component.http.HttpEndpoint;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.qucosa.migration.processors.transformations.IdentifierProcessor;
-import org.qucosa.migration.processors.transformations.MappingProcessor;
-import org.qucosa.migration.processors.transformations.PublicationInfoProcessor;
-import org.qucosa.migration.processors.transformations.TitleInfoProcessor;
+import org.qucosa.migration.processors.transformations.*;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
 
@@ -111,7 +108,8 @@ public class TransformationRouteBuilder extends RouteBuilder {
         Class[] pipeline = {
                 TitleInfoProcessor.class,
                 IdentifierProcessor.class,
-                PublicationInfoProcessor.class
+                PublicationInfoProcessor.class,
+                StaticInfoProcessor.class
         };
 
         RouteDefinition all = from("direct:transform:all")
