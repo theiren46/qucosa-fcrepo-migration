@@ -40,7 +40,8 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
         addTitleMain(language, value);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
 
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
         assertEquals(language, outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
@@ -54,7 +55,8 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "The Incredibly Strange Creatures Who Stopped Living and Became Mixed-Up Zombies";
         addTitleSub(language, value);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
 
         assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
         assertEquals(language, outputMods.getTitleInfoArray(0).getSubTitleArray(0).getLang());
@@ -68,7 +70,8 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Schülerecho";
         addTitleAlternative(language, value);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
 
         XMLAssert.assertXpathExists(
                 "//mods:titleInfo[@type='alternative']/mods:title[@lang='" + language + "' and text()='" + value + "']",
@@ -81,7 +84,8 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Forschungsberichte des Instituts für Wirtschaftsinformatik";
         addTitleParent(language, value);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
 
         XMLAssert.assertXpathExists(
                 "//mods:relatedItem[@type='series']/mods:titleInfo/" +
@@ -96,11 +100,11 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
         addTitleMain(language, value);
 
-        StringPlusLanguage title = inputModsDocument.getMods().addNewTitleInfo().addNewTitle();
+        StringPlusLanguage title = modsDocument.getMods().addNewTitleInfo().addNewTitle();
         title.setLang(language);
         title.setStringValue(value);
 
-        processor.process(inputOpusDocument, inputModsDocument);
+        runProcessor(processor);
 
         assertFalse(processor.hasChanges());
     }
@@ -110,31 +114,32 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
         addTitleMain(null, value);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
 
         assertNull(outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
     }
 
     private void addTitleMain(String language, String value) {
-        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleMain();
+        Title ot = opusDocument.getOpus().getOpusDocument().addNewTitleMain();
         ot.setLanguage(language);
         ot.setValue(value);
     }
 
     private void addTitleSub(String language, String value) {
-        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleSub();
+        Title ot = opusDocument.getOpus().getOpusDocument().addNewTitleSub();
         ot.setLanguage(language);
         ot.setValue(value);
     }
 
     private void addTitleAlternative(String language, String value) {
-        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleAlternative();
+        Title ot = opusDocument.getOpus().getOpusDocument().addNewTitleAlternative();
         ot.setLanguage(language);
         ot.setValue(value);
     }
 
     private void addTitleParent(String language, String value) {
-        Title ot = inputOpusDocument.getOpus().getOpusDocument().addNewTitleParent();
+        Title ot = opusDocument.getOpus().getOpusDocument().addNewTitleParent();
         ot.setLanguage(language);
         ot.setValue(value);
     }

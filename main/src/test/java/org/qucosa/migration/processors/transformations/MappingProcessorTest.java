@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
@@ -35,12 +36,11 @@ public class MappingProcessorTest {
     public void setsChangesPropertyToExchangeIfProcessorReportsChanges() throws Exception {
         MappingProcessor mappingProcessor = new MappingProcessor() {
             @Override
-            public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) {
-                signalChanges();
-                return null;
+            public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) {
+                signalChanges("MODS");
+                signalChanges("SLUB-INFO");
             }
         };
-
 
         Exchange exchange = new DefaultExchange(new DefaultCamelContext());
         exchange.getIn().setBody(new HashMap<String, Object>() {{
@@ -51,14 +51,14 @@ public class MappingProcessorTest {
         mappingProcessor.process(exchange);
 
         assertTrue((Boolean) exchange.getProperty("MODS_CHANGES"));
+        assertTrue((Boolean) exchange.getProperty("SLUB-INFO_CHANGES"));
     }
 
     @Test
     public void returnsMapInExchangeBody() throws Exception {
         MappingProcessor mappingProcessor = new MappingProcessor() {
             @Override
-            public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
-                return null;
+            public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
             }
         };
 
@@ -66,14 +66,16 @@ public class MappingProcessorTest {
         exchange.getIn().setBody(new HashMap<String, Object>() {{
             put("QUCOSA-XML", null);
             put("MODS", null);
+            put("SLUB-INFO", null);
         }});
 
         mappingProcessor.process(exchange);
 
         final Object body = exchange.getIn().getBody();
         assertTrue(body instanceof Map);
-        assertTrue(((Map)body).containsKey("QUCOSA-XML"));
-        assertTrue(((Map)body).containsKey("MODS"));
+        assertTrue(((Map) body).containsKey("QUCOSA-XML"));
+        assertTrue(((Map) body).containsKey("MODS"));
+        assertTrue(((Map) body).containsKey("SLUB-INFO"));
     }
 
 }

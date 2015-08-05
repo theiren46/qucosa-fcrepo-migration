@@ -17,7 +17,6 @@
 
 package org.qucosa.migration.processors.transformations;
 
-import gov.loc.mods.v3.ModsDefinition;
 import noNamespace.Date;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
@@ -31,32 +30,32 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
     @Test
     public void extractsPublisherName() throws Exception {
         final String publisher = "Universitätsbibliothek Leipzig";
-        inputOpusDocument.getOpus().getOpusDocument().setPublisherName(publisher);
+        opusDocument.getOpus().getOpusDocument().setPublisherName(publisher);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
 
         XMLAssert.assertXpathExists(
                 "//mods:originInfo[@eventType='distribution']/" +
                         "mods:publisher[text()='" + publisher + "']",
-                outputMods.getDomNode().getOwnerDocument());
+                modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
     @Test
     public void extractsPublisherPlace() throws Exception {
         final String place = "Leipzig";
-        inputOpusDocument.getOpus().getOpusDocument().setPublisherPlace(place);
+        opusDocument.getOpus().getOpusDocument().setPublisherPlace(place);
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
 
         XMLAssert.assertXpathExists(
                 "//mods:originInfo[@eventType='distribution']/mods:place/" +
                         "mods:placeTerm[@type='text' and text()='" + place + "']",
-                outputMods.getDomNode().getOwnerDocument());
+                modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
     @Test
     public void extractsServerDatePublished() throws Exception {
-        Date sdp = inputOpusDocument.getOpus().getOpusDocument().addNewServerDatePublished();
+        Date sdp = opusDocument.getOpus().getOpusDocument().addNewServerDatePublished();
         sdp.setYear(BigInteger.valueOf(2009));
         sdp.setMonth(BigInteger.valueOf(6));
         sdp.setDay(BigInteger.valueOf(4));
@@ -65,12 +64,12 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
         sdp.setSecond(BigInteger.valueOf(40));
         sdp.setTimezone("GMT-2");
 
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
 
         XMLAssert.assertXpathExists(
                 "//mods:originInfo[@eventType='distribution']/" +
                         "mods:dateIssued[@encoding='iso8601' and @keyDate='yes' and text()='2009-06-04']",
-                outputMods.getDomNode().getOwnerDocument());
+                modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
 }

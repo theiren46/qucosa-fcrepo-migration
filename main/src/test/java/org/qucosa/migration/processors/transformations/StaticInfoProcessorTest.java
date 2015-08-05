@@ -17,7 +17,6 @@
 
 package org.qucosa.migration.processors.transformations;
 
-import gov.loc.mods.v3.ModsDefinition;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 
@@ -27,22 +26,22 @@ public class StaticInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void setsEdition() throws Exception {
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
 
         XMLAssert.assertXpathExists(
                 "//mods:originInfo[@eventType='distribution']/" +
                         "mods:edition[text()='[Electronic ed.]']",
-                outputMods.getDomNode().getOwnerDocument());
+                modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
     @Test
     public void setsPhysicalDescription() throws Exception {
-        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+        runProcessor(processor);
 
         XMLAssert.assertXpathExists(
                 "//mods:physicalDescription/" +
                         "mods:digitalOrigin[text()='born digital']",
-                outputMods.getDomNode().getOwnerDocument());
+                modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
 }

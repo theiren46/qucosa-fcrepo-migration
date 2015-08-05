@@ -17,8 +17,10 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
+import org.apache.camel.Processor;
 import org.apache.xmlbeans.XmlException;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -28,7 +30,7 @@ import org.junit.Before;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class ProcessorTestBase {
+public class ProcessorTestBase<P extends Processor> {
 
     static {
         NamespaceContext ctx = new SimpleNamespaceContext(
@@ -38,16 +40,23 @@ public class ProcessorTestBase {
         XMLUnit.setXpathNamespaceContext(ctx);
     }
 
-    protected ModsDocument inputModsDocument;
-    protected OpusDocument inputOpusDocument;
+    protected InfoDocument infoDocument;
+    protected ModsDocument modsDocument;
+    protected OpusDocument opusDocument;
 
     @Before
     public void setupBasisDatastreams() throws IOException, XmlException {
-        inputModsDocument = ModsDocument.Factory.newInstance();
-        inputModsDocument.addNewMods();
+        modsDocument = ModsDocument.Factory.newInstance();
+        modsDocument.addNewMods();
 
-        inputOpusDocument = OpusDocument.Factory.newInstance();
-        inputOpusDocument.addNewOpus().addNewOpusDocument();
+        opusDocument = OpusDocument.Factory.newInstance();
+        opusDocument.addNewOpus().addNewOpusDocument();
+
+        infoDocument = InfoDocument.Factory.newInstance();
+        infoDocument.addNewInfo();
     }
 
+    protected void runProcessor(MappingProcessor processor) throws Exception {
+        processor.process(opusDocument, modsDocument, infoDocument);
+    }
 }

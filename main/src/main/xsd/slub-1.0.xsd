@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (C) 2015 Saxon State and University Library Dresden (SLUB)
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program. If not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://slub-dresden.de/"
+           xmlns="http://slub-dresden.de/"
+           xmlns:foaf="http://xmlns.com/foaf/0.1/"
+           elementFormDefault="qualified" attributeFormDefault="unqualified"
+           version="1.0">
+
+    <xs:import namespace="http://xmlns.com/foaf/0.1/" schemaLocation="foaf-fake.xsd"/>
+
+    <xs:element name="info" type="slub:infoType" xmlns:slub="http://slub-dresden.de/"/>
+    <xs:complexType name="embargoType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="encoding"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="rightsType">
+        <xs:sequence>
+            <xs:element type="licenseType" name="license"/>
+            <xs:element type="embargoType" name="embargo"/>
+            <xs:element type="xs:string" name="accessDNB"/>
+            <xs:element type="xs:string" name="accessPOD"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="infoType">
+        <xs:sequence>
+            <xs:element type="submitterType" name="submitter"/>
+            <xs:element type="xs:string" name="vgwortOpenKey"/>
+            <xs:element type="xs:string" name="project"/>
+            <xs:element type="xs:string" name="client"/>
+            <xs:element type="xs:string" name="documentType"/>
+            <xs:element type="rightsType" name="rights"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="submitterType">
+        <xs:sequence>
+            <xs:element ref="foaf:Person"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="licenseType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="valueURI"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>

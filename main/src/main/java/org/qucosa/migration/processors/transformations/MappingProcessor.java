@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
@@ -37,6 +38,8 @@ import java.util.*;
 
 public abstract class MappingProcessor implements Processor {
     public static final String NS_MODS_V3 = "http://www.loc.gov/mods/v3";
+    public static final String NS_SLUB = "http://slub-dresden.de/";
+    public static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
     private static final XPath xPath;
     private static final XPathFactory xPathFactory;
 
@@ -49,6 +52,10 @@ public abstract class MappingProcessor implements Processor {
                 switch (prefix) {
                     case "mods":
                         return NS_MODS_V3;
+                    case "slub":
+                        return NS_SLUB;
+                    case "foaf":
+                        return NS_FOAF;
                     default:
                         return XMLConstants.NULL_NS_URI;
                 }
@@ -68,8 +75,9 @@ public abstract class MappingProcessor implements Processor {
         });
     }
 
-    private boolean changes;
     private String label;
+    private boolean modsChanges;
+    private boolean slubChanges;
 
     public static XPath getXPath() {
         return xPath;
@@ -78,15 +86,24 @@ public abstract class MappingProcessor implements Processor {
     @Override
     public void process(Exchange exchange) throws Exception {
         Map m = (Map) exchange.getIn().getBody();
-        changes = (boolean) exchange.getProperty("MODS_CHANGES", false);
-        ModsDocument result = process((OpusDocument) m.get("QUCOSA-XML"), (ModsDocument) m.get("MODS"));
-        m.put("MODS", result);
+
+        modsChanges = (boolean) exchange.getProperty("MODS_CHANGES", false);
+        slubChanges = (boolean) exchange.getProperty("SLUB-INFO_CHANGES", false);
+
+        process((OpusDocument) m.get("QUCOSA-XML"),
+                (ModsDocument) m.get("MODS"),
+                (InfoDocument) m.get("SLUB-INFO"));
+
         exchange.getIn().setBody(m);
-        exchange.setProperty("MODS_CHANGES", changes);
+        exchange.setProperty("MODS_CHANGES", modsChanges);
+        exchange.setProperty("SLUB-INFO_CHANGES", slubChanges);
     }
 
 
-    public abstract ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception;
+    public abstract void process(
+            OpusDocument opusDocument,
+            ModsDocument modsDocument,
+            InfoDocument infoDocument) throws Exception;
 
     public String getLabel() {
         if (label == null) {
@@ -98,12 +115,16 @@ public abstract class MappingProcessor implements Processor {
         return label;
     }
 
-    public void signalChanges() {
-        this.changes = true;
+    public void signalChanges(String dsid) {
+        if (dsid.equals("MODS")) {
+            this.modsChanges = true;
+        } else if (dsid.equals("SLUB-INFO")) {
+            this.slubChanges = true;
+        }
     }
 
     public Boolean hasChanges() {
-        return this.changes;
+        return this.modsChanges;
     }
 
     protected XmlObject select(String query, XmlObject xmlObject) {

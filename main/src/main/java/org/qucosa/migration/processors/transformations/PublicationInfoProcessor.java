@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
@@ -30,14 +31,12 @@ import static gov.loc.mods.v3.LanguageTermDefinition.Authority.ISO_639_2_B;
 
 public class PublicationInfoProcessor extends MappingProcessor {
     @Override
-    public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+    public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final Document opus = opusDocument.getOpus().getOpusDocument();
         final ModsDefinition mods = modsDocument.getMods();
 
         mapLanguageElement(opus, mods);
         mapOriginInfoElements(opus, mods);
-
-        return modsDocument;
     }
 
     private void mapOriginInfoElements(Document opus, ModsDefinition mods) throws XPathExpressionException {
@@ -53,7 +52,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
             if (oid == null) {
                 oid = mods.addNewOriginInfo();
                 oid.setEventType("publication");
-                signalChanges();
+                signalChanges("MODS");
             }
 
             if (hasCompletedDate) mapCompletedDate(opus, oid);
@@ -75,12 +74,12 @@ public class PublicationInfoProcessor extends MappingProcessor {
             dateOther = oid.addNewDateOther();
             dateOther.setEncoding(ISO_8601);
             dateOther.setType("defense");
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
             dateOther.setStringValue(mappedDateEncoding);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -92,12 +91,12 @@ public class PublicationInfoProcessor extends MappingProcessor {
 
         if (edition == null) {
             edition = oid.addNewEdition();
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!edition.getStringValue().equals(opusEdition)) {
             edition.setStringValue(opusEdition);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -110,12 +109,12 @@ public class PublicationInfoProcessor extends MappingProcessor {
         if (dateIssuedDefinition == null) {
             dateIssuedDefinition = oid.addNewDateIssued();
             dateIssuedDefinition.setEncoding(ISO_8601);
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!dateIssuedDefinition.getStringValue().equals(mappedCompletedYear)) {
             dateIssuedDefinition.setStringValue(mappedCompletedYear);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -130,12 +129,12 @@ public class PublicationInfoProcessor extends MappingProcessor {
             dateOther = oid.addNewDateOther();
             dateOther.setEncoding(ISO_8601);
             dateOther.setType("submission");
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
             dateOther.setStringValue(mappedDateEncoding);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -153,7 +152,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
             if (ld == null) {
                 ld = mods.addNewLanguage();
                 ld.addNewUsage().setStringValue("primary");
-                signalChanges();
+                signalChanges("MODS");
             }
 
             if (!nodeExists(
@@ -165,7 +164,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
                 lngtd.setAuthority(ISO_639_2_B);
                 lngtd.setType(CODE);
                 lngtd.setStringValue(languageText);
-                signalChanges();
+                signalChanges("MODS");
             }
         }
     }

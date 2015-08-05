@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.OriginInfoDefinition;
@@ -29,13 +30,11 @@ import static gov.loc.mods.v3.DigitalOriginDefinition.BORN_DIGITAL;
 
 public class StaticInfoProcessor extends MappingProcessor {
     @Override
-    public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+    public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final ModsDefinition mods = modsDocument.getMods();
 
         ensureEdition(mods);
         ensurePhysicalDescription(mods);
-
-        return modsDocument;
     }
 
     private void ensurePhysicalDescription(ModsDefinition mods) throws XPathExpressionException {
@@ -44,12 +43,12 @@ public class StaticInfoProcessor extends MappingProcessor {
 
         if (pdd == null) {
             pdd = mods.addNewPhysicalDescription();
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!nodeExists("mods:digitalOrigin", pdd)) {
             pdd.addDigitalOrigin(BORN_DIGITAL);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -60,12 +59,12 @@ public class StaticInfoProcessor extends MappingProcessor {
         if (oid == null) {
             oid = mods.addNewOriginInfo();
             oid.setEventType("distribution");
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!nodeExists("mods:edition[text()='[Electronic ed.]']", oid)) {
             oid.addNewEdition().setStringValue("[Electronic ed.]");
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 }

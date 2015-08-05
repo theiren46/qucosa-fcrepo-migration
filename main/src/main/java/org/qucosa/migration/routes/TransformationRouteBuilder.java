@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.routes;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
 import org.apache.camel.Exchange;
@@ -24,9 +25,11 @@ import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.http.BasicAuthenticationHttpClientConfigurer;
 import org.apache.camel.component.http.HttpEndpoint;
+import org.apache.camel.component.http.HttpOperationFailedException;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.qucosa.migration.processors.HttpOperationFailedHelper;
 import org.qucosa.migration.processors.transformations.*;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
@@ -48,7 +51,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .multicast(aggregateHashBy(header("DSID")))
                 .parallelProcessing()
                 .stopOnException()
-                .to("direct:ds:qucosaxml", "direct:ds:mods")
+                .to("direct:ds:qucosaxml", "direct:ds:mods", "direct:ds:slubxml")
                 .end()
                 .routingSlip(header("transformations")).ignoreInvalidEndpoints()
                 .to("direct:ds:update");
@@ -68,8 +71,18 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .convertBodyTo(String.class)
                 .bean(OpusDocument.Factory.class, "parse(${body})");
 
+        final ModsDocument modsDocumentTemplate = ModsDocument.Factory.newInstance();
+        modsDocumentTemplate.addNewMods();
+
         from("direct:ds:mods")
                 .routeId("get-mods")
+
+                .onException(HttpOperationFailedException.class)
+                .onWhen(method(HttpOperationFailedHelper.class, "isNotFound"))
+                .setBody(constant(modsDocumentTemplate))
+                .continued(true)
+                .end()
+
                 .threads()
                 .setHeader("PID", body())
                 .setHeader("DSID", constant("MODS"))
@@ -80,7 +93,35 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .convertBodyTo(String.class)
                 .bean(ModsDocument.Factory.class, "parse(${body})");
 
+        final InfoDocument infoDocumentTemplate = InfoDocument.Factory.newInstance();
+        infoDocumentTemplate.addNewInfo();
+
+        from("direct:ds:slubxml")
+                .routeId("get-slubxml")
+
+                .onException(HttpOperationFailedException.class)
+                .onWhen(method(HttpOperationFailedHelper.class, "isNotFound"))
+                .setBody(constant(infoDocumentTemplate))
+                .continued(true)
+                .end()
+
+                .threads()
+                .setHeader("PID", body())
+                .setHeader("DSID", constant("SLUB-INFO"))
+                .setHeader(Exchange.HTTP_METHOD, constant("GET"))
+                .setHeader(Exchange.HTTP_PATH, simple(datastreamPath + "/content"))
+                .setBody(constant(""))
+                .to(uri)
+                .convertBodyTo(String.class)
+                .log("${body}")
+                .bean(InfoDocument.Factory.class, "parse(${body})");
+
         from("direct:ds:update")
+                .multicast()
+                .parallelProcessing()
+                .to("direct:ds:update:mods", "direct:ds:update:slub-info");
+
+        from("direct:ds:update:mods")
                 .routeId("update-mods")
                 .threads()
                 .choice()
@@ -88,7 +129,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .when(simple("${exchangeProperty[MODS_CHANGES]} == true"))
                 .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
                 .setHeader("DSID", constant("MODS"))
-                .setHeader(Exchange.HTTP_METHOD, constant("PUT"))
+                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
                 .setHeader(Exchange.CONTENT_TYPE, constant("application/mods+xml"))
                 .transform(simple("${body[MODS]}")).convertBodyTo(String.class)
@@ -96,6 +137,23 @@ public class TransformationRouteBuilder extends RouteBuilder {
 
                 .otherwise()
                 .log(LoggingLevel.DEBUG, "Update skipped: No changes in MODS datastream for ${header[PID]}");
+
+        from("direct:ds:update:slub-info")
+                .routeId("update-slub-info")
+                .threads()
+                .choice()
+
+                .when(simple("${exchangeProperty[SLUB-INFO_CHANGES]} == true"))
+                .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
+                .setHeader("DSID", constant("SLUB-INFO"))
+                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
+                .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
+                .setHeader(Exchange.CONTENT_TYPE, constant("application/vnd.slub-info+xml"))
+                .transform(simple("${body[SLUB-INFO]}")).convertBodyTo(String.class)
+                .to(uri)
+
+                .otherwise()
+                .log(LoggingLevel.DEBUG, "Update skipped: No changes in SLUB-INFO datastream for ${header[PID]}");
 
         HttpEndpoint httpEndpoint = (HttpEndpoint) getContext().getEndpoint(uri);
         httpEndpoint.setHttpClientConfigurer(

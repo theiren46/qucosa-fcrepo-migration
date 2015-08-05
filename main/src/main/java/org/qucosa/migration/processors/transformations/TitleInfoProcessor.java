@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.*;
 import noNamespace.OpusDocument;
 import noNamespace.Title;
@@ -25,12 +26,11 @@ import javax.xml.xpath.XPathExpressionException;
 
 public class TitleInfoProcessor extends MappingProcessor {
     @Override
-    public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+    public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         ModsDefinition modsDefinition = modsDocument.getMods();
         mapTitleElements(opusDocument, modsDefinition);
         mapTitleAlternativeElements(opusDocument, modsDefinition);
         mapTitleParentElements(opusDocument, modsDefinition);
-        return modsDocument;
     }
 
     private void mapTitleElements(OpusDocument opusDocument, ModsDefinition modsDefinition)
@@ -44,7 +44,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
             if (titleInfoDefinition == null) {
                 titleInfoDefinition = modsDefinition.addNewTitleInfo();
-                signalChanges();
+                signalChanges("MODS");
             }
 
             mapTitleSubElements(opusDocument, titleInfoDefinition);
@@ -63,7 +63,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (titleInfoDefinition == null) {
                 titleInfoDefinition = modsDefinition.addNewTitleInfo();
                 titleInfoDefinition.setType(TitleInfoDefinition.Type.ALTERNATIVE);
-                signalChanges();
+                signalChanges("MODS");
             }
 
             mapTitleAlternativeElements(opusDocument, titleInfoDefinition);
@@ -81,7 +81,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (relatedItemDefinition == null) {
                 relatedItemDefinition = modsDefinition.addNewRelatedItem();
                 relatedItemDefinition.setType(RelatedItemDefinition.Type.SERIES);
-                signalChanges();
+                signalChanges("MODS");
             }
 
             TitleInfoDefinition titleInfoDefinition =
@@ -89,7 +89,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
             if (titleInfoDefinition == null) {
                 titleInfoDefinition = relatedItemDefinition.addNewTitleInfo();
-                signalChanges();
+                signalChanges("MODS");
             }
 
             mapTitleParentElements(opusDocument, titleInfoDefinition);
@@ -105,7 +105,7 @@ public class TitleInfoProcessor extends MappingProcessor {
                 StringPlusLanguage mt = titleInfoDefinition.addNewTitle();
                 mt.setLang(ot.getLanguage());
                 mt.setStringValue(ot.getValue());
-                signalChanges();
+                signalChanges("MODS");
             }
         }
     }
@@ -119,7 +119,7 @@ public class TitleInfoProcessor extends MappingProcessor {
                 StringPlusLanguage mt = titleInfoDefinition.addNewSubTitle();
                 mt.setLang(ot.getLanguage());
                 mt.setStringValue(ot.getValue());
-                signalChanges();
+                signalChanges("MODS");
             }
         }
     }
@@ -133,7 +133,7 @@ public class TitleInfoProcessor extends MappingProcessor {
                 StringPlusLanguage mt = titleInfoDefinition.addNewTitle();
                 mt.setLang(ot.getLanguage());
                 mt.setStringValue(ot.getValue());
-                signalChanges();
+                signalChanges("MODS");
             }
         }
     }
@@ -147,7 +147,7 @@ public class TitleInfoProcessor extends MappingProcessor {
                 StringPlusLanguage mt = titleInfoDefinition.addNewTitle();
                 mt.setLang(ot.getLanguage());
                 mt.setStringValue(ot.getValue());
-                signalChanges();
+                signalChanges("MODS");
             }
         }
     }

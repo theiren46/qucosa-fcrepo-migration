@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
@@ -27,7 +28,7 @@ import static gov.loc.mods.v3.DateDefinition.Encoding.ISO_8601;
 
 public class DistributionInfoProcessor extends MappingProcessor {
     @Override
-    public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+    public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final Document opus = opusDocument.getOpus().getOpusDocument();
         final ModsDefinition mods = modsDocument.getMods();
 
@@ -42,7 +43,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
             if (oid == null) {
                 oid = mods.addNewOriginInfo();
                 oid.setEventType("distribution");
-                signalChanges();
+                signalChanges("MODS");
             }
 
             if (hasPublisherName) mapPublisherName(opus, oid);
@@ -50,8 +51,6 @@ public class DistributionInfoProcessor extends MappingProcessor {
             if (hasServerDatePublished) mapServerDatePublished(opus, oid);
 
         }
-
-        return modsDocument;
     }
 
     private void mapServerDatePublished(Document opus, OriginInfoDefinition oid) {
@@ -65,12 +64,12 @@ public class DistributionInfoProcessor extends MappingProcessor {
             dateIssued = oid.addNewDateIssued();
             dateIssued.setEncoding(ISO_8601);
             dateIssued.setKeyDate(XmlString.Factory.newValue("yes"));
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!dateIssued.getStringValue().equals(mappedDateEncoding)) {
             dateIssued.setStringValue(mappedDateEncoding);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -82,7 +81,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
         if (pd == null) {
             pd = oid.addNewPlace();
-            signalChanges();
+            signalChanges("MODS");
         }
 
         PlaceTermDefinition ptd = (PlaceTermDefinition)
@@ -92,7 +91,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
             ptd = pd.addNewPlaceTerm();
             ptd.setType(TEXT);
             ptd.setStringValue(publisherPlace);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 
@@ -104,12 +103,12 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
         if (modsPublisher == null) {
             modsPublisher = oid.addNewPublisher();
-            signalChanges();
+            signalChanges("MODS");
         }
 
         if (!modsPublisher.getStringValue().equals(publisherName)) {
             modsPublisher.setStringValue(publisherName);
-            signalChanges();
+            signalChanges("MODS");
         }
     }
 }

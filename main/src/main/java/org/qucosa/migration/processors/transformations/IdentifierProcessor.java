@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.IdentifierDefinition;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
@@ -29,14 +30,12 @@ import javax.xml.xpath.XPathExpressionException;
 
 public class IdentifierProcessor extends MappingProcessor {
     @Override
-    public ModsDocument process(OpusDocument opusDocument, ModsDocument modsDocument) throws Exception {
+    public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final Document opus = opusDocument.getOpus().getOpusDocument();
         final ModsDefinition mods = modsDocument.getMods();
 
         String[] ns = {"Isbn", "Urn", "Doi", "Issn", "Ppn"};
         for (String n : ns) map(n, opus, mods);
-
-        return modsDocument;
     }
 
     private void map(String type, Document opusDocument, ModsDefinition mods) throws XPathExpressionException {
@@ -48,7 +47,7 @@ public class IdentifierProcessor extends MappingProcessor {
                 IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
                 identifierDefinition.setType(type.toLowerCase());
                 identifierDefinition.setStringValue(oid.getValue());
-                signalChanges();
+                signalChanges("MODS");
             }
         }
 
