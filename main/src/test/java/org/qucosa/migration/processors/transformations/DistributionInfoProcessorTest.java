@@ -18,8 +18,11 @@
 package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.ModsDefinition;
+import noNamespace.Date;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
+
+import java.math.BigInteger;
 
 public class DistributionInfoProcessorTest extends ProcessorTestBase {
 
@@ -51,5 +54,23 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
                 outputMods.getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void extractsServerDatePublished() throws Exception {
+        Date sdp = inputOpusDocument.getOpus().getOpusDocument().addNewServerDatePublished();
+        sdp.setYear(BigInteger.valueOf(2009));
+        sdp.setMonth(BigInteger.valueOf(6));
+        sdp.setDay(BigInteger.valueOf(4));
+        sdp.setHour(BigInteger.valueOf(12));
+        sdp.setMinute(BigInteger.valueOf(9));
+        sdp.setSecond(BigInteger.valueOf(40));
+        sdp.setTimezone("GMT-2");
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='distribution']/" +
+                        "mods:dateIssued[@encoding='iso8601' and @keyDate='yes' and text()='2009-06-04']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
 
 }

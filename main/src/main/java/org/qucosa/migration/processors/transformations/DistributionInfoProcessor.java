@@ -23,6 +23,7 @@ import noNamespace.OpusDocument;
 import org.apache.xmlbeans.XmlString;
 
 import static gov.loc.mods.v3.CodeOrText.TEXT;
+import static gov.loc.mods.v3.DateDefinition.Encoding.ISO_8601;
 
 public class DistributionInfoProcessor extends MappingProcessor {
     @Override
@@ -32,8 +33,9 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
         final Boolean hasPublisherName = nodeExists("PublisherName[text()!='']", opus);
         final Boolean hasPublisherPlace = nodeExists("PublisherPlace[text()!='']", opus);
+        final Boolean hasServerDatePublished = nodeExists("ServerDatePublished", opus);
 
-        if (hasPublisherName || hasPublisherPlace) {
+        if (hasPublisherName || hasPublisherPlace || hasServerDatePublished) {
             OriginInfoDefinition oid = (OriginInfoDefinition)
                     select("mods:originInfo[@eventType='distribution']", mods);
 
@@ -45,10 +47,31 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
             if (hasPublisherName) mapPublisherName(opus, oid);
             if (hasPublisherPlace) mapPublisherPlace(opus, oid);
+            if (hasServerDatePublished) mapServerDatePublished(opus, oid);
 
         }
 
         return modsDocument;
+    }
+
+    private void mapServerDatePublished(Document opus, OriginInfoDefinition oid) {
+        final String mappedDateEncoding = dateEncoding(opus.getServerDatePublished());
+
+        DateDefinition dateIssued = (DateDefinition)
+                select(String.format("mods:dateIssued[@encoding='%s' and @keyDate='%s']",
+                        "iso8601", "yes"), oid);
+
+        if (dateIssued == null) {
+            dateIssued = oid.addNewDateIssued();
+            dateIssued.setEncoding(ISO_8601);
+            dateIssued.setKeyDate(XmlString.Factory.newValue("yes"));
+            signalChanges();
+        }
+
+        if (!dateIssued.getStringValue().equals(mappedDateEncoding)) {
+            dateIssued.setStringValue(mappedDateEncoding);
+            signalChanges();
+        }
     }
 
     private void mapPublisherPlace(Document opus, OriginInfoDefinition oid) {
