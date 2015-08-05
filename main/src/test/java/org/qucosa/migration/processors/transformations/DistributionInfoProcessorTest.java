@@ -36,7 +36,20 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
                 "//mods:originInfo[@eventType='distribution']/" +
                         "mods:publisher[text()='" + publisher + "']",
                 outputMods.getDomNode().getOwnerDocument());
-
     }
+
+    @Test
+    public void extractsPublisherPlace() throws Exception {
+        final String place = "Leipzig";
+        inputOpusDocument.getOpus().getOpusDocument().setPublisherPlace(place);
+
+        ModsDefinition outputMods = processor.process(inputOpusDocument, inputModsDocument).getMods();
+
+        XMLAssert.assertXpathExists(
+                "//mods:originInfo[@eventType='distribution']/mods:place/" +
+                        "mods:placeTerm[@type='text' and text()='" + place + "']",
+                outputMods.getDomNode().getOwnerDocument());
+    }
+
 
 }
