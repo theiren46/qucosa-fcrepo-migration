@@ -36,4 +36,17 @@ public class RightsProcessorTest extends ProcessorTestBase {
                 infoDocument.getInfo().getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void filtersUrlPrefixes() throws Exception {
+        String prefix = "http://vg04.met.vgwort.de/";
+        String vgWortOpenKey = "6fd9288e617c4721b6f25624167249f6";
+        opusDocument.getOpus().getOpusDocument().setVgWortOpenKey(prefix + vgWortOpenKey);
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//slub:vgwortOpenKey[text()='" + vgWortOpenKey + "']",
+                infoDocument.getInfo().getDomNode().getOwnerDocument());
+    }
+
 }

@@ -26,7 +26,7 @@ public class RightsProcessor extends MappingProcessor {
 
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
-        final String vgwortOpenKey = opusDocument.getOpus().getOpusDocument().getVgWortOpenKey();
+        final String vgwortOpenKey = vgwortEncoding(opusDocument.getOpus().getOpusDocument().getVgWortOpenKey());
         if (vgwortOpenKey != null && !vgwortOpenKey.isEmpty()) {
             InfoType info = infoDocument.getInfo();
             if (info.getVgwortOpenKey() == null
@@ -34,6 +34,16 @@ public class RightsProcessor extends MappingProcessor {
                 info.setVgwortOpenKey(vgwortOpenKey);
                 signalChanges("SLUB-INFO");
             }
+        }
+    }
+
+    private String vgwortEncoding(String vgWortOpenKey) {
+        if (vgWortOpenKey.startsWith("http")) {
+            return vgWortOpenKey.substring(
+                    vgWortOpenKey.lastIndexOf('/') + 1,
+                    vgWortOpenKey.length());
+        } else {
+            return vgWortOpenKey;
         }
     }
 }
