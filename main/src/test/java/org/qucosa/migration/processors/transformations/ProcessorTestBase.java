@@ -20,7 +20,6 @@ package org.qucosa.migration.processors.transformations;
 import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
-import org.apache.camel.Processor;
 import org.apache.xmlbeans.XmlException;
 import org.custommonkey.xmlunit.NamespaceContext;
 import org.custommonkey.xmlunit.SimpleNamespaceContext;
@@ -37,6 +36,7 @@ public class ProcessorTestBase {
                 new HashMap() {{
                     put("mods", MappingProcessor.NS_MODS_V3);
                     put("slub", MappingProcessor.NS_SLUB);
+                    put("foaf", MappingProcessor.NS_FOAF);
                 }});
         XMLUnit.setXpathNamespaceContext(ctx);
     }

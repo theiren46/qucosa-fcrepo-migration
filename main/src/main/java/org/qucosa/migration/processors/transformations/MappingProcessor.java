@@ -44,7 +44,8 @@ public abstract class MappingProcessor implements Processor {
     private static final XPathFactory xPathFactory;
     private static final String xpathNSDeclaration =
             "declare namespace mods='" + NS_MODS_V3 + "'; " +
-            "declare namespace slub='" + NS_SLUB + "'; ";
+            "declare namespace slub='" + NS_SLUB + "'; " +
+            "declare namespace foaf='" + NS_FOAF + "'; ";
 
     static {
         xPathFactory = XPathFactory.newInstance();

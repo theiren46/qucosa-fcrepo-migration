@@ -1,83 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://xmlns.com/foaf/0.1/"
            elementFormDefault="qualified" attributeFormDefault="unqualified">
-    <xs:attribute name="firstName" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>This person's firstName</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="gender" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>Usually 'male' or 'female'</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="givenname" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>This person's givenname</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="holdsAccount">
-        <xs:annotation>
-            <xs:documentation>An account this person has</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="homepage" type="xs:anyURI">
-        <xs:annotation>
-            <xs:documentation>This person's homepage</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="icqChatID" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>This person's icq Chat ID</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="img" type="xs:anyURI">
-        <xs:annotation>
-            <xs:documentation>A photo of this person</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="name" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>This person's name</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="nick" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>This person's nick name</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="openID">
-        <xs:annotation>
-            <xs:documentation>OpenID</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="plan" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>Their 'plan'</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="surname">
-        <xs:annotation>
-            <xs:documentation>This person's surname</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="title" type="xs:string">
-        <xs:annotation>
-            <xs:documentation>Mr/Dr. etc.</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
-    <xs:attribute name="weblog" type="xs:anyURI">
-        <xs:annotation>
-            <xs:documentation>Weblog</xs:documentation>
-        </xs:annotation>
-    </xs:attribute>
     <xs:element name="Person">
         <xs:complexType>
-            <xs:simpleContent>
-                <xs:extension base="xs:string">
-                    <xs:anyAttribute namespace="##other"/>
-                </xs:extension>
-            </xs:simpleContent>
+            <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="phone" type="xs:string"/>
+                <xs:element name="mbox" type="xs:string"/>
+            </xs:sequence>
         </xs:complexType>
     </xs:element>
 </xs:schema>
