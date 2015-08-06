@@ -39,4 +39,16 @@ public class CataloguingProcessorTest extends ProcessorTestBase {
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void extractsTableOfContent() throws Exception {
+        final String value = "Inhaltsverzeichnis";
+        opusDocument.getOpus().getOpusDocument().setTableOfContent(value);
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//mods:tableOfContents[text()='" + value + "']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
 }

@@ -21,6 +21,7 @@ import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.AbstractDefinition;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.TableOfContentsDefinition;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Title;
@@ -31,6 +32,25 @@ public class CataloguingProcessor extends MappingProcessor {
         Document opus = opusDocument.getOpus().getOpusDocument();
         ModsDefinition mods = modsDocument.getMods();
 
+        mapTitleAbstract(opus, mods);
+        mapTableOfContent(opus, mods);
+    }
+
+    private void mapTableOfContent(Document opus, ModsDefinition mods) {
+        String opusTableOfContent = opus.getTableOfContent();
+        if (opusTableOfContent != null && !opusTableOfContent.isEmpty()) {
+            TableOfContentsDefinition toc = (TableOfContentsDefinition)
+                    select("mods:tableOfContents", mods);
+
+            if (toc == null) {
+                toc = mods.addNewTableOfContents();
+                toc.setStringValue(opusTableOfContent);
+                signalChanges("MODS");
+            }
+        }
+    }
+
+    private void mapTitleAbstract(Document opus, ModsDefinition mods) {
         for (Title ot : opus.getTitleAbstractArray()) {
             final String lang = languageEncoding(ot.getLanguage());
             final String abst = ot.getValue();
