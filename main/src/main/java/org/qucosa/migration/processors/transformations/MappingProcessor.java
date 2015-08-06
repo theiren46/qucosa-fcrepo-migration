@@ -42,6 +42,9 @@ public abstract class MappingProcessor implements Processor {
     public static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
     private static final XPath xPath;
     private static final XPathFactory xPathFactory;
+    private static final String xpathNSDeclaration =
+            "declare namespace mods='" + NS_MODS_V3 + "'; " +
+            "declare namespace slub='" + NS_SLUB + "'; ";
 
     static {
         xPathFactory = XPathFactory.newInstance();
@@ -129,7 +132,7 @@ public abstract class MappingProcessor implements Processor {
 
     protected XmlObject select(String query, XmlObject xmlObject) {
         XmlCursor cursor = xmlObject.newCursor();
-        cursor.selectPath("declare namespace mods='" + NS_MODS_V3 + "'" + query);
+        cursor.selectPath(xpathNSDeclaration + query);
         XmlObject result = cursor.toNextSelection() ? cursor.getObject() : null;
         cursor.dispose();
         return result;
@@ -138,7 +141,7 @@ public abstract class MappingProcessor implements Processor {
     protected List<XmlObject> selectAll(String query, XmlObject xmlObject) {
         List<XmlObject> results = new ArrayList<>();
         XmlCursor cursor = xmlObject.newCursor();
-        cursor.selectPath("declare namespace mods='" + NS_MODS_V3 + "'" + query);
+        cursor.selectPath(xpathNSDeclaration + query);
         while (cursor.toNextSelection()) {
             results.add(cursor.getObject());
         }

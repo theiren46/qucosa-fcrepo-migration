@@ -30,12 +30,13 @@ import org.junit.Before;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class ProcessorTestBase<P extends Processor> {
+public class ProcessorTestBase {
 
     static {
         NamespaceContext ctx = new SimpleNamespaceContext(
                 new HashMap() {{
                     put("mods", MappingProcessor.NS_MODS_V3);
+                    put("slub", MappingProcessor.NS_SLUB);
                 }});
         XMLUnit.setXpathNamespaceContext(ctx);
     }

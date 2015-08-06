@@ -168,7 +168,8 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 IdentifierProcessor.class,
                 PublicationInfoProcessor.class,
                 StaticInfoProcessor.class,
-                DistributionInfoProcessor.class
+                DistributionInfoProcessor.class,
+                DocumentTypeProcessor.class
         };
 
         RouteDefinition all = from("direct:transform:all")
