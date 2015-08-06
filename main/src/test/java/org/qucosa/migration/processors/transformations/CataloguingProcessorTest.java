@@ -17,6 +17,7 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import noNamespace.Subject;
 import noNamespace.Title;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
@@ -51,4 +52,43 @@ public class CataloguingProcessorTest extends ProcessorTestBase {
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void extractsSubjectDdc() throws Exception {
+        Subject os = opusDocument.getOpus().getOpusDocument().addNewSubjectDdc();
+        os.setType("ddc");
+        os.setValue("004");
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//mods:classification[@authority='ddc' and text()='004']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void extractsSubjectRvk() throws Exception {
+        Subject os = opusDocument.getOpus().getOpusDocument().addNewSubjectRvk();
+        os.setType("rvk");
+        os.setValue("ST 270");
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//mods:classification[@authority='rvk' and text()='ST 270']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void extractsSubjectUncontrolled() throws Exception {
+        Subject os = opusDocument.getOpus().getOpusDocument().addNewSubjectUncontrolled();
+        os.setType("uncontrolled");
+        os.setLanguage("ger");
+        os.setValue("A, B, C");
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//mods:classification[@lang='ger' and text()='A, B, C']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
 }

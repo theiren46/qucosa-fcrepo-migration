@@ -18,12 +18,10 @@
 package org.qucosa.migration.processors.transformations;
 
 import de.slubDresden.InfoDocument;
-import gov.loc.mods.v3.AbstractDefinition;
-import gov.loc.mods.v3.ModsDefinition;
-import gov.loc.mods.v3.ModsDocument;
-import gov.loc.mods.v3.TableOfContentsDefinition;
+import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
+import noNamespace.Subject;
 import noNamespace.Title;
 
 public class CataloguingProcessor extends MappingProcessor {
@@ -34,6 +32,53 @@ public class CataloguingProcessor extends MappingProcessor {
 
         mapTitleAbstract(opus, mods);
         mapTableOfContent(opus, mods);
+        mapSubject("ddc", opus, mods);
+        mapSubject("rvk", opus, mods);
+        mapSubject("uncontrolled", opus, mods);
+    }
+
+    private void mapSubject(String type, Document opus, ModsDefinition mods) {
+        Subject[] subjects;
+        String query = "[@authority='%s']";
+        switch (type) {
+            case "ddc":
+                subjects = opus.getSubjectDdcArray();
+                break;
+            case "rvk":
+                subjects = opus.getSubjectRvkArray();
+                break;
+            case "uncontrolled":
+                subjects = opus.getSubjectUncontrolledArray();
+                query = "[@lang='%s']";
+                break;
+            default:
+                return;
+        }
+
+        for (Subject subject : subjects) {
+            final String value = subject.getValue();
+            final String lang = languageEncoding(subject.getLanguage());
+
+            final String p = (lang != null) ? lang : type;
+
+            ClassificationDefinition cl = (ClassificationDefinition)
+                    select("mods:classification" + String.format(query, p), mods);
+
+            if (cl == null) {
+                cl = mods.addNewClassification();
+                if (type.equals("uncontrolled")) {
+                    cl.setLang(lang);
+                } else {
+                    cl.setAuthority(type);
+                }
+                signalChanges("MODS");
+            }
+
+            if (!cl.getStringValue().equals(value)) {
+                cl.setStringValue(value);
+                signalChanges("MODS");
+            }
+        }
     }
 
     private void mapTableOfContent(Document opus, ModsDefinition mods) {
