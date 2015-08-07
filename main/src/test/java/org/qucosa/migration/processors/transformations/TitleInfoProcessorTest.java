@@ -19,6 +19,7 @@ package org.qucosa.migration.processors.transformations;
 
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.StringPlusLanguage;
+import gov.loc.mods.v3.TitleInfoDefinition;
 import noNamespace.Title;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
@@ -43,10 +44,9 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         runProcessor(processor);
         ModsDefinition outputMods = modsDocument.getMods();
 
-        assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
-        assertEquals(language, outputMods.getTitleInfoArray(0).getTitleArray(0).getLang());
-        assertEquals(value,
-                outputMods.getTitleInfoArray(0).getTitleArray(0).getStringValue());
+        XMLAssert.assertXpathExists(
+                "//mods:titleInfo[@lang='" + language + "']/mods:title[text()='" + value + "']",
+                outputMods.getDomNode().getOwnerDocument());
     }
 
     @Test
@@ -58,10 +58,9 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         runProcessor(processor);
         ModsDefinition outputMods = modsDocument.getMods();
 
-        assertTrue("Expected a <mods:titleInfo> element", outputMods.getTitleInfoArray().length > 0);
-        assertEquals(language, outputMods.getTitleInfoArray(0).getSubTitleArray(0).getLang());
-        assertEquals(value,
-                outputMods.getTitleInfoArray(0).getSubTitleArray(0).getStringValue());
+        XMLAssert.assertXpathExists(
+                "//mods:titleInfo[@lang='" + language + "']/mods:subTitle[text()='" + value + "']",
+                outputMods.getDomNode().getOwnerDocument());
     }
 
     @Test
@@ -74,7 +73,7 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         ModsDefinition outputMods = modsDocument.getMods();
 
         XMLAssert.assertXpathExists(
-                "//mods:titleInfo[@type='alternative']/mods:title[@lang='" + language + "' and text()='" + value + "']",
+                "//mods:titleInfo[@lang='" + language + "' and @type='alternative']/mods:title[text()='" + value + "']",
                 outputMods.getDomNode().getOwnerDocument());
     }
 
@@ -88,8 +87,8 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         ModsDefinition outputMods = modsDocument.getMods();
 
         XMLAssert.assertXpathExists(
-                "//mods:relatedItem[@type='series']/mods:titleInfo/" +
-                        "mods:title[@lang='" + language + "' and text()='" + value + "']",
+                "//mods:relatedItem[@type='series']/mods:titleInfo[@lang='" + language + "']/" +
+                        "mods:title[text()='" + value + "']",
                 outputMods.getDomNode().getOwnerDocument());
     }
 
@@ -100,13 +99,29 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
         addTitleMain(language, value);
 
-        StringPlusLanguage title = modsDocument.getMods().addNewTitleInfo().addNewTitle();
-        title.setLang(language);
+        TitleInfoDefinition titleInfoDefinition = modsDocument.getMods().addNewTitleInfo();
+        titleInfoDefinition.setLang(language);
+
+        StringPlusLanguage title = titleInfoDefinition.addNewTitle();
         title.setStringValue(value);
 
         runProcessor(processor);
 
         assertFalse(processor.hasChanges());
+    }
+
+    @Test
+    public void oneTitleInfoPerLanguage() throws Exception {
+        addTitleMain("ger", "Deutscher Titel");
+        addTitleMain("eng", "English Title");
+        addTitleSub("ger", "Deutscher Untertitel");
+        addTitleSub("eng", "English Sub Title");
+
+        runProcessor(processor);
+        ModsDefinition outputMods = modsDocument.getMods();
+
+        XMLAssert.assertXpathExists("//mods:titleInfo[@lang='ger']", outputMods.getDomNode().getOwnerDocument());
+        XMLAssert.assertXpathExists("//mods:titleInfo[@lang='eng']", outputMods.getDomNode().getOwnerDocument());
     }
 
     @Test
