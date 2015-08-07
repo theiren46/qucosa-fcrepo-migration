@@ -113,7 +113,6 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .setBody(constant(""))
                 .to(uri)
                 .convertBodyTo(String.class)
-                .log("${body}")
                 .bean(InfoDocument.Factory.class, "parse(${body})");
 
         from("direct:ds:update")
