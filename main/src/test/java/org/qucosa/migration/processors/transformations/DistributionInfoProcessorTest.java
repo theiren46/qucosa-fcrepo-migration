@@ -17,11 +17,10 @@
 
 package org.qucosa.migration.processors.transformations;
 
-import noNamespace.Date;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 
-import java.math.BigInteger;
+import static org.junit.Assert.fail;
 
 public class DistributionInfoProcessorTest extends ProcessorTestBase {
 
@@ -55,14 +54,7 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsServerDatePublished() throws Exception {
-        Date sdp = opusDocument.getOpus().getOpusDocument().addNewServerDatePublished();
-        sdp.setYear(BigInteger.valueOf(2009));
-        sdp.setMonth(BigInteger.valueOf(6));
-        sdp.setDay(BigInteger.valueOf(4));
-        sdp.setHour(BigInteger.valueOf(12));
-        sdp.setMinute(BigInteger.valueOf(9));
-        sdp.setSecond(BigInteger.valueOf(40));
-        sdp.setTimezone("GMT-2");
+        addServerDatePublished(2009, 6, 4, 12, 9, 40, "GMT-2");
 
         runProcessor(processor);
 
@@ -70,6 +62,20 @@ public class DistributionInfoProcessorTest extends ProcessorTestBase {
                 "//mods:originInfo[@eventType='distribution']/" +
                         "mods:dateIssued[@encoding='iso8601' and @keyDate='yes' and text()='2009-06-04']",
                 modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void handlesEmptyFields() {
+        opusDocument.getOpus().getOpusDocument().setPublisherName(null);
+        opusDocument.getOpus().getOpusDocument().setPublisherPlace("");
+        addServerDatePublished(2009, 6, 4, 12, 9, 40, "GMT-2");
+
+        try {
+            runProcessor(processor);
+        } catch (Exception e) {
+            fail("Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
 }

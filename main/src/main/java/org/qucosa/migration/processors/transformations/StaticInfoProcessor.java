@@ -43,12 +43,12 @@ public class StaticInfoProcessor extends MappingProcessor {
 
         if (pdd == null) {
             pdd = mods.addNewPhysicalDescription();
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         if (!nodeExists("mods:digitalOrigin", pdd)) {
             pdd.addDigitalOrigin(BORN_DIGITAL);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
     }
 
@@ -59,12 +59,12 @@ public class StaticInfoProcessor extends MappingProcessor {
         if (oid == null) {
             oid = mods.addNewOriginInfo();
             oid.setEventType("distribution");
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         if (!nodeExists("mods:edition[text()='[Electronic ed.]']", oid)) {
             oid.addNewEdition().setStringValue("[Electronic ed.]");
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
     }
 }

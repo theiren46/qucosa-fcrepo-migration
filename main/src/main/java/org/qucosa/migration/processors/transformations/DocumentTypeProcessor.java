@@ -36,12 +36,12 @@ public class DocumentTypeProcessor extends MappingProcessor {
 
             if (it == null) {
                 it = infoDocument.addNewInfo();
-                signalChanges("SLUB-INFO");
+                signalChanges(SLUB_INFO_CHANGES);
             }
 
             if (it.getDocumentType() == null || !it.getDocumentType().equals(encodedType)) {
                 it.setDocumentType(encodedType);
-                signalChanges("SLUB-INFO");
+                signalChanges(SLUB_INFO_CHANGES);
             }
 
         }

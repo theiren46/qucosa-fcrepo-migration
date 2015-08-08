@@ -42,7 +42,7 @@ public class TitleInfoProcessor extends MappingProcessor {
         if (titleInfoDefinition == null) {
             titleInfoDefinition = modsDefinition.addNewTitleInfo();
             titleInfoDefinition.setLang(lang);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         return titleInfoDefinition;
@@ -55,7 +55,7 @@ public class TitleInfoProcessor extends MappingProcessor {
         if (titleInfoDefinition == null) {
             titleInfoDefinition = relatedItemDefinition.addNewTitleInfo();
             titleInfoDefinition.setLang(lang);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         return titleInfoDefinition;
@@ -70,7 +70,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             titleInfoDefinition = modsDefinition.addNewTitleInfo();
             titleInfoDefinition.setType(type);
             titleInfoDefinition.setLang(lang);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         return titleInfoDefinition;
@@ -87,7 +87,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewTitle();
                 mt.setStringValue(ot.getValue());
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }
@@ -103,7 +103,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (relatedItemDefinition == null) {
                 relatedItemDefinition = modsDefinition.addNewRelatedItem();
                 relatedItemDefinition.setType(RelatedItemDefinition.Type.SERIES);
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
 
             for (Title ot : opusDocument.getOpus().getOpusDocument().getTitleParentArray()) {
@@ -114,7 +114,7 @@ public class TitleInfoProcessor extends MappingProcessor {
                 if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
                     StringPlusLanguage mt = tid.addNewTitle();
                     mt.setStringValue(ot.getValue());
-                    signalChanges("MODS");
+                    signalChanges(MODS_CHANGES);
                 }
             }
         }
@@ -131,7 +131,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (!nodeExists("mods:subTitle[text()='" + ot.getValue() + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewSubTitle();
                 mt.setStringValue(ot.getValue());
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }
@@ -147,7 +147,7 @@ public class TitleInfoProcessor extends MappingProcessor {
             if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewTitle();
                 mt.setStringValue(ot.getValue());
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }

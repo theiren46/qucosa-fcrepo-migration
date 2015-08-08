@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertTrue;
+import static org.qucosa.migration.processors.transformations.MappingProcessor.MODS_CHANGES;
+import static org.qucosa.migration.processors.transformations.MappingProcessor.SLUB_INFO_CHANGES;
 
 public class MappingProcessorTest {
 
@@ -37,8 +39,8 @@ public class MappingProcessorTest {
         MappingProcessor mappingProcessor = new MappingProcessor() {
             @Override
             public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) {
-                signalChanges("MODS");
-                signalChanges("SLUB-INFO");
+                signalChanges(MODS_CHANGES);
+                signalChanges(SLUB_INFO_CHANGES);
             }
         };
 
@@ -50,8 +52,8 @@ public class MappingProcessorTest {
 
         mappingProcessor.process(exchange);
 
-        assertTrue((Boolean) exchange.getProperty("MODS_CHANGES"));
-        assertTrue((Boolean) exchange.getProperty("SLUB-INFO_CHANGES"));
+        assertTrue((Boolean) exchange.getProperty(MODS_CHANGES));
+        assertTrue((Boolean) exchange.getProperty(SLUB_INFO_CHANGES));
     }
 
     @Test

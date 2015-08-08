@@ -43,7 +43,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
             if (oid == null) {
                 oid = mods.addNewOriginInfo();
                 oid.setEventType("distribution");
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
 
             if (hasPublisherName) mapPublisherName(opus, oid);
@@ -64,12 +64,12 @@ public class DistributionInfoProcessor extends MappingProcessor {
             dateIssued = oid.addNewDateIssued();
             dateIssued.setEncoding(ISO_8601);
             dateIssued.setKeyDate(XmlString.Factory.newValue("yes"));
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         if (!dateIssued.getStringValue().equals(mappedDateEncoding)) {
             dateIssued.setStringValue(mappedDateEncoding);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
     }
 
@@ -81,7 +81,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
         if (pd == null) {
             pd = oid.addNewPlace();
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         PlaceTermDefinition ptd = (PlaceTermDefinition)
@@ -91,7 +91,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
             ptd = pd.addNewPlaceTerm();
             ptd.setType(TEXT);
             ptd.setStringValue(publisherPlace);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
     }
 
@@ -103,12 +103,12 @@ public class DistributionInfoProcessor extends MappingProcessor {
 
         if (modsPublisher == null) {
             modsPublisher = oid.addNewPublisher();
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
 
         if (!modsPublisher.getStringValue().equals(publisherName)) {
             modsPublisher.setStringValue(publisherName);
-            signalChanges("MODS");
+            signalChanges(MODS_CHANGES);
         }
     }
 }

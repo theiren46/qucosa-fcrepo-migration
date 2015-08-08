@@ -32,7 +32,7 @@ public class RightsProcessor extends MappingProcessor {
             if (info.getVgwortOpenKey() == null
                     || !info.getVgwortOpenKey().equals(vgwortOpenKey)) {
                 info.setVgwortOpenKey(vgwortOpenKey);
-                signalChanges("SLUB-INFO");
+                signalChanges(SLUB_INFO_CHANGES);
             }
         }
     }

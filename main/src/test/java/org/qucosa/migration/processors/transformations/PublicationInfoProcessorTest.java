@@ -60,6 +60,18 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void handlesEmptyCompleteDate() throws Exception {
+        Date ocd = opusDocument.getOpus().getOpusDocument().addNewCompletedDate();
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathNotExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:dateOther[@encoding='iso8601' and @type='submission']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
     public void extractsDateAccepted() throws Exception {
         Date ocd = opusDocument.getOpus().getOpusDocument().addNewDateAccepted();
         ocd.setYear(BigInteger.valueOf(2009));
@@ -79,6 +91,18 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void handlesEmptyDateAccepted() throws Exception {
+        Date ocd = opusDocument.getOpus().getOpusDocument().addNewDateAccepted();
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathNotExists(
+                "//mods:originInfo[@eventType='publication']/" +
+                        "mods:dateOther[@encoding='iso8601' and @type='defense']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
     public void extractsCompletedYear() throws Exception {
         opusDocument.getOpus().getOpusDocument().setCompletedYear(BigInteger.valueOf(2009));
 
@@ -89,6 +113,18 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
                         "mods:dateIssued[@encoding='iso8601' and text()='2009']",
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
+
+    @Test
+    public void handlesEmptyCompletedYear() throws Exception {
+        opusDocument.getOpus().getOpusDocument().setCompletedYear(null);
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathNotExists(
+                "//mods:originInfo[@eventType='publication']/mods:dateIssued",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
 
     @Test
     public void extractsEdition() throws Exception {

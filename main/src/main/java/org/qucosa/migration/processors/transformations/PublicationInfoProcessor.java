@@ -52,7 +52,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
             if (oid == null) {
                 oid = mods.addNewOriginInfo();
                 oid.setEventType("publication");
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
 
             if (hasCompletedDate) mapCompletedDate(opus, oid);
@@ -66,75 +66,84 @@ public class PublicationInfoProcessor extends MappingProcessor {
     private void mapDateAccepted(Document opus, OriginInfoDefinition oid) {
         final String mappedDateEncoding = dateEncoding(opus.getDateAccepted());
 
-        DateOtherDefinition dateOther = (DateOtherDefinition)
-                select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
-                        "iso8601", "defense"), oid);
+        if (mappedDateEncoding != null) {
+            DateOtherDefinition dateOther = (DateOtherDefinition)
+                    select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
+                            "iso8601", "defense"), oid);
 
-        if (dateOther == null) {
-            dateOther = oid.addNewDateOther();
-            dateOther.setEncoding(ISO_8601);
-            dateOther.setType("defense");
-            signalChanges("MODS");
-        }
+            if (dateOther == null) {
+                dateOther = oid.addNewDateOther();
+                dateOther.setEncoding(ISO_8601);
+                dateOther.setType("defense");
+                signalChanges(MODS_CHANGES);
+            }
 
-        if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
-            dateOther.setStringValue(mappedDateEncoding);
-            signalChanges("MODS");
+            if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
+                dateOther.setStringValue(mappedDateEncoding);
+                signalChanges(MODS_CHANGES);
+            }
         }
     }
 
     private void mapEdition(Document opus, OriginInfoDefinition oid) {
         String opusEdition = opus.getEdition();
 
-        XmlString edition = (XmlString)
-                select("mods:edition", oid);
+        if (opusEdition != null && !opusEdition.isEmpty()) {
+            XmlString edition = (XmlString)
+                    select("mods:edition", oid);
 
-        if (edition == null) {
-            edition = oid.addNewEdition();
-            signalChanges("MODS");
-        }
+            if (edition == null) {
+                edition = oid.addNewEdition();
+                signalChanges(MODS_CHANGES);
+            }
 
-        if (!edition.getStringValue().equals(opusEdition)) {
-            edition.setStringValue(opusEdition);
-            signalChanges("MODS");
+            if (!edition.getStringValue().equals(opusEdition)) {
+                edition.setStringValue(opusEdition);
+                signalChanges(MODS_CHANGES);
+            }
         }
     }
 
     private void mapCompletedYear(Document opus, OriginInfoDefinition oid) {
         final String mappedCompletedYear = dateEncoding(opus.getCompletedYear());
 
-        DateDefinition dateIssuedDefinition = (DateDefinition)
-                select("mods:dateIssued[@encoding='iso8601']", oid);
+        if (mappedCompletedYear != null) {
 
-        if (dateIssuedDefinition == null) {
-            dateIssuedDefinition = oid.addNewDateIssued();
-            dateIssuedDefinition.setEncoding(ISO_8601);
-            signalChanges("MODS");
-        }
+            DateDefinition dateIssuedDefinition = (DateDefinition)
+                    select("mods:dateIssued[@encoding='iso8601']", oid);
 
-        if (!dateIssuedDefinition.getStringValue().equals(mappedCompletedYear)) {
-            dateIssuedDefinition.setStringValue(mappedCompletedYear);
-            signalChanges("MODS");
+            if (dateIssuedDefinition == null) {
+                dateIssuedDefinition = oid.addNewDateIssued();
+                dateIssuedDefinition.setEncoding(ISO_8601);
+                signalChanges(MODS_CHANGES);
+            }
+
+            if (!dateIssuedDefinition.getStringValue().equals(mappedCompletedYear)) {
+                dateIssuedDefinition.setStringValue(mappedCompletedYear);
+                signalChanges(MODS_CHANGES);
+            }
         }
     }
 
     private void mapCompletedDate(Document opus, OriginInfoDefinition oid) {
         final String mappedDateEncoding = dateEncoding(opus.getCompletedDate());
 
-        DateOtherDefinition dateOther = (DateOtherDefinition)
-                select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
-                        "iso8601", "submission"), oid);
+        if (mappedDateEncoding != null) {
+            DateOtherDefinition dateOther = (DateOtherDefinition)
+                    select(String.format("mods:dateOther[@encoding='%s' and @type='%s']",
+                            "iso8601", "submission"), oid);
 
-        if (dateOther == null) {
-            dateOther = oid.addNewDateOther();
-            dateOther.setEncoding(ISO_8601);
-            dateOther.setType("submission");
-            signalChanges("MODS");
-        }
+            if (dateOther == null) {
+                dateOther = oid.addNewDateOther();
+                dateOther.setEncoding(ISO_8601);
+                dateOther.setType("submission");
+                signalChanges(MODS_CHANGES);
+            }
 
-        if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
-            dateOther.setStringValue(mappedDateEncoding);
-            signalChanges("MODS");
+            if (!dateOther.getStringValue().equals(mappedDateEncoding)) {
+                dateOther.setStringValue(mappedDateEncoding);
+                signalChanges(MODS_CHANGES);
+            }
         }
     }
 
@@ -152,7 +161,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
             if (ld == null) {
                 ld = mods.addNewLanguage();
                 ld.addNewUsage().setStringValue("primary");
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
 
             if (!nodeExists(
@@ -164,7 +173,7 @@ public class PublicationInfoProcessor extends MappingProcessor {
                 lngtd.setAuthority(ISO_639_2_B);
                 lngtd.setType(CODE);
                 lngtd.setStringValue(languageText);
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }

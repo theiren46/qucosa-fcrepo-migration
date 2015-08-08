@@ -47,7 +47,7 @@ public class IdentifierProcessor extends MappingProcessor {
                 IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
                 identifierDefinition.setType(type.toLowerCase());
                 identifierDefinition.setStringValue(oid.getValue());
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
 

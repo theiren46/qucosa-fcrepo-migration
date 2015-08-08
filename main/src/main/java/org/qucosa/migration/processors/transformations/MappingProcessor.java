@@ -44,8 +44,10 @@ public abstract class MappingProcessor implements Processor {
     private static final XPathFactory xPathFactory;
     private static final String xpathNSDeclaration =
             "declare namespace mods='" + NS_MODS_V3 + "'; " +
-            "declare namespace slub='" + NS_SLUB + "'; " +
-            "declare namespace foaf='" + NS_FOAF + "'; ";
+                    "declare namespace slub='" + NS_SLUB + "'; " +
+                    "declare namespace foaf='" + NS_FOAF + "'; ";
+    public static final String MODS_CHANGES = "MODS_CHANGES";
+    public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
 
     static {
         xPathFactory = XPathFactory.newInstance();
@@ -91,16 +93,16 @@ public abstract class MappingProcessor implements Processor {
     public void process(Exchange exchange) throws Exception {
         Map m = (Map) exchange.getIn().getBody();
 
-        modsChanges = (boolean) exchange.getProperty("MODS_CHANGES", false);
-        slubChanges = (boolean) exchange.getProperty("SLUB-INFO_CHANGES", false);
+        modsChanges = (boolean) exchange.getProperty(MODS_CHANGES, false);
+        slubChanges = (boolean) exchange.getProperty(SLUB_INFO_CHANGES, false);
 
         process((OpusDocument) m.get("QUCOSA-XML"),
                 (ModsDocument) m.get("MODS"),
                 (InfoDocument) m.get("SLUB-INFO"));
 
         exchange.getIn().setBody(m);
-        exchange.setProperty("MODS_CHANGES", modsChanges);
-        exchange.setProperty("SLUB-INFO_CHANGES", slubChanges);
+        exchange.setProperty(MODS_CHANGES, modsChanges);
+        exchange.setProperty(SLUB_INFO_CHANGES, slubChanges);
     }
 
 
@@ -120,9 +122,9 @@ public abstract class MappingProcessor implements Processor {
     }
 
     public void signalChanges(String dsid) {
-        if (dsid.equals("MODS")) {
+        if (dsid.equals(MODS_CHANGES)) {
             this.modsChanges = true;
-        } else if (dsid.equals("SLUB-INFO")) {
+        } else if (dsid.equals(SLUB_INFO_CHANGES)) {
             this.slubChanges = true;
         }
     }
@@ -168,6 +170,8 @@ public abstract class MappingProcessor implements Processor {
     }
 
     protected String dateEncoding(BigInteger year) {
+        if (year == null) return null;
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy");
         Calendar cal = new GregorianCalendar();
         cal.set(Calendar.YEAR, year.intValue());
@@ -175,6 +179,10 @@ public abstract class MappingProcessor implements Processor {
     }
 
     protected String dateEncoding(noNamespace.Date date) {
+        if (!(date.isSetYear() && date.isSetMonth() && date.isSetDay())) {
+            return null;
+        }
+
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         TimeZone tz;

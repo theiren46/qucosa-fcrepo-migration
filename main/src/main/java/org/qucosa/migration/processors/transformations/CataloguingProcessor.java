@@ -71,12 +71,12 @@ public class CataloguingProcessor extends MappingProcessor {
                 } else {
                     cl.setAuthority(type);
                 }
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
 
             if (!cl.getStringValue().equals(value)) {
                 cl.setStringValue(value);
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }
@@ -90,7 +90,7 @@ public class CataloguingProcessor extends MappingProcessor {
             if (toc == null) {
                 toc = mods.addNewTableOfContents();
                 toc.setStringValue(opusTableOfContent);
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }
@@ -109,7 +109,7 @@ public class CataloguingProcessor extends MappingProcessor {
                 ad.setLang(lang);
                 ad.setType("content");
                 ad.setStringValue(abst);
-                signalChanges("MODS");
+                signalChanges(MODS_CHANGES);
             }
         }
     }

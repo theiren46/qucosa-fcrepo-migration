@@ -33,6 +33,8 @@ import org.qucosa.migration.processors.HttpOperationFailedHelper;
 import org.qucosa.migration.processors.transformations.*;
 
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
+import static org.qucosa.migration.processors.transformations.MappingProcessor.MODS_CHANGES;
+import static org.qucosa.migration.processors.transformations.MappingProcessor.SLUB_INFO_CHANGES;
 
 public class TransformationRouteBuilder extends RouteBuilder {
 
@@ -125,7 +127,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .threads()
                 .choice()
 
-                .when(simple("${exchangeProperty[MODS_CHANGES]} == true"))
+                .when(simple("${exchangeProperty[" + MODS_CHANGES + "]} == true"))
                 .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
                 .setHeader("DSID", constant("MODS"))
                 .setHeader(Exchange.HTTP_METHOD, constant("POST"))
@@ -142,7 +144,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .threads()
                 .choice()
 
-                .when(simple("${exchangeProperty[SLUB-INFO_CHANGES]} == true"))
+                .when(simple("${exchangeProperty[" + SLUB_INFO_CHANGES + "]} == true"))
                 .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
                 .setHeader("DSID", constant("SLUB-INFO"))
                 .setHeader(Exchange.HTTP_METHOD, constant("POST"))

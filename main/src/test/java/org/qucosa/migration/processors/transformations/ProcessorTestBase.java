@@ -19,6 +19,7 @@ package org.qucosa.migration.processors.transformations;
 
 import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDocument;
+import noNamespace.Date;
 import noNamespace.OpusDocument;
 import org.apache.xmlbeans.XmlException;
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -27,6 +28,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Before;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.HashMap;
 
 public class ProcessorTestBase {
@@ -59,5 +61,16 @@ public class ProcessorTestBase {
 
     protected void runProcessor(MappingProcessor processor) throws Exception {
         processor.process(opusDocument, modsDocument, infoDocument);
+    }
+
+    protected void addServerDatePublished(int year, int month, int day, int hour, int minute, int second, String timezone) {
+        Date sdp = opusDocument.getOpus().getOpusDocument().addNewServerDatePublished();
+        sdp.setYear(BigInteger.valueOf(year));
+        sdp.setMonth(BigInteger.valueOf(month));
+        sdp.setDay(BigInteger.valueOf(day));
+        sdp.setHour(BigInteger.valueOf(hour));
+        sdp.setMinute(BigInteger.valueOf(minute));
+        sdp.setSecond(BigInteger.valueOf(second));
+        sdp.setTimezone(timezone);
     }
 }
