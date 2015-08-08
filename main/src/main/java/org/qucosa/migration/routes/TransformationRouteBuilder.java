@@ -165,14 +165,15 @@ public class TransformationRouteBuilder extends RouteBuilder {
 
     private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
         Class[] pipeline = {
-                TitleInfoProcessor.class,
-                IdentifierProcessor.class,
-                PublicationInfoProcessor.class,
-                StaticInfoProcessor.class,
+                CataloguingProcessor.class,
                 DistributionInfoProcessor.class,
                 DocumentTypeProcessor.class,
-                CataloguingProcessor.class,
-                RightsProcessor.class
+                IdentifierProcessor.class,
+                PersonInfoProcessor.class,
+                PublicationInfoProcessor.class,
+                RightsProcessor.class,
+                StaticInfoProcessor.class,
+                TitleInfoProcessor.class
         };
 
         RouteDefinition all = from("direct:transform:all")
