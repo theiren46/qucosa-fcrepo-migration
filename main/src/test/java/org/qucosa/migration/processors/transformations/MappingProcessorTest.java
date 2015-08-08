@@ -28,6 +28,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.qucosa.migration.processors.transformations.MappingProcessor.MODS_CHANGES;
 import static org.qucosa.migration.processors.transformations.MappingProcessor.SLUB_INFO_CHANGES;
@@ -78,6 +79,19 @@ public class MappingProcessorTest {
         assertTrue(((Map) body).containsKey("QUCOSA-XML"));
         assertTrue(((Map) body).containsKey("MODS"));
         assertTrue(((Map) body).containsKey("SLUB-INFO"));
+    }
+
+    @Test
+    public void hasCorrectLabel() {
+        MappingProcessor processor = new LabelTestProcessor();
+
+        assertEquals("labeltest", processor.getLabel());
+    }
+
+    private class LabelTestProcessor extends MappingProcessor {
+        @Override
+        public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
+        }
     }
 
 }

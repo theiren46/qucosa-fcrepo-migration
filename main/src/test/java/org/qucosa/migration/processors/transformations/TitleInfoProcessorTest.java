@@ -31,11 +31,6 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
     private MappingProcessor processor = new TitleInfoProcessor();
 
     @Test
-    public void hasCorrectLabel() {
-        assertEquals("titleinfo", processor.getLabel());
-    }
-
-    @Test
     public void extractsTitleMain() throws Exception {
         final String language = "ger";
         final String value = "Effiziente Schemamigration in der modellgetriebenen Datenbankanwendungsentwicklung";
