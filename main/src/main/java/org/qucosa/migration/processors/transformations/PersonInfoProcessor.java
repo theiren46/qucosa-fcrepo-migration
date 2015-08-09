@@ -21,18 +21,121 @@ import com.xmlns.foaf.x01.PersonDocument;
 import de.slubDresden.InfoDocument;
 import de.slubDresden.InfoType;
 import de.slubDresden.SubmitterType;
-import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Person;
 
+import static gov.loc.mods.v3.CodeOrText.CODE;
+import static gov.loc.mods.v3.NameDefinition.Type.PERSONAL;
+import static gov.loc.mods.v3.NamePartDefinition.Type.*;
+
 public class PersonInfoProcessor extends MappingProcessor {
+
+    private static final String LOC_GOV_VOCABULARY_RELATORS = "http://id.loc.gov/vocabulary/relators";
+
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         Document opus = opusDocument.getOpus().getOpusDocument();
+        ModsDefinition mods = modsDocument.getMods();
         InfoType info = infoDocument.getInfo();
 
+        mapPersonAuthor(opus, mods);
         mapPersonSubmitter(opus, info);
+    }
+
+    private void mapPersonAuthor(Document opus, ModsDefinition mods) {
+        for (Person author : opus.getPersonAuthorArray()) {
+            final String given = author.getFirstName();
+            final String family = author.getLastName();
+            final String termsOfAddress = author.getAcademicTitle();
+            final String date = dateEncoding(author.getDateOfBirth());
+            final String marcRoleTerm = marcrelatorEncoding(author.getRole());
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("mods:name[");
+            sb.append("@type='personal'");
+            if (given != null && !given.isEmpty()) {
+                sb.append(" and mods:namePart[@type='given' and text()='" + given + "']");
+            }
+            if (family != null && !family.isEmpty()) {
+                sb.append(" and mods:namePart[@type='family' and text()='" + family + "']");
+            }
+            if (date != null) {
+                sb.append(" and mods:namePart[@type='date' and text()='" + date + "']");
+            }
+            sb.append(']');
+
+            NameDefinition nd = (NameDefinition)
+                    select(sb.toString(), mods);
+
+            if (nd == null) {
+                nd = mods.addNewName();
+                nd.setType2(PERSONAL);
+                signalChanges(MODS_CHANGES);
+            }
+
+            if (given != null && !given.isEmpty()) {
+                checkOrSetNamePart(GIVEN, given, nd);
+            }
+            if (family != null && !family.isEmpty()) {
+                checkOrSetNamePart(FAMILY, family, nd);
+            }
+            if (termsOfAddress != null && !termsOfAddress.isEmpty()) {
+                checkOrSetNamePart(TERMS_OF_ADDRESS, termsOfAddress, nd);
+            }
+            if (date != null) {
+                checkOrSetNamePart(DATE, date, nd);
+            }
+            if (marcRoleTerm != null) {
+                RoleDefinition rd = (RoleDefinition) select("mods:role", nd);
+                if (rd == null) {
+                    rd = nd.addNewRole();
+                    signalChanges(MODS_CHANGES);
+                }
+                RoleTermDefinition rtd = (RoleTermDefinition)
+                        select(String.format("mods:roleTerm[@type='%s'" +
+                                        " and authority='%s'" +
+                                        " and authorityURI='%s'" +
+                                        " and valueURI='%s'" +
+                                        " and text()='%s']",
+                                "code", "marcrelator",
+                                LOC_GOV_VOCABULARY_RELATORS,
+                                LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm, marcRoleTerm), rd);
+
+                if (rtd == null) {
+                    rtd = rd.addNewRoleTerm();
+                    rtd.setType(CODE);
+                    rtd.setAuthority("marcrelator");
+                    rtd.setAuthorityURI(LOC_GOV_VOCABULARY_RELATORS);
+                    rtd.setValueURI(LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm);
+                    rtd.setStringValue(marcRoleTerm);
+                    signalChanges(MODS_CHANGES);
+                }
+            }
+
+        }
+    }
+
+    private void checkOrSetNamePart(NamePartDefinition.Type.Enum type, String value, NameDefinition nd) {
+        NamePartDefinition np = (NamePartDefinition)
+                select("mods:namePart[@type='" + type + "' and text()='" + value + "']", nd);
+
+        if (np == null) {
+            np = nd.addNewNamePart();
+            np.setType(type);
+            np.setStringValue(value);
+            signalChanges(MODS_CHANGES);
+        }
+    }
+
+    private String marcrelatorEncoding(String role) {
+        switch (role) {
+            case "author":
+                return "aut";
+            default:
+                return null;
+        }
     }
 
     private void mapPersonSubmitter(Document opus, InfoType info) {
