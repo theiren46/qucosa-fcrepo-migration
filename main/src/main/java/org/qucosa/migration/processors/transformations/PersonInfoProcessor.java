@@ -40,12 +40,13 @@ public class PersonInfoProcessor extends MappingProcessor {
         ModsDefinition mods = modsDocument.getMods();
         InfoType info = infoDocument.getInfo();
 
-        mapPersonAuthor(opus, mods);
+        mapPersons(mods, opus.getPersonAuthorArray());
+        mapPersons(mods, opus.getPersonAdvisorArray());
         mapPersonSubmitter(opus, info);
     }
 
-    private void mapPersonAuthor(Document opus, ModsDefinition mods) {
-        for (Person author : opus.getPersonAuthorArray()) {
+    private void mapPersons(ModsDefinition mods, Person[] persons) {
+        for (Person author : persons) {
             final String given = author.getFirstName();
             final String family = author.getLastName();
             final String termsOfAddress = author.getAcademicTitle();
@@ -131,6 +132,8 @@ public class PersonInfoProcessor extends MappingProcessor {
 
     private String marcrelatorEncoding(String role) {
         switch (role) {
+            case "advisor":
+                return "ths";
             case "author":
                 return "aut";
             default:

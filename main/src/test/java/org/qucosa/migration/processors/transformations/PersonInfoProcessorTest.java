@@ -54,7 +54,7 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsAuthorNameparts() throws Exception {
-        createAuthor("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "author", 1965, 11, 5);
 
         runProcessor(processor);
@@ -68,8 +68,23 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void extractsAdvisorNameparts() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "advisor", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name[@type='personal']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='given' and text()='Hans']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
+    }
+
+    @Test
     public void updateAuthorNameparts() throws Exception {
-        createAuthor("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "author", 1965, 11, 5);
 
         {
@@ -109,7 +124,7 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsRole() throws Exception {
-        createAuthor("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "author", 1965, 11, 5);
 
         runProcessor(processor);
@@ -123,22 +138,34 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
                 " and text()='aut']", xml);
     }
 
-    private void createAuthor(String academicTitle, String gender, String phone, String email, String firstName,
+    private void createPerson(String academicTitle, String gender, String phone, String email, String firstName,
                               String lastName, String role, int yearOfBirth, int monthOfBirth, int dayOfBirth) {
-        Person author = opusDocument.getOpus().getOpusDocument().addNewPersonAuthor();
-        author.setAcademicTitle(academicTitle);
+
+        Person person;
+        switch (role) {
+            case "author":
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonAuthor();
+                break;
+            case "advisor":
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonAdvisor();
+                break;
+            default:
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonOther();
+        }
+
+        person.setAcademicTitle(academicTitle);
         {
-            Date date = author.addNewDateOfBirth();
+            Date date = person.addNewDateOfBirth();
             date.setYear(BigInteger.valueOf(yearOfBirth));
             date.setMonth(BigInteger.valueOf(monthOfBirth));
             date.setDay(BigInteger.valueOf(dayOfBirth));
         }
-        author.setGender(gender);
-        author.setPhone(phone);
-        author.setEmail(email);
-        author.setFirstName(firstName);
-        author.setLastName(lastName);
-        author.setRole(role);
+        person.setGender(gender);
+        person.setPhone(phone);
+        person.setEmail(email);
+        person.setFirstName(firstName);
+        person.setLastName(lastName);
+        person.setRole(role);
     }
 
 }
