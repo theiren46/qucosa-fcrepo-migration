@@ -155,4 +155,8 @@ public abstract class MappingProcessor implements Processor {
 
         return dateFormat.format(cal.getTime());
     }
+
+    protected String qq(String s) {
+        return s.replace("'", "''");
+    }
 }

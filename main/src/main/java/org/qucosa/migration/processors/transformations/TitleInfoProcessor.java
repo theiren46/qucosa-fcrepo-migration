@@ -84,7 +84,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
             TitleInfoDefinition tid = ensureTitleInfoElement(modsDefinition, encLang, Type.ALTERNATIVE);
 
-            if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
+            if (!nodeExists("mods:title[text()='" + qq(ot.getValue()) + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewTitle();
                 mt.setStringValue(ot.getValue());
                 signalChanges(MODS_CHANGES);
@@ -111,7 +111,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
                 TitleInfoDefinition tid = ensureTitleInfoElement(relatedItemDefinition, encLang);
 
-                if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
+                if (!nodeExists("mods:title[text()='" + qq(ot.getValue()) + "']", tid)) {
                     StringPlusLanguage mt = tid.addNewTitle();
                     mt.setStringValue(ot.getValue());
                     signalChanges(MODS_CHANGES);
@@ -128,7 +128,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
             TitleInfoDefinition tid = ensureTitleInfoElement(modsDefinition, encLang);
 
-            if (!nodeExists("mods:subTitle[text()='" + ot.getValue() + "']", tid)) {
+            if (!nodeExists("mods:subTitle[text()='" + qq(ot.getValue()) + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewSubTitle();
                 mt.setStringValue(ot.getValue());
                 signalChanges(MODS_CHANGES);
@@ -144,7 +144,7 @@ public class TitleInfoProcessor extends MappingProcessor {
 
             TitleInfoDefinition tid = ensureTitleInfoElement(modsDefinition, encLang);
 
-            if (!nodeExists("mods:title[text()='" + ot.getValue() + "']", tid)) {
+            if (!nodeExists("mods:title[text()='" + qq(ot.getValue()) + "']", tid)) {
                 StringPlusLanguage mt = tid.addNewTitle();
                 mt.setStringValue(ot.getValue());
                 signalChanges(MODS_CHANGES);

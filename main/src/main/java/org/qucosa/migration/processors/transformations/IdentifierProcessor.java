@@ -43,7 +43,7 @@ public class IdentifierProcessor extends MappingProcessor {
             Identifier oid = (Identifier) xmlObject;
             final String oidValue = oid.getValue();
             if (oidValue != null && !nodeExists(
-                    String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), oidValue),
+                    String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), qq(oidValue)),
                     mods)) {
                 IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
                 identifierDefinition.setType(type.toLowerCase());
