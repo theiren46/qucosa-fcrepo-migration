@@ -28,7 +28,6 @@ import org.apache.xmlbeans.XmlObject;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.math.BigInteger;
@@ -40,54 +39,16 @@ public abstract class MappingProcessor implements Processor {
     public static final String NS_MODS_V3 = "http://www.loc.gov/mods/v3";
     public static final String NS_SLUB = "http://slub-dresden.de/";
     public static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
-    private static final XPath xPath;
-    private static final XPathFactory xPathFactory;
+    public static final String MODS_CHANGES = "MODS_CHANGES";
+    public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
     private static final String xpathNSDeclaration =
             "declare namespace mods='" + NS_MODS_V3 + "'; " +
                     "declare namespace slub='" + NS_SLUB + "'; " +
                     "declare namespace foaf='" + NS_FOAF + "'; ";
-    public static final String MODS_CHANGES = "MODS_CHANGES";
-    public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
-
-    static {
-        xPathFactory = XPathFactory.newInstance();
-        xPath = xPathFactory.newXPath();
-        xPath.setNamespaceContext(new NamespaceContext() {
-            @Override
-            public String getNamespaceURI(String prefix) {
-                switch (prefix) {
-                    case "mods":
-                        return NS_MODS_V3;
-                    case "slub":
-                        return NS_SLUB;
-                    case "foaf":
-                        return NS_FOAF;
-                    default:
-                        return XMLConstants.NULL_NS_URI;
-                }
-            }
-
-            @Override
-            public String getPrefix(String namespaceURI) {
-                return XMLConstants.DEFAULT_NS_PREFIX;
-            }
-
-            @Override
-            public Iterator getPrefixes(String namespaceURI) {
-                return new ArrayList() {{
-                    add(XMLConstants.XML_NS_PREFIX);
-                }}.iterator();
-            }
-        });
-    }
 
     private String label;
     private boolean modsChanges;
     private boolean slubChanges;
-
-    public static XPath getXPath() {
-        return xPath;
-    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -163,10 +124,7 @@ public abstract class MappingProcessor implements Processor {
     }
 
     protected Boolean nodeExists(String expression, XmlObject object) throws XPathExpressionException {
-        final XPath xPath = getXPath();
-        xPath.reset();
-        return (Boolean) xPath.evaluate(expression,
-                object.getDomNode().cloneNode(true), XPathConstants.BOOLEAN);
+        return (select(expression, object) != null);
     }
 
     protected String dateEncoding(BigInteger year) {
