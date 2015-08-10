@@ -53,22 +53,7 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
-    public void extractsAuthorNameparts() throws Exception {
-        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
-                "Hans", "Mustermann", "author", 1965, 11, 5);
-
-        runProcessor(processor);
-
-        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
-        XMLAssert.assertXpathExists("//mods:name[@type='personal']", xml);
-        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='given' and text()='Hans']", xml);
-        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
-        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
-        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
-    }
-
-    @Test
-    public void extractsAdvisorNameparts() throws Exception {
+    public void extractsAdvisor() throws Exception {
         createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "advisor", 1965, 11, 5);
 
@@ -80,10 +65,43 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
         XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
         XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
         XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:role/mods:roleTerm[text()='ths']", xml);
     }
 
     @Test
-    public void updateAuthorNameparts() throws Exception {
+    public void extractsAuthor() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "author", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name[@type='personal']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='given' and text()='Hans']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:role/mods:roleTerm[text()='aut']", xml);
+    }
+
+    @Test
+    public void extractsContributor() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "contributor", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name[@type='personal']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='given' and text()='Hans']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:role/mods:roleTerm[text()='ctb']", xml);
+    }
+
+    @Test
+    public void updatesNameparts() throws Exception {
         createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "author", 1965, 11, 5);
 
@@ -140,14 +158,16 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
 
     private void createPerson(String academicTitle, String gender, String phone, String email, String firstName,
                               String lastName, String role, int yearOfBirth, int monthOfBirth, int dayOfBirth) {
-
         Person person;
         switch (role) {
+            case "advisor":
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonAdvisor();
+                break;
             case "author":
                 person = opusDocument.getOpus().getOpusDocument().addNewPersonAuthor();
                 break;
-            case "advisor":
-                person = opusDocument.getOpus().getOpusDocument().addNewPersonAdvisor();
+            case "contributor":
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonContributor();
                 break;
             default:
                 person = opusDocument.getOpus().getOpusDocument().addNewPersonOther();
