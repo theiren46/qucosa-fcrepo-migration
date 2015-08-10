@@ -149,9 +149,9 @@ public class PersonInfoProcessor extends MappingProcessor {
 
             RoleTermDefinition rtd = (RoleTermDefinition)
                     select(String.format("mods:roleTerm[@type='%s'" +
-                                    " and authority='%s'" +
-                                    " and authorityURI='%s'" +
-                                    " and valueURI='%s'" +
+                                    " and @authority='%s'" +
+                                    " and @authorityURI='%s'" +
+                                    " and @valueURI='%s'" +
                                     " and text()='%s']",
                             "code", "marcrelator",
                             LOC_GOV_VOCABULARY_RELATORS,
