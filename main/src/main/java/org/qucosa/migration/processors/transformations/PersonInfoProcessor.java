@@ -45,6 +45,7 @@ public class PersonInfoProcessor extends MappingProcessor {
         mapPersons(mods, opus.getPersonContributorArray());
         mapPersons(mods, opus.getPersonEditorArray());
         mapPersons(mods, opus.getPersonRefereeArray());
+        mapPersons(mods, opus.getPersonOtherArray());
         mapPersonSubmitter(opus, info);
     }
 
@@ -145,6 +146,8 @@ public class PersonInfoProcessor extends MappingProcessor {
                 return "pbl";
             case "referee":
                 return "rev";
+            case "other":
+                return "oth";
             default:
                 return null;
         }

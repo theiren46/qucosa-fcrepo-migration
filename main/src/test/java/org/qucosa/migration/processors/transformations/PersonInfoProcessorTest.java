@@ -117,6 +117,22 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void extractsOther() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "other", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name[@type='personal']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='given' and text()='Hans']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='family' and text()='Mustermann']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='termsOfAddress' and text()='Prof. Dr.']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[@type='date' and text()='1965-11-05']", xml);
+        XMLAssert.assertXpathExists("//mods:name/mods:role/mods:roleTerm[text()='oth']", xml);
+    }
+
+    @Test
     public void extractsReferee() throws Exception {
         createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
                 "Hans", "Mustermann", "referee", 1965, 11, 5);
@@ -206,6 +222,9 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
                 break;
             case "referee":
                 person = opusDocument.getOpus().getOpusDocument().addNewPersonEditor();
+                break;
+            case "other":
+                person = opusDocument.getOpus().getOpusDocument().addNewPersonOther();
                 break;
             default:
                 person = opusDocument.getOpus().getOpusDocument().addNewPersonOther();
