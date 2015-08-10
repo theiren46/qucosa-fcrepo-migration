@@ -41,12 +41,13 @@ public class IdentifierProcessor extends MappingProcessor {
     private void map(String type, Document opusDocument, ModsDefinition mods) throws XPathExpressionException {
         for (XmlObject xmlObject : selectAll("Identifier" + type, opusDocument)) {
             Identifier oid = (Identifier) xmlObject;
-            if (!nodeExists(
-                    String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), oid.getValue()),
+            final String oidValue = oid.getValue();
+            if (oidValue != null && !nodeExists(
+                    String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), oidValue),
                     mods)) {
                 IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
                 identifierDefinition.setType(type.toLowerCase());
-                identifierDefinition.setStringValue(oid.getValue());
+                identifierDefinition.setStringValue(oidValue);
                 signalChanges(MODS_CHANGES);
             }
         }
