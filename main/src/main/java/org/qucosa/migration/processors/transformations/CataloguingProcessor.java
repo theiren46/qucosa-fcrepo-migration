@@ -39,7 +39,7 @@ public class CataloguingProcessor extends MappingProcessor {
 
     private void mapSubject(String type, Document opus, ModsDefinition mods) {
         Subject[] subjects;
-        String query = "[@authority='%s']";
+        String query = "[@authority='%s' and text()='%s']";
         switch (type) {
             case "ddc":
                 subjects = opus.getSubjectDdcArray();
@@ -59,10 +59,14 @@ public class CataloguingProcessor extends MappingProcessor {
             final String value = subject.getValue();
             final String lang = languageEncoding(subject.getLanguage());
 
-            final String p = (lang != null) ? lang : type;
-
-            ClassificationDefinition cl = (ClassificationDefinition)
-                    select("mods:classification" + String.format(query, p), mods);
+            ClassificationDefinition cl;
+            if (type.equals("uncontrolled")) {
+                cl = (ClassificationDefinition)
+                        select("mods:classification" + String.format(query, lang), mods);
+            } else {
+                cl = (ClassificationDefinition)
+                        select("mods:classification" + String.format(query, type, value), mods);
+            }
 
             if (cl == null) {
                 cl = mods.addNewClassification();
