@@ -191,9 +191,9 @@ public class MetsGenerator implements Processor {
         }
 
         final TitleInfoDefinition titleInfo = modsRecord.addNewTitleInfo();
+        titleInfo.setLang(lang);
         StringPlusLanguage mt = titleInfo.addNewTitle();
         mt.setStringValue(title);
-        mt.setLang(lang);
 
         mdWrap.addNewXmlData().set(modsDocument);
     }
