@@ -43,6 +43,7 @@ public class PersonInfoProcessor extends MappingProcessor {
         mapPersons(mods, opus.getPersonAuthorArray());
         mapPersons(mods, opus.getPersonAdvisorArray());
         mapPersons(mods, opus.getPersonContributorArray());
+        mapPersons(mods, opus.getPersonEditorArray());
         mapPersonSubmitter(opus, info);
     }
 
@@ -139,6 +140,8 @@ public class PersonInfoProcessor extends MappingProcessor {
                 return "aut";
             case "contributor":
                 return "ctb";
+            case "editor":
+                return "pbl";
             default:
                 return null;
         }
