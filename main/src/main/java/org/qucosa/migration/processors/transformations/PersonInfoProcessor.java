@@ -26,6 +26,8 @@ import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Person;
 
+import javax.xml.namespace.QName;
+
 import static gov.loc.mods.v3.CodeOrText.CODE;
 import static gov.loc.mods.v3.NameDefinition.Type.PERSONAL;
 import static gov.loc.mods.v3.NamePartDefinition.Type.*;
@@ -51,76 +53,177 @@ public class PersonInfoProcessor extends MappingProcessor {
     }
 
     private void mapPersons(ModsDefinition mods, Person[] persons) {
-        for (Person author : persons) {
-            final String given = author.getFirstName();
-            final String family = author.getLastName();
-            final String termsOfAddress = author.getAcademicTitle();
-            final String date = dateEncoding(author.getDateOfBirth());
-            final String marcRoleTerm = marcrelatorEncoding(author.getRole());
+        for (Person person : persons) {
+            final String given = person.getFirstName();
+            final String family = person.getLastName();
+            final String termsOfAddress = person.getAcademicTitle();
+            final String date = dateEncoding(person.getDateOfBirth());
+            final String marcRoleTerm = marcrelatorEncoding(person.getRole());
 
-            StringBuilder sb = new StringBuilder();
-            sb.append("mods:name[");
-            sb.append("@type='personal'");
-            if (given != null && !given.isEmpty()) {
-                sb.append(" and mods:namePart[@type='given' and text()='" + given + "']");
-            }
-            if (family != null && !family.isEmpty()) {
-                sb.append(" and mods:namePart[@type='family' and text()='" + family + "']");
-            }
-            if (date != null) {
-                sb.append(" and mods:namePart[@type='date' and text()='" + date + "']");
-            }
-            sb.append(']');
+            NameDefinition nd = findOrCreateNameDefinition(mods, given, family, date);
+            setNameParts(given, family, termsOfAddress, date, nd);
+            setNodeIdForReferencing(given, family, termsOfAddress, nd);
+            setRole(marcRoleTerm, nd);
+            setExtension(person, nd, mods);
+        }
+    }
 
-            NameDefinition nd = (NameDefinition)
-                    select(sb.toString(), mods);
 
-            if (nd == null) {
-                nd = mods.addNewName();
-                nd.setType2(PERSONAL);
+    private void setExtension(Person person, NameDefinition nd, ModsDefinition mods) {
+        ExtensionDefinition ext = (ExtensionDefinition)
+                select("mods:extension", mods);
+        final String phone = person.getPhone();
+        final String mbox = person.getEmail();
+        final String gender = genderMapping(person.getGender());
+
+        if (phone == null || mbox == null || gender == null) {
+            return;
+        }
+
+        if (ext == null) {
+            ext = mods.addNewExtension();
+            signalChanges(MODS_CHANGES);
+        }
+
+        PersonDocument.Person foafPerson = (PersonDocument.Person)
+                select("foaf:Person[@ID='" + nd.getID() + "']", mods);
+
+        boolean _importPd = false;
+        PersonDocument pd = PersonDocument.Factory.newInstance();
+
+        if (foafPerson == null) {
+            foafPerson = pd.addNewPerson();
+            foafPerson.newCursor().setAttributeText(
+                    new QName(NS_RDF, "about"), nd.getID());
+            _importPd = true;
+            signalChanges(MODS_CHANGES);
+        }
+
+        if (phone != null && !phone.isEmpty()) {
+            if (foafPerson.getPhone() == null
+                    || !foafPerson.getPhone().equals(phone)) {
+                foafPerson.setPhone(phone);
+                signalChanges(MODS_CHANGES);
+            }
+        }
+
+        if (mbox != null && !mbox.isEmpty()) {
+            if (foafPerson.getMbox() == null
+                    || !foafPerson.getMbox().equals(mbox)) {
+                foafPerson.setMbox(mbox);
+                signalChanges(MODS_CHANGES);
+            }
+        }
+
+        if (gender != null && !gender.isEmpty()) {
+            if (foafPerson.getGender() == null
+                    || !foafPerson.getGender().equals(gender)) {
+                foafPerson.setGender(gender);
+                signalChanges(MODS_CHANGES);
+            }
+        }
+
+        if (_importPd) {
+            ext.set(pd);
+        }
+    }
+
+    private String genderMapping(String gender) {
+        switch (gender) {
+            case "m":
+                return "male";
+            case "f":
+                return "female";
+            default:
+                return null;
+        }
+    }
+
+    private void setRole(String marcRoleTerm, NameDefinition nd) {
+        if (marcRoleTerm != null) {
+            RoleDefinition rd = (RoleDefinition) select("mods:role", nd);
+            if (rd == null) {
+                rd = nd.addNewRole();
                 signalChanges(MODS_CHANGES);
             }
 
-            if (given != null && !given.isEmpty()) {
-                checkOrSetNamePart(GIVEN, given, nd);
-            }
-            if (family != null && !family.isEmpty()) {
-                checkOrSetNamePart(FAMILY, family, nd);
-            }
-            if (termsOfAddress != null && !termsOfAddress.isEmpty()) {
-                checkOrSetNamePart(TERMS_OF_ADDRESS, termsOfAddress, nd);
-            }
-            if (date != null) {
-                checkOrSetNamePart(DATE, date, nd);
-            }
-            if (marcRoleTerm != null) {
-                RoleDefinition rd = (RoleDefinition) select("mods:role", nd);
-                if (rd == null) {
-                    rd = nd.addNewRole();
-                    signalChanges(MODS_CHANGES);
-                }
-                RoleTermDefinition rtd = (RoleTermDefinition)
-                        select(String.format("mods:roleTerm[@type='%s'" +
-                                        " and authority='%s'" +
-                                        " and authorityURI='%s'" +
-                                        " and valueURI='%s'" +
-                                        " and text()='%s']",
-                                "code", "marcrelator",
-                                LOC_GOV_VOCABULARY_RELATORS,
-                                LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm, marcRoleTerm), rd);
+            RoleTermDefinition rtd = (RoleTermDefinition)
+                    select(String.format("mods:roleTerm[@type='%s'" +
+                                    " and authority='%s'" +
+                                    " and authorityURI='%s'" +
+                                    " and valueURI='%s'" +
+                                    " and text()='%s']",
+                            "code", "marcrelator",
+                            LOC_GOV_VOCABULARY_RELATORS,
+                            LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm, marcRoleTerm), rd);
 
-                if (rtd == null) {
-                    rtd = rd.addNewRoleTerm();
-                    rtd.setType(CODE);
-                    rtd.setAuthority("marcrelator");
-                    rtd.setAuthorityURI(LOC_GOV_VOCABULARY_RELATORS);
-                    rtd.setValueURI(LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm);
-                    rtd.setStringValue(marcRoleTerm);
-                    signalChanges(MODS_CHANGES);
-                }
+            if (rtd == null) {
+                rtd = rd.addNewRoleTerm();
+                rtd.setType(CODE);
+                rtd.setAuthority("marcrelator");
+                rtd.setAuthorityURI(LOC_GOV_VOCABULARY_RELATORS);
+                rtd.setValueURI(LOC_GOV_VOCABULARY_RELATORS + "/" + marcRoleTerm);
+                rtd.setStringValue(marcRoleTerm);
+                signalChanges(MODS_CHANGES);
             }
-
         }
+    }
+
+    private void setNameParts(String given, String family, String termsOfAddress, String date, NameDefinition nd) {
+        if (given != null && !given.isEmpty()) {
+            checkOrSetNamePart(GIVEN, given, nd);
+        }
+        if (family != null && !family.isEmpty()) {
+            checkOrSetNamePart(FAMILY, family, nd);
+        }
+        if (termsOfAddress != null && !termsOfAddress.isEmpty()) {
+            checkOrSetNamePart(TERMS_OF_ADDRESS, termsOfAddress, nd);
+        }
+        if (date != null) {
+            checkOrSetNamePart(DATE, date, nd);
+        }
+    }
+
+    private void setNodeIdForReferencing(String given, String family, String termsOfAddress, NameDefinition nd) {
+        String ndid = nd.getID();
+        if (ndid == null || ndid.isEmpty()) {
+            StringBuilder tokenBuilder = new StringBuilder();
+            if (given != null) tokenBuilder.append(given);
+            if (family != null) tokenBuilder.append(family);
+            if (termsOfAddress != null) tokenBuilder.append(termsOfAddress);
+
+            String token = "PERS_" +
+                    String.format("%02X", tokenBuilder.toString().hashCode());
+
+            nd.setID(token);
+            signalChanges(MODS_CHANGES);
+        }
+    }
+
+    private NameDefinition findOrCreateNameDefinition(ModsDefinition mods, String given, String family, String date) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("mods:name[");
+        sb.append("@type='personal'");
+        if (given != null && !given.isEmpty()) {
+            sb.append(" and mods:namePart[@type='given' and text()='" + given + "']");
+        }
+        if (family != null && !family.isEmpty()) {
+            sb.append(" and mods:namePart[@type='family' and text()='" + family + "']");
+        }
+        if (date != null) {
+            sb.append(" and mods:namePart[@type='date' and text()='" + date + "']");
+        }
+        sb.append(']');
+
+        NameDefinition nd = (NameDefinition)
+                select(sb.toString(), mods);
+
+        if (nd == null) {
+            nd = mods.addNewName();
+            nd.setType2(PERSONAL);
+            signalChanges(MODS_CHANGES);
+        }
+        return nd;
     }
 
     private void checkOrSetNamePart(NamePartDefinition.Type.Enum type, String value, NameDefinition nd) {

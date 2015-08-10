@@ -25,11 +25,7 @@ import org.apache.camel.Processor;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -39,6 +35,7 @@ public abstract class MappingProcessor implements Processor {
     public static final String NS_MODS_V3 = "http://www.loc.gov/mods/v3";
     public static final String NS_SLUB = "http://slub-dresden.de/";
     public static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
+    public static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String MODS_CHANGES = "MODS_CHANGES";
     public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
     private static final String xpathNSDeclaration =

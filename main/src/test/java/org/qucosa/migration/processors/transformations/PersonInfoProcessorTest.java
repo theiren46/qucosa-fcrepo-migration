@@ -220,6 +220,30 @@ public class PersonInfoProcessorTest extends ProcessorTestBase {
                 " and text()='aut']", xml);
     }
 
+    @Test
+    public void extensionFoafElementLinksToNameElement() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "author", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:extension/foaf:Person[@rdf:about=//mods:name/@ID]", xml);
+    }
+
+    @Test
+    public void extractsFoafInfos() throws Exception {
+        createPerson("Prof. Dr.", "m", "+49(0)1234567890", "mustermann@musteruni.de",
+                "Hans", "Mustermann", "author", 1965, 11, 5);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:extension/foaf:Person[foaf:phone='+49(0)1234567890']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/foaf:Person[foaf:mbox='mustermann@musteruni.de']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/foaf:Person[foaf:gender='male']", xml);
+    }
+
     private void createPerson(String academicTitle, String gender, String phone, String email, String firstName,
                               String lastName, String role, int yearOfBirth, int monthOfBirth, int dayOfBirth) {
         Person person;

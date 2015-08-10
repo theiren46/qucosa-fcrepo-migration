@@ -39,6 +39,7 @@ public class ProcessorTestBase {
                     put("mods", MappingProcessor.NS_MODS_V3);
                     put("slub", MappingProcessor.NS_SLUB);
                     put("foaf", MappingProcessor.NS_FOAF);
+                    put("rdf", MappingProcessor.NS_RDF);
                 }});
         XMLUnit.setXpathNamespaceContext(ctx);
     }
