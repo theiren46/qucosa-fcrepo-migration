@@ -156,7 +156,7 @@ public class PersonInfoProcessor extends MappingProcessor {
                 foafPerson.setName(name);
                 if (phone != null && !phone.isEmpty()) foafPerson.setPhone(phone);
                 if (mbox != null && !mbox.isEmpty()) foafPerson.setMbox(mbox);
-                signalChanges(MODS_CHANGES);
+                signalChanges(SLUB_INFO_CHANGES);
             }
         }
     }
