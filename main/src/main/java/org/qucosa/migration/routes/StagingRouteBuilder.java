@@ -87,6 +87,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                         .retryAttemptedLogLevel(LoggingLevel.WARN))
                 .threads()
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
+                .setHeader("X-On-Behalf-Of", constant(config.getString("sword.ownerID", null)))
                 .to("sword:deposit")
                 .throttle(1).asyncDelayed()
                 .choice().when(constant(config.getBoolean("transforming")))

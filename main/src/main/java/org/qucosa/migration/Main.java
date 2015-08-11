@@ -34,6 +34,7 @@ public class Main {
     public static void main(String[] args) {
         CommandLineOptions options = new CommandLineOptions(args);
         System.setProperty("sword.noop", String.valueOf(options.getNoop()));
+        System.setProperty("sword.ownerID", options.getOwnerId());
 
         MigrationContext ctx = null;
         try {

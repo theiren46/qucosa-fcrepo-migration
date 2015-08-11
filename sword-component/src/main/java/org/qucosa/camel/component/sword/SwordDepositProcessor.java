@@ -39,8 +39,9 @@ public class SwordDepositProcessor implements Processor {
         SwordDeposit body = (SwordDeposit) msg.getBody();
 
         final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
-        final String slugHeader = (String) msg.getHeader("Slug");
-        HttpResponse httpResponse = connection.deposit(body, noopHeader, slugHeader);
+        final String onBehalfOfHeader = msg.getHeader("X-On-Behalf-Of", String.class);
+        final String slugHeader = msg.getHeader("Slug", String.class);
+        HttpResponse httpResponse = connection.deposit(body, noopHeader, slugHeader, onBehalfOfHeader);
 
         exchange.getIn().setBody(httpResponse);
     }

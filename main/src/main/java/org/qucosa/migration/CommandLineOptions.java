@@ -39,6 +39,13 @@ public class CommandLineOptions {
     )
     private Boolean noop = false;
     @Option(
+            name = "--ownerID",
+            aliases = "-o",
+            usage = "Owner ID to be set for ingested documents",
+            depends = "--stage-resource"
+    )
+    private String ownerId = null;
+    @Option(
             name = "--stage-resource",
             aliases = "-s",
             usage = "Opus ID of a single document or tenant for staging")
@@ -88,5 +95,9 @@ public class CommandLineOptions {
 
     public Boolean isStageTransform() {
         return stageTransform;
+    }
+
+    public String getOwnerId() {
+        return ownerId;
     }
 }

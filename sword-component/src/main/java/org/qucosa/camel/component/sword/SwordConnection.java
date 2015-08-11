@@ -76,11 +76,15 @@ public class SwordConnection {
         return val;
     }
 
-    public HttpResponse deposit(SwordDeposit deposit, Boolean noop, String slugHeader) throws Exception {
+    public HttpResponse deposit(SwordDeposit deposit, Boolean noop, String slugHeader, String onBehalfOfHeader) throws Exception {
         URIBuilder uriBuilder = new URIBuilder(url + "/" + deposit.getCollection());
         HttpPost httpPost = new HttpPost(uriBuilder.build());
         httpPost.setHeader("X-No-Op", String.valueOf(noop));
         httpPost.setHeader("Content-Type", deposit.getContentType());
+
+        if (onBehalfOfHeader != null && !onBehalfOfHeader.isEmpty()) {
+            httpPost.setHeader("X-On-Behalf-Of", onBehalfOfHeader);
+        }
 
         if (slugHeader != null && !slugHeader.isEmpty()) {
             httpPost.setHeader("Slug", slugHeader);
@@ -97,6 +101,7 @@ public class SwordConnection {
         if (log.isDebugEnabled()) {
             if (noop) {
                 log.debug("SWORD parameter 'X-No-Op' is '{}'", noop);
+                log.debug("SWORD parameter 'X-On-Behalf-Of' is '{}'", onBehalfOfHeader);
                 log.debug("Slug header is '{}'", slugHeader);
                 log.debug("Content type is '{}'", deposit.getContentType());
                 log.debug("Posting to SWORD collection '{}'", deposit.getCollection());
