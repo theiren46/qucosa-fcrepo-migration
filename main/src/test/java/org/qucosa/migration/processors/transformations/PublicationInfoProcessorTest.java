@@ -35,7 +35,7 @@ public class PublicationInfoProcessorTest extends ProcessorTestBase {
         runProcessor(processor);
 
         XMLAssert.assertXpathExists(
-                "//mods:language[@usage='primary']/" +
+                "//mods:language/" +
                         "mods:languageTerm[@authority='iso639-2b' and @type='code' and text()='" + lang + "']",
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }

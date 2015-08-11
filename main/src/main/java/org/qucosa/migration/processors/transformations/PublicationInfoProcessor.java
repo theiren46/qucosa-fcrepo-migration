@@ -157,10 +157,9 @@ public class PublicationInfoProcessor extends MappingProcessor {
             languageText = languageEncoding(languageText);
 
             LanguageDefinition ld = (LanguageDefinition)
-                    select("mods:language[@usage='primary']", mods);
+                    select("mods:language", mods);
             if (ld == null) {
                 ld = mods.addNewLanguage();
-                ld.addNewUsage().setStringValue("primary");
                 signalChanges(MODS_CHANGES);
             }
 
