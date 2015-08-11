@@ -89,7 +89,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .setHeader("X-On-Behalf-Of", constant(config.getString("sword.ownerID", null)))
                 .to("sword:deposit")
-                .throttle(1).asyncDelayed()
+                .throttle(5).asyncDelayed()
                 .choice().when(constant(config.getBoolean("transforming")))
                 .transform(method(StagingRouteBuilder.class, "extractPID"))
                 .to("direct:transform");

@@ -124,7 +124,6 @@ public class TransformationRouteBuilder extends RouteBuilder {
         from("direct:ds:update:mods")
                 .routeId("update-mods")
                 .threads()
-                .throttle(5)
                 .choice()
 
                 .when(simple("${exchangeProperty[" + MODS_CHANGES + "]} == true"))
@@ -143,7 +142,6 @@ public class TransformationRouteBuilder extends RouteBuilder {
         from("direct:ds:update:slub-info")
                 .routeId("update-slub-info")
                 .threads()
-                .throttle(5)
                 .choice()
 
                 .when(simple("${exchangeProperty[" + SLUB_INFO_CHANGES + "]} == true"))
