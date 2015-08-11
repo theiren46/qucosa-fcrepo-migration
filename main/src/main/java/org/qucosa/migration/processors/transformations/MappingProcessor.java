@@ -38,6 +38,7 @@ public abstract class MappingProcessor implements Processor {
     public static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String MODS_CHANGES = "MODS_CHANGES";
     public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
+    protected static final String LOC_GOV_VOCABULARY_RELATORS = "http://id.loc.gov/vocabulary/relators";
     private static final String xpathNSDeclaration =
             "declare namespace mods='" + NS_MODS_V3 + "'; " +
                     "declare namespace slub='" + NS_SLUB + "'; " +
@@ -158,5 +159,15 @@ public abstract class MappingProcessor implements Processor {
 
     protected String qq(String s) {
         return s.replace("'", "''");
+    }
+
+    protected String buildTokenFrom(String prefix, String... strings) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : strings) {
+            if (s != null) {
+                sb.append(s);
+            }
+        }
+        return prefix + String.format("%02X", sb.toString().hashCode());
     }
 }

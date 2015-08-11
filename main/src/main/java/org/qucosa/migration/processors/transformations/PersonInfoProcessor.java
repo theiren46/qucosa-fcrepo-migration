@@ -34,8 +34,6 @@ import static gov.loc.mods.v3.NamePartDefinition.Type.*;
 
 public class PersonInfoProcessor extends MappingProcessor {
 
-    private static final String LOC_GOV_VOCABULARY_RELATORS = "http://id.loc.gov/vocabulary/relators";
-
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         Document opus = opusDocument.getOpus().getOpusDocument();
@@ -187,14 +185,7 @@ public class PersonInfoProcessor extends MappingProcessor {
     private void setNodeIdForReferencing(String given, String family, String termsOfAddress, NameDefinition nd) {
         String ndid = nd.getID();
         if (ndid == null || ndid.isEmpty()) {
-            StringBuilder tokenBuilder = new StringBuilder();
-            if (given != null) tokenBuilder.append(given);
-            if (family != null) tokenBuilder.append(family);
-            if (termsOfAddress != null) tokenBuilder.append(termsOfAddress);
-
-            String token = "PERS_" +
-                    String.format("%02X", tokenBuilder.toString().hashCode());
-
+            String token = buildTokenFrom("PERS_", given, family, termsOfAddress);
             nd.setID(token);
             signalChanges(MODS_CHANGES);
         }

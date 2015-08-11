@@ -49,6 +49,7 @@
             <xs:element type="xs:string" name="client"/>
             <xs:element type="xs:string" name="documentType"/>
             <xs:element type="rightsType" name="rights"/>
+            <xs:element type="corporationType" name="corporation"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="submitterType">
@@ -62,5 +63,20 @@
                 <xs:attribute type="xs:string" name="valueURI"/>
             </xs:extension>
         </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="corporationType">
+        <xs:sequence>
+            <xs:element type="xs:string" name="university" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="faculty" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="institute" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="chair" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="institution" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="association" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="department" maxOccurs="unbounded"/>
+            <xs:element type="xs:string" name="section" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="ref"/>
+        <xs:attribute type="xs:string" name="type"/>
+        <xs:attribute type="xs:string" name="place"/>
     </xs:complexType>
 </xs:schema>
