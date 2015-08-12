@@ -27,16 +27,52 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     final private MappingProcessor processor = new InstitutionInfoProcessor();
 
     @Test
-    public void extractsTypeOther() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
+    public void extractsRole() throws Exception {
+        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
 
         runProcessor(processor);
 
         Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:name/mods:role/mods:roleTerm[text()='pbl']", xml);
+    }
+
+    @Test
+    public void corporationReferencesModsName() throws Exception {
+        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[@ref=//mods:name/@ID]", xml);
+    }
+
+    @Test
+    public void extractsType() throws Exception {
+        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[@type='other']", xml);
+    }
+
+    @Test
+    public void extractsPlace() throws Exception {
+        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[@place='Chemnitz']", xml);
+    }
+
+    @Test
+    public void extractsSubUnitsForTypeOther() throws Exception {
+        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:institution='TU Chemnitz']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:section='Rektorat']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:section='Abteilung Foo']", xml);
@@ -44,9 +80,9 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
 
     private void createOrganisation(
             String address, String publisher, String firstLevelName,
-            String secondLevelName, String thirdLevelName, String fourthLevelName) {
+            String secondLevelName, String thirdLevelName, String fourthLevelName, Organisation.Type.Enum type) {
         Organisation org = opusDocument.getOpus().getOpusDocument().addNewOrganisation();
-        org.setType(Organisation.Type.OTHER);
+        org.setType(type);
         org.setAddress(address);
         org.setRole(publisher);
         org.setFirstLevelName(firstLevelName);
