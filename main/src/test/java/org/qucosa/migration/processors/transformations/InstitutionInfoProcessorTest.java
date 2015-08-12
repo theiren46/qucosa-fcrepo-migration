@@ -28,7 +28,8 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsRole() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
 
         runProcessor(processor);
 
@@ -38,7 +39,8 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void corporationReferencesModsName() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
 
         runProcessor(processor);
 
@@ -48,7 +50,8 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsType() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
 
         runProcessor(processor);
 
@@ -58,7 +61,8 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
 
     @Test
     public void extractsPlace() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
 
         runProcessor(processor);
 
@@ -67,20 +71,38 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
-    public void extractsSubUnitsForTypeOther() throws Exception {
-        createOrganisation("Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz", Organisation.Type.OTHER);
+    public void extractsUnitsForTypeOther() throws Exception {
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
 
         runProcessor(processor);
 
         Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[text()='Gruppe Baz']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:institution='TU Chemnitz']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:section='Rektorat']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:section='Abteilung Foo']", xml);
     }
 
+    @Test
+    public void extractsUnitsForTypeUniversity() throws Exception {
+        createOrganisation(Organisation.Type.UNIVERSITY,
+                "Chemnitz", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
+                "Institut für Systemarchitektur", "Professur für Datenbanken");
+
+        runProcessor(processor);
+        System.out.println(modsDocument);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[text()='Professur für Datenbanken']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:university='Technische Universität Dresden']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:faculty='Fakultät Informatik']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:institute='Institut für Systemarchitektur']", xml);
+    }
+
     private void createOrganisation(
-            String address, String publisher, String firstLevelName,
-            String secondLevelName, String thirdLevelName, String fourthLevelName, Organisation.Type.Enum type) {
+            Organisation.Type.Enum type, String address, String publisher, String firstLevelName,
+            String secondLevelName, String thirdLevelName, String fourthLevelName) {
         Organisation org = opusDocument.getOpus().getOpusDocument().addNewOrganisation();
         org.setType(type);
         org.setAddress(address);

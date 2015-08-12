@@ -25,10 +25,7 @@ import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Organisation;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Stack;
+import java.util.*;
 
 import static gov.loc.mods.v3.CodeOrText.CODE;
 import static gov.loc.mods.v3.NameDefinition.Type.CORPORATE;
@@ -42,6 +39,12 @@ public class InstitutionInfoProcessor extends MappingProcessor {
             add("section");
             add("section");
         }});
+        put("university", new LinkedList<String>() {{
+            add("university");
+            add("faculty");
+            add("institute");
+            add("chair");
+        }});
     }};
 
     @Override
@@ -54,8 +57,8 @@ public class InstitutionInfoProcessor extends MappingProcessor {
             final String place = org.getAddress();
             final String role = marcrelatorEncoding(org.getRole());
 
-            final Stack<String> names = stackOfNames(org);
-            final String significantName = names.pop();
+            final Stack<String> stackOfNames = stackOfNames(org);
+            final String significantName = stackOfNames.pop();
 
             if (significantName != null) {
                 final String token = buildTokenFrom("CORP_", significantName);
@@ -66,10 +69,10 @@ public class InstitutionInfoProcessor extends MappingProcessor {
                 RoleDefinition rd = getRoleDefinition(nd);
                 setRoleTerm(role, rd);
 
-                if (!names.isEmpty()) {
-                    Collections.reverse(names);
+                if (!stackOfNames.isEmpty()) {
+                    Collections.reverse(stackOfNames);
                     ExtensionDefinition ed = getExtensionDefinition(mods);
-                    InfoDocument id = getInfoDocument(type, place, names, token, ed);
+                    InfoDocument id = getInfoDocument(type, place, stackOfNames, token, ed);
                     if (id != null) {
                         ed.set(id);
                     }
@@ -79,7 +82,7 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         }
     }
 
-    private InfoDocument getInfoDocument(String type, String place, Stack<String> names, String token, ExtensionDefinition ed) {
+    private InfoDocument getInfoDocument(String type, String place, Stack<String> nameStack, String token, ExtensionDefinition ed) {
         InfoDocument id = null;
         InfoType it = (InfoType) select("slub:info", ed);
         if (it == null) {
@@ -104,13 +107,12 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         }
 
         LinkedList<String> hierarchy = hierarchies.get(type);
-        for (String h : hierarchy) {
-            if (!names.isEmpty()) {
-                final String name = names.pop();
-                createOrganizationType(ct, h, name);
-                signalChanges(MODS_CHANGES);
-            }
+        Iterator<String> hi = hierarchy.listIterator();
+        while (!nameStack.isEmpty() && hi.hasNext()) {
+            createOrganizationType(ct, hi.next(), nameStack.pop());
+            signalChanges(MODS_CHANGES);
         }
+
         return id;
     }
 
@@ -121,6 +123,18 @@ public class InstitutionInfoProcessor extends MappingProcessor {
                 break;
             case "section":
                 ct.addSection(name);
+                break;
+            case "university":
+                ct.addUniversity(name);
+                break;
+            case "faculty":
+                ct.addFaculty(name);
+                break;
+            case "institute":
+                ct.addInstitute(name);
+                break;
+            case "chair":
+                ct.addChair(name);
                 break;
         }
     }
