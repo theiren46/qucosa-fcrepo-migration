@@ -24,6 +24,7 @@ import gov.loc.mods.v3.*;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Organisation;
+import noNamespace.Organisation.Type;
 
 import java.util.*;
 
@@ -32,23 +33,26 @@ import static gov.loc.mods.v3.NameDefinition.Type.CORPORATE;
 
 public class InstitutionInfoProcessor extends MappingProcessor {
 
-    final private static HashMap<String, LinkedList<String>> hierarchies = new HashMap<String, LinkedList<String>>() {{
-        put("other", new LinkedList<String>() {{
+    final private static HashMap<Type.Enum, LinkedList<String>> hierarchies = new HashMap<Type.Enum, LinkedList<String>>() {{
+        put(Type.OTHER, new LinkedList<String>() {{
             add("institution");
             add("section");
             add("section");
             add("section");
         }});
-        put("university", new LinkedList<String>() {{
+        put(Type.UNIVERSITY, new LinkedList<String>() {{
             add("university");
             add("faculty");
             add("institute");
             add("chair");
         }});
-        put("chair", new LinkedList<String>() {{
+        put(Type.CHAIR, new LinkedList<String>() {{
             add("university");
             add("faculty");
             add("institute");
+        }});
+        put(Type.FACULTY, new LinkedList<String>() {{
+            add("university");
         }});
     }};
 
@@ -58,7 +62,7 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         ModsDefinition mods = modsDocument.getMods();
 
         for (Organisation org : opus.getOrganisationArray()) {
-            final String type = String.valueOf(org.getType());
+            final Type.Enum type = org.getType();
             final String place = org.getAddress();
             final String role = marcrelatorEncoding(org.getRole());
 
@@ -87,7 +91,7 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         }
     }
 
-    private InfoDocument getInfoDocument(String type, String place, Stack<String> nameStack, String token, ExtensionDefinition ed) throws Exception {
+    private InfoDocument getInfoDocument(Type.Enum type, String place, Stack<String> nameStack, String token, ExtensionDefinition ed) throws Exception {
         InfoDocument id = null;
         InfoType it = (InfoType) select("slub:info", ed);
         if (it == null) {
@@ -102,8 +106,8 @@ public class InstitutionInfoProcessor extends MappingProcessor {
             ct.setRef(token);
             signalChanges(MODS_CHANGES);
         }
-        if (ct.getType() == null || !ct.getType().equals(type)) {
-            ct.setType(type);
+        if (ct.getType() == null || !ct.getType().equals(type.toString())) {
+            ct.setType(type.toString());
             signalChanges(MODS_CHANGES);
         }
         if (ct.getPlace() == null || !ct.getPlace().equals(place)) {
@@ -112,6 +116,10 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         }
 
         LinkedList<String> hierarchy = hierarchies.get(type);
+        if (hierarchy == null) {
+            throw new Exception("No hierarchy for type '" + type + "'");
+        }
+
         Iterator<String> hi = hierarchy.listIterator();
         while (!nameStack.isEmpty() && hi.hasNext()) {
             createOrganizationType(ct, hi.next(), nameStack.pop());
