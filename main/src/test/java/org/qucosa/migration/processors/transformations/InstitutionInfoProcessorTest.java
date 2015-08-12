@@ -91,6 +91,21 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
                 "Institut für Systemarchitektur", "Professur für Datenbanken");
 
         runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[text()='Professur für Datenbanken']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:university='Technische Universität Dresden']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:faculty='Fakultät Informatik']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:institute='Institut für Systemarchitektur']", xml);
+    }
+
+    @Test
+    public void extractsUnitsForTypeChair() throws Exception {
+        createOrganisation(Organisation.Type.CHAIR,
+                "Chemnitz", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
+                "Institut für Systemarchitektur", "Professur für Datenbanken");
+
+        runProcessor(processor);
         System.out.println(modsDocument);
 
         Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();

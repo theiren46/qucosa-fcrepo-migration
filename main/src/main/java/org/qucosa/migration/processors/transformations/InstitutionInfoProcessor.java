@@ -45,6 +45,11 @@ public class InstitutionInfoProcessor extends MappingProcessor {
             add("institute");
             add("chair");
         }});
+        put("chair", new LinkedList<String>() {{
+            add("university");
+            add("faculty");
+            add("institute");
+        }});
     }};
 
     @Override
@@ -82,7 +87,7 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         }
     }
 
-    private InfoDocument getInfoDocument(String type, String place, Stack<String> nameStack, String token, ExtensionDefinition ed) {
+    private InfoDocument getInfoDocument(String type, String place, Stack<String> nameStack, String token, ExtensionDefinition ed) throws Exception {
         InfoDocument id = null;
         InfoType it = (InfoType) select("slub:info", ed);
         if (it == null) {
