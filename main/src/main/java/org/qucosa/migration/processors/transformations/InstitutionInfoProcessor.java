@@ -54,6 +54,10 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         put(Type.FACULTY, new LinkedList<String>() {{
             add("university");
         }});
+        put(Type.INSTITUTE, new LinkedList<String>() {{
+            add("university");
+            add("faculty");
+        }});
     }};
 
     @Override

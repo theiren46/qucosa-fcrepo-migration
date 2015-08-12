@@ -87,7 +87,7 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     @Test
     public void extractsUnitsForTypeUniversity() throws Exception {
         createOrganisation(Organisation.Type.UNIVERSITY,
-                "Chemnitz", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
+                "Dresden", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
                 "Institut für Systemarchitektur", "Professur für Datenbanken");
 
         runProcessor(processor);
@@ -102,7 +102,7 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     @Test
     public void extractsUnitsForTypeChair() throws Exception {
         createOrganisation(Organisation.Type.CHAIR,
-                "Chemnitz", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
+                "Dresden", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
                 "Institut für Systemarchitektur", "Professur für Datenbanken");
 
         runProcessor(processor);
@@ -117,13 +117,27 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     @Test
     public void extractsUnitsForTypeFaculty() throws Exception {
         createOrganisation(Organisation.Type.FACULTY,
-                "Chemnitz", "publisher", "Technische Universität Dresden", "Fakultät Informatik", null, null);
+                "Dresden", "publisher", "Technische Universität Dresden", "Fakultät Informatik", null, null);
 
         runProcessor(processor);
 
         Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:name/mods:namePart[text()='Fakultät Informatik']", xml);
         XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:university='Technische Universität Dresden']", xml);
+    }
+
+    @Test
+    public void extractsUnitsForTypeInstitute() throws Exception {
+        createOrganisation(Organisation.Type.INSTITUTE,
+                "Dresden", "publisher", "Technische Universität Dresden", "Fakultät Informatik",
+                "Institut für Systemarchitektur", null);
+
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:name/mods:namePart[text()='Institut für Systemarchitektur']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:university='Technische Universität Dresden']", xml);
+        XMLAssert.assertXpathExists("//mods:extension/slub:info/slub:corporation[slub:faculty='Fakultät Informatik']", xml);
     }
 
     private void createOrganisation(
