@@ -27,6 +27,13 @@ import static java.lang.System.exit;
 public class CommandLineOptions {
 
     @Option(
+            name = "--collection",
+            aliases = "-c",
+            usage = "Name of the SWORD collection to ingest into",
+            required = true
+    )
+    private String collection = null;
+    @Option(
             name = "--mappings",
             aliases = "-m",
             usage = "Comma separated list of mappings to apply when transforming a staged resource."
@@ -42,7 +49,8 @@ public class CommandLineOptions {
             name = "--ownerID",
             aliases = "-o",
             usage = "Owner ID to be set for ingested documents",
-            depends = "--stage-resource"
+            depends = "--stage-resource",
+            required = true
     )
     private String ownerId = null;
     @Option(
@@ -99,5 +107,9 @@ public class CommandLineOptions {
 
     public String getOwnerId() {
         return ownerId;
+    }
+
+    public String getCollection() {
+        return collection;
     }
 }

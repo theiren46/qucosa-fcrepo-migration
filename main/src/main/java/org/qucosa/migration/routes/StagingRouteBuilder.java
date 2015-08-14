@@ -74,7 +74,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
                 .bean(MetsGenerator.class)
                 .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
-                .setHeader("Collection", constant("qucosa:all"))
+                .setHeader("Collection", constant(config.getString("sword.collection")))
                 .convertBodyTo(SwordDeposit.class)
                 .to("direct:deposit");
 
