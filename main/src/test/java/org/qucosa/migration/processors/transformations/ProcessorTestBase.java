@@ -40,6 +40,7 @@ public class ProcessorTestBase {
                     put("slub", MappingProcessor.NS_SLUB);
                     put("foaf", MappingProcessor.NS_FOAF);
                     put("rdf", MappingProcessor.NS_RDF);
+                    put("xlink", MappingProcessor.NS_XLINK);
                 }});
         XMLUnit.setXpathNamespaceContext(ctx);
     }

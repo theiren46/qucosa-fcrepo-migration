@@ -36,13 +36,15 @@ public abstract class MappingProcessor implements Processor {
     public static final String NS_SLUB = "http://slub-dresden.de/";
     public static final String NS_FOAF = "http://xmlns.com/foaf/0.1/";
     public static final String NS_RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    public static final String NS_XLINK = "http://www.w3.org/1999/xlink";
     public static final String MODS_CHANGES = "MODS_CHANGES";
     public static final String SLUB_INFO_CHANGES = "SLUB-INFO_CHANGES";
     protected static final String LOC_GOV_VOCABULARY_RELATORS = "http://id.loc.gov/vocabulary/relators";
     private static final String xpathNSDeclaration =
             "declare namespace mods='" + NS_MODS_V3 + "'; " +
                     "declare namespace slub='" + NS_SLUB + "'; " +
-                    "declare namespace foaf='" + NS_FOAF + "'; ";
+                    "declare namespace foaf='" + NS_FOAF + "'; " +
+                    "declare namespace xlink='" + NS_XLINK + "'; ";
 
     private String label;
     private boolean modsChanges;

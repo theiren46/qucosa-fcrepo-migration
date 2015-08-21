@@ -20,6 +20,7 @@ package org.qucosa.migration.processors.transformations;
 import gov.loc.mods.v3.IdentifierDefinition;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.RelatedItemDefinition;
+import gov.loc.mods.v3.RelatedItemDefinition.Type;
 import gov.loc.mods.v3.TitleInfoDefinition;
 import org.apache.xmlbeans.XmlString;
 
@@ -61,7 +62,7 @@ public abstract class ModsRelatedItemProcessor extends MappingProcessor {
         }
     }
 
-    protected RelatedItemDefinition getRelatedItemDefinition(ModsDefinition mods, String label, final String type) {
+    protected RelatedItemDefinition getRelatedItemDefinition(ModsDefinition mods, String label, Type.Enum type) {
         final String query = (label == null || label.isEmpty()) ?
                 "mods:relatedItem[@type='" + type + "']" :
                 "mods:relatedItem[@type='" + type + "' and @displayLabel='" + qq(label) + "']";
@@ -70,9 +71,10 @@ public abstract class ModsRelatedItemProcessor extends MappingProcessor {
                 select(query, mods);
         if (rid == null) {
             rid = mods.addNewRelatedItem();
-            rid.setType(RelatedItemDefinition.Type.ORIGINAL);
+            rid.setType(type);
             signalChanges(SourcesInfoProcessor.MODS_CHANGES);
         }
         return rid;
     }
+
 }

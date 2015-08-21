@@ -173,6 +173,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 InstitutionInfoProcessor.class,
                 PersonInfoProcessor.class,
                 PublicationInfoProcessor.class,
+                RelationInfoProcessor.class,
                 RightsProcessor.class,
                 SourcesInfoProcessor.class,
                 StaticInfoProcessor.class,
