@@ -98,6 +98,23 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
                 " and @xlink:href='" + link + "' ]", ownerDocument);
         XMLAssert.assertXpathExists("//mods:relatedItem/mods:identifier[@type='urn'" +
                 " and text()='" + urn + "']", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:titleInfo[mods:partNumber='" + sortOrder + "']", ownerDocument);
+    }
+
+    @Test
+    public void mapPredecessorReferenceToPreceedingRelatedItem() throws Exception {
+        final String urn = "urn:nbn:de:bsz:14-qucosa-25559";
+        final String link = "http://nbn-resolving.de/" + urn;
+        createReferenceUrn(urn, null, "predecessor", null);
+
+        runProcessor(processor);
+
+        final Document ownerDocument = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:relatedItem[" +
+                "@type='preceding'" +
+                " and @xlink:href='" + link + "' ]", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:identifier[@type='urn'" +
+                " and text()='" + urn + "']", ownerDocument);
     }
 
     private void createReferenceUrn(String urn, String label, String relation, BigInteger sortOrder) {
@@ -107,6 +124,5 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
         refUrl.setRelation(relation);
         refUrl.setSortOrder(sortOrder);
     }
-
 
 }

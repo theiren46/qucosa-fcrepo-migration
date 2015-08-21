@@ -27,18 +27,20 @@ import org.apache.xmlbeans.XmlString;
 public abstract class ModsRelatedItemProcessor extends MappingProcessor {
 
     protected void setSortOrderIfDefined(String partNumber, RelatedItemDefinition rid) {
-        TitleInfoDefinition tid = (TitleInfoDefinition)
-                select("mods:titleInfo", rid);
-        if (tid == null) {
-            tid = rid.addNewTitleInfo();
-            signalChanges(SourcesInfoProcessor.MODS_CHANGES);
-        }
+        if (partNumber != null) {
+            TitleInfoDefinition tid = (TitleInfoDefinition)
+                    select("mods:titleInfo", rid);
+            if (tid == null) {
+                tid = rid.addNewTitleInfo();
+                signalChanges(SourcesInfoProcessor.MODS_CHANGES);
+            }
 
-        XmlString xs = (XmlString) select("mods:partNumber", tid);
-        if (xs == null) {
-            xs = tid.addNewPartNumber();
-            xs.setStringValue(partNumber);
-            signalChanges(SourcesInfoProcessor.MODS_CHANGES);
+            XmlString xs = (XmlString) select("mods:partNumber", tid);
+            if (xs == null) {
+                xs = tid.addNewPartNumber();
+                xs.setStringValue(partNumber);
+                signalChanges(SourcesInfoProcessor.MODS_CHANGES);
+            }
         }
     }
 
