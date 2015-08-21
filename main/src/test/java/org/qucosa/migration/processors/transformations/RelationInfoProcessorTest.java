@@ -29,7 +29,7 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
     final private MappingProcessor processor = new RelationInfoProcessor();
 
     @Test
-    public void extractsReferenceUrn() throws Exception {
+    public void extractsSeriesRelation() throws Exception {
         final String urn = "urn:nbn:de:bsz:14-qucosa-38419";
         final String link = "http://nbn-resolving.de/" + urn;
         final String label = "Link zur Schriftenreihe";
@@ -37,7 +37,6 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
         createReferenceUrn(urn, label, sortOrder);
 
         runProcessor(processor);
-        System.out.println(modsDocument);
 
         final Document ownerDocument = modsDocument.getMods().getDomNode().getOwnerDocument();
         XMLAssert.assertXpathExists("//mods:relatedItem[" +

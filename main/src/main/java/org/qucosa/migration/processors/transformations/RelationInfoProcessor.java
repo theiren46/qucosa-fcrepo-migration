@@ -21,6 +21,7 @@ import de.slubDresden.InfoDocument;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.RelatedItemDefinition;
+import gov.loc.mods.v3.RelatedItemDefinition.Type;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Reference;
@@ -30,6 +31,9 @@ import org.apache.xmlbeans.XmlObject;
 import javax.xml.namespace.QName;
 
 public class RelationInfoProcessor extends ModsRelatedItemProcessor {
+
+    private static final String NBN_RESOLVING_URL = "http://nbn-resolving.de/";
+
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final Document opus = opusDocument.getOpus().getOpusDocument();
@@ -39,9 +43,9 @@ public class RelationInfoProcessor extends ModsRelatedItemProcessor {
             final String urn = r.getValue();
             final String label = r.getLabel();
             final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
-            final String itemType = determineItemType();
+            final Type.Enum itemType = determineItemType();
 
-            RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, RelatedItemDefinition.Type.SERIES);
+            RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, itemType);
             setLabelIfdefined(label, rid);
             setHrefIfDefined(urn, rid);
             setIdentifierIfNotFound(urn, rid, "urn");
@@ -57,15 +61,15 @@ public class RelationInfoProcessor extends ModsRelatedItemProcessor {
                     || href.getDomNode().getNodeValue() == null
                     || !href.getDomNode().getNodeValue().equals(urn)) {
                 XmlCursor cursor = rid.newCursor();
-                cursor.setAttributeText(qName, "http://nbn-resolving.de/" + urn);
+                cursor.setAttributeText(qName, NBN_RESOLVING_URL + urn);
                 cursor.dispose();
                 signalChanges(MODS_CHANGES);
             }
         }
     }
 
-    private String determineItemType() {
-        return "series";
+    private Type.Enum determineItemType() {
+        return Type.SERIES;
     }
 
 }
