@@ -18,15 +18,15 @@
 package org.qucosa.migration.processors.transformations;
 
 import de.slubDresden.InfoDocument;
-import gov.loc.mods.v3.*;
+import gov.loc.mods.v3.ModsDefinition;
+import gov.loc.mods.v3.ModsDocument;
+import gov.loc.mods.v3.RelatedItemDefinition;
 import noNamespace.Document;
 import noNamespace.OpusDocument;
 import noNamespace.Reference;
-import org.apache.xmlbeans.XmlString;
 
-import static gov.loc.mods.v3.RelatedItemDefinition.Type.ORIGINAL;
+public class SourcesInfoProcessor extends ModsRelatedItemProcessor {
 
-public class SourcesInfoProcessor extends MappingProcessor {
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final Document opus = opusDocument.getOpus().getOpusDocument();
@@ -43,61 +43,11 @@ public class SourcesInfoProcessor extends MappingProcessor {
             final String label = r.getLabel();
             final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
 
-            RelatedItemDefinition rid = getRelatedItemDefinition(mods, label);
+            RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, "original");
             setLabelIfdefined(label, rid);
             setIdentifierIfNotFound(uri, rid, type);
             setSortOrderIfDefined(partnum, rid);
         }
     }
 
-    private void setSortOrderIfDefined(String partNumber, RelatedItemDefinition rid) {
-        TitleInfoDefinition tid = (TitleInfoDefinition)
-                select("mods:titleInfo", rid);
-        if (tid == null) {
-            tid = rid.addNewTitleInfo();
-            signalChanges(MODS_CHANGES);
-        }
-
-        XmlString xs = (XmlString) select("mods:partNumber", tid);
-        if (xs == null) {
-            xs = tid.addNewPartNumber();
-            xs.setStringValue(partNumber);
-            signalChanges(MODS_CHANGES);
-        }
-    }
-
-    private void setIdentifierIfNotFound(String uri, RelatedItemDefinition rid, final String type) {
-        IdentifierDefinition id = (IdentifierDefinition)
-                select("mods:identifier[@type='" + type + "' and text()='" + uri + "']", rid);
-        if (id == null) {
-            id = rid.addNewIdentifier();
-            id.setType(type);
-            id.setStringValue(uri);
-            signalChanges(MODS_CHANGES);
-        }
-    }
-
-    private void setLabelIfdefined(String label, RelatedItemDefinition rid) {
-        if (label != null) {
-            if (!label.equals(rid.getDisplayLabel())) {
-                rid.setDisplayLabel(label);
-                signalChanges(MODS_CHANGES);
-            }
-        }
-    }
-
-    private RelatedItemDefinition getRelatedItemDefinition(ModsDefinition mods, String label) {
-        final String query = (label == null || label.isEmpty()) ?
-                "mods:relatedItem[@type='original']" :
-                "mods:relatedItem[@type='original' and @displayLabel='" + label + "']";
-
-        RelatedItemDefinition rid = (RelatedItemDefinition)
-                select(query, mods);
-        if (rid == null) {
-            rid = mods.addNewRelatedItem();
-            rid.setType(ORIGINAL);
-            signalChanges(MODS_CHANGES);
-        }
-        return rid;
-    }
 }
