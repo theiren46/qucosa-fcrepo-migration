@@ -32,18 +32,19 @@ public class SourcesInfoProcessor extends MappingProcessor {
         final Document opus = opusDocument.getOpus().getOpusDocument();
         final ModsDefinition mods = modsDocument.getMods();
 
-        mapReferenceUrlElements(opus, mods);
+        mapReferenceElements(mods, opus.getReferenceUrlArray(), "uri");
+        mapReferenceElements(mods, opus.getReferenceIsbnArray(), "isbn");
     }
 
-    private void mapReferenceUrlElements(Document opus, ModsDefinition mods) {
-        for (Reference r : opus.getReferenceUrlArray()) {
+    private void mapReferenceElements(ModsDefinition mods, Reference[] references, String type) {
+        for (Reference r : references) {
             final String uri = r.getValue();
             final String label = r.getLabel();
             final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
 
             RelatedItemDefinition rid = getRelatedItemDefinition(mods, label);
             setLabelIfdefined(label, rid);
-            setIdentifierIfNotFound(uri, rid);
+            setIdentifierIfNotFound(uri, rid, type);
             setSortOrderIfDefined(partnum, rid);
         }
     }
@@ -64,12 +65,12 @@ public class SourcesInfoProcessor extends MappingProcessor {
         }
     }
 
-    private void setIdentifierIfNotFound(String uri, RelatedItemDefinition rid) {
+    private void setIdentifierIfNotFound(String uri, RelatedItemDefinition rid, final String type) {
         IdentifierDefinition id = (IdentifierDefinition)
-                select("mods:identifier[@type='uri' and text()='" + uri + "']", rid);
+                select("mods:identifier[@type='" + type + "' and text()='" + uri + "']", rid);
         if (id == null) {
             id = rid.addNewIdentifier();
-            id.setType("uri");
+            id.setType(type);
             id.setStringValue(uri);
             signalChanges(MODS_CHANGES);
         }
