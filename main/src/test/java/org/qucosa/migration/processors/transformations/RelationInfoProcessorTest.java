@@ -29,12 +29,12 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
     final private MappingProcessor processor = new RelationInfoProcessor();
 
     @Test
-    public void extractsSeriesRelation() throws Exception {
+    public void mapSeriesReferenceToSeriesRelatedItem() throws Exception {
         final String urn = "urn:nbn:de:bsz:14-qucosa-38419";
         final String link = "http://nbn-resolving.de/" + urn;
         final String label = "Link zur Schriftenreihe";
         final BigInteger sortOrder = BigInteger.valueOf(201009);
-        createReferenceUrn(urn, label, sortOrder);
+        createReferenceUrn(urn, label, "series", sortOrder);
 
         runProcessor(processor);
 
@@ -48,11 +48,29 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
         XMLAssert.assertXpathExists("//mods:relatedItem/mods:titleInfo[mods:partNumber='" + sortOrder + "']", ownerDocument);
     }
 
-    private void createReferenceUrn(String urn, String label, BigInteger sortOrder) {
+    @Test
+    public void mapJournalReferenceToSeriesRelatedItem() throws Exception {
+        final String urn = "urn:nbn:de:bsz:ch1-qucosa-62094";
+        final String link = "http://nbn-resolving.de/" + urn;
+        final BigInteger sortOrder = BigInteger.valueOf(20031);
+        createReferenceUrn(urn, null, "journal", sortOrder);
+
+        runProcessor(processor);
+
+        final Document ownerDocument = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:relatedItem[" +
+                "@type='series'" +
+                " and @xlink:href='" + link + "' ]", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:identifier[@type='urn'" +
+                " and text()='" + urn + "']", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:titleInfo[mods:partNumber='" + sortOrder + "']", ownerDocument);
+    }
+
+    private void createReferenceUrn(String urn, String label, String relation, BigInteger sortOrder) {
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceUrn();
         refUrl.setValue(urn);
         refUrl.setLabel(label);
-        refUrl.setRelation("series");
+        refUrl.setRelation(relation);
         refUrl.setSortOrder(sortOrder);
     }
 
