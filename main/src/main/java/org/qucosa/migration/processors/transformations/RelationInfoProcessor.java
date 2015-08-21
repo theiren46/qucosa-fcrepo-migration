@@ -43,7 +43,7 @@ public class RelationInfoProcessor extends ModsRelatedItemProcessor {
             final String urn = r.getValue();
             final String label = r.getLabel();
             final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
-            final Type.Enum itemType = determineItemType();
+            final Type.Enum itemType = determineItemType(r.getRelation());
 
             RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, itemType);
             setLabelIfdefined(label, rid);
@@ -68,8 +68,19 @@ public class RelationInfoProcessor extends ModsRelatedItemProcessor {
         }
     }
 
-    private Type.Enum determineItemType() {
-        return Type.SERIES;
+    private Type.Enum determineItemType(String relation) {
+        switch (relation) {
+            case "series":
+            case "journal":
+            case "proceeding":
+                return Type.SERIES;
+            case "issue":
+                return Type.CONSTITUENT;
+            case "predecessor":
+                return Type.PRECEDING;
+            default:
+                return Type.REFERENCES;
+        }
     }
 
 }

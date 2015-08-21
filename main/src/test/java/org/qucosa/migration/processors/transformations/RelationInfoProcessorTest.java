@@ -83,6 +83,23 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
                 " and text()='" + urn + "']", ownerDocument);
     }
 
+    @Test
+    public void mapIssueReferenceToConstituentRelatedItem() throws Exception {
+        final String urn = "urn:nbn:de:bsz:14-qucosa-32825";
+        final String link = "http://nbn-resolving.de/" + urn;
+        final BigInteger sortOrder = BigInteger.valueOf(001);
+        createReferenceUrn(urn, null, "issue", sortOrder);
+
+        runProcessor(processor);
+
+        final Document ownerDocument = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:relatedItem[" +
+                "@type='constituent'" +
+                " and @xlink:href='" + link + "' ]", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:identifier[@type='urn'" +
+                " and text()='" + urn + "']", ownerDocument);
+    }
+
     private void createReferenceUrn(String urn, String label, String relation, BigInteger sortOrder) {
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceUrn();
         refUrl.setValue(urn);
