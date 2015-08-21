@@ -67,4 +67,23 @@ public class SourcesInfoProcessorTest extends ProcessorTestBase {
         XMLAssert.assertXpathExists("//mods:relatedItem/mods:titleInfo[mods:partNumber='" + sortOrder + "']", ownerDocument);
     }
 
+    @Test
+    public void extractsReferenceIssn() throws Exception {
+        final String value = "0340-2444";
+        final String label = "Some label";
+        final BigInteger sortOrder = BigInteger.valueOf(10);
+        Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceIssn();
+        refUrl.setValue(value);
+        refUrl.setLabel(label);
+        refUrl.setSortOrder(sortOrder);
+
+        runProcessor(processor);
+
+        final Document ownerDocument = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathExists("//mods:relatedItem[@type='original' and @displayLabel='" + label + "']", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:identifier[@type='issn'" +
+                " and text()='" + value + "']", ownerDocument);
+        XMLAssert.assertXpathExists("//mods:relatedItem/mods:titleInfo[mods:partNumber='" + sortOrder + "']", ownerDocument);
+    }
+
 }

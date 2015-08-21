@@ -34,6 +34,7 @@ public class SourcesInfoProcessor extends MappingProcessor {
 
         mapReferenceElements(mods, opus.getReferenceUrlArray(), "uri");
         mapReferenceElements(mods, opus.getReferenceIsbnArray(), "isbn");
+        mapReferenceElements(mods, opus.getReferenceIssnArray(), "issn");
     }
 
     private void mapReferenceElements(ModsDefinition mods, Reference[] references, String type) {
