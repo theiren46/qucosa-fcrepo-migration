@@ -97,7 +97,7 @@ public class PersonInfoProcessor extends MappingProcessor {
             signalChanges(MODS_CHANGES);
         }
 
-        if (phone != null && !phone.isEmpty()) {
+        if (!phone.isEmpty()) {
             if (foafPerson.getPhone() == null
                     || !foafPerson.getPhone().equals(phone)) {
                 foafPerson.setPhone(phone);
@@ -105,7 +105,7 @@ public class PersonInfoProcessor extends MappingProcessor {
             }
         }
 
-        if (mbox != null && !mbox.isEmpty()) {
+        if (!mbox.isEmpty()) {
             if (foafPerson.getMbox() == null
                     || !foafPerson.getMbox().equals(mbox)) {
                 foafPerson.setMbox(mbox);
@@ -113,7 +113,7 @@ public class PersonInfoProcessor extends MappingProcessor {
             }
         }
 
-        if (gender != null && !gender.isEmpty()) {
+        if (!gender.isEmpty()) {
             if (foafPerson.getGender() == null
                     || !foafPerson.getGender().equals(gender)) {
                 foafPerson.setGender(gender);

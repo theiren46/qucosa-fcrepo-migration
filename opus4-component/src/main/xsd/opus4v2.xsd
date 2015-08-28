@@ -37,7 +37,7 @@
         <xs:sequence>
             <xs:element name="Language" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="SortOrder" type="xs:integer" minOccurs="0" maxOccurs="1" default="0"/>
+            <xs:element name="SortOrder" type="xs:string" minOccurs="0" maxOccurs="1" default="0"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -64,7 +64,7 @@
             <xs:element name="FirstName" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="LastName" type="xs:string" minOccurs="1" maxOccurs="1"/>
             <xs:element name="Role" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="SortOrder" type="xs:integer" minOccurs="0" maxOccurs="1" default="0"/>
+            <xs:element name="SortOrder" type="xs:string" minOccurs="0" maxOccurs="1" default="0"/>
             <xs:element name="AllowEmailContact" type="xs:boolean" minOccurs="0" maxOccurs="1" default="false"/>
         </xs:sequence>
     </xs:complexType>
@@ -147,7 +147,7 @@
             <xs:element name="Value" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
             <xs:element name="Label" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="Relation" type="xs:string" minOccurs="0" maxOccurs="1"/>
-            <xs:element name="SortOrder" type="xs:integer" minOccurs="0" maxOccurs="1" default="0"/>
+            <xs:element name="SortOrder" type="xs:string" minOccurs="0" maxOccurs="1" default="0"/>
         </xs:all>
     </xs:complexType>
 
@@ -163,7 +163,7 @@
             <xs:element name="LinkSign" type="xs:anyURI" minOccurs="0" maxOccurs="1"/>
             <xs:element name="MimeType" type="xs:string" minOccurs="0" maxOccurs="1"/>
             <xs:element name="NameLong" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
-            <xs:element name="SortOrder" type="xs:integer" minOccurs="0" maxOccurs="1" default="0"/>
+            <xs:element name="SortOrder" type="xs:string" minOccurs="0" maxOccurs="1" default="0"/>
             <xs:element name="PodAllowed" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
         </xs:all>
     </xs:complexType>

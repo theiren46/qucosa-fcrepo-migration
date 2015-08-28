@@ -22,8 +22,6 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import java.math.BigInteger;
-
 public class RelationInfoProcessorTest extends ProcessorTestBase {
 
     final private MappingProcessor processor = new RelationInfoProcessor();
@@ -33,7 +31,7 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
         final String urn = "urn:nbn:de:bsz:14-qucosa-38419";
         final String link = "http://nbn-resolving.de/" + urn;
         final String label = "Link zur Schriftenreihe";
-        final BigInteger sortOrder = BigInteger.valueOf(201009);
+        final String sortOrder = "201009";
         createReferenceUrn(urn, label, "series", sortOrder);
 
         runProcessor(processor);
@@ -52,7 +50,7 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
     public void mapJournalReferenceToSeriesRelatedItem() throws Exception {
         final String urn = "urn:nbn:de:bsz:ch1-qucosa-62094";
         final String link = "http://nbn-resolving.de/" + urn;
-        final BigInteger sortOrder = BigInteger.valueOf(20031);
+        final String sortOrder = "20031";
         createReferenceUrn(urn, null, "journal", sortOrder);
 
         runProcessor(processor);
@@ -87,7 +85,7 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
     public void mapIssueReferenceToConstituentRelatedItem() throws Exception {
         final String urn = "urn:nbn:de:bsz:14-qucosa-32825";
         final String link = "http://nbn-resolving.de/" + urn;
-        final BigInteger sortOrder = BigInteger.valueOf(001);
+        final String sortOrder = "001";
         createReferenceUrn(urn, null, "issue", sortOrder);
 
         runProcessor(processor);
@@ -117,7 +115,7 @@ public class RelationInfoProcessorTest extends ProcessorTestBase {
                 " and text()='" + urn + "']", ownerDocument);
     }
 
-    private void createReferenceUrn(String urn, String label, String relation, BigInteger sortOrder) {
+    private void createReferenceUrn(String urn, String label, String relation, String sortOrder) {
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceUrn();
         refUrl.setValue(urn);
         refUrl.setLabel(label);

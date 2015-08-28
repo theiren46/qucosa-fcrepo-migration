@@ -22,8 +22,6 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-import java.math.BigInteger;
-
 public class SourcesInfoProcessorTest extends ProcessorTestBase {
 
     final private MappingProcessor processor = new SourcesInfoProcessor();
@@ -32,7 +30,7 @@ public class SourcesInfoProcessorTest extends ProcessorTestBase {
     public void extractsReferenceUrl() throws Exception {
         final String value = "http://dx.doi.org/10.13141/jve.vol5.no1.pp1-7";
         final String label = "Der Artikel ist zuerst in der Open Access-Zeitschrift \"Journal of Vietnamese Environment\" erschienen.";
-        final BigInteger sortOrder = BigInteger.valueOf(10);
+        final String sortOrder = "10";
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceUrl();
         refUrl.setValue(value);
         refUrl.setLabel(label);
@@ -53,7 +51,7 @@ public class SourcesInfoProcessorTest extends ProcessorTestBase {
     @Test
     public void extractsReferenceIsbn() throws Exception {
         final String value = "978-989-95079-6-8";
-        final BigInteger sortOrder = BigInteger.valueOf(10);
+        final String sortOrder = "10";
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceIsbn();
         refUrl.setValue(value);
         refUrl.setSortOrder(sortOrder);
@@ -71,7 +69,7 @@ public class SourcesInfoProcessorTest extends ProcessorTestBase {
     public void extractsReferenceIssn() throws Exception {
         final String value = "0340-2444";
         final String label = "Some label";
-        final BigInteger sortOrder = BigInteger.valueOf(10);
+        final String sortOrder = "10";
         Reference refUrl = opusDocument.getOpus().getOpusDocument().addNewReferenceIssn();
         refUrl.setValue(value);
         refUrl.setLabel(label);

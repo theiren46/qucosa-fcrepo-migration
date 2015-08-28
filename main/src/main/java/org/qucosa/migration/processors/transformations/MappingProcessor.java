@@ -25,7 +25,6 @@ import org.apache.camel.Processor;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
-import javax.xml.xpath.XPathExpressionException;
 import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -123,7 +122,7 @@ public abstract class MappingProcessor implements Processor {
         return code;
     }
 
-    protected Boolean nodeExists(String expression, XmlObject object) throws XPathExpressionException {
+    protected Boolean nodeExists(String expression, XmlObject object) {
         return (select(expression, object) != null);
     }
 

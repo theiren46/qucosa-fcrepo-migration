@@ -42,7 +42,7 @@ public class RelationInfoProcessor extends ModsRelatedItemProcessor {
         for (Reference r : opus.getReferenceUrnArray()) {
             final String urn = r.getValue();
             final String label = r.getLabel();
-            final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
+            final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder();
             final Type.Enum itemType = determineItemType(r.getRelation());
 
             RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, itemType);

@@ -41,7 +41,7 @@ public class SourcesInfoProcessor extends ModsRelatedItemProcessor {
         for (Reference r : references) {
             final String uri = r.getValue();
             final String label = r.getLabel();
-            final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder().toString();
+            final String partnum = (r.getSortOrder() == null) ? null : r.getSortOrder();
 
             RelatedItemDefinition rid = getRelatedItemDefinition(mods, label, RelatedItemDefinition.Type.ORIGINAL);
             setLabelIfdefined(label, rid);
