@@ -17,6 +17,8 @@
 
 package org.qucosa.migration.processors;
 
+import de.slubDresden.InfoDocument;
+import gov.loc.mets.AmdSecType;
 import gov.loc.mets.FileType;
 import gov.loc.mets.FileType.FLocat;
 import gov.loc.mets.MdSecType;
@@ -46,16 +48,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Map;
 
 import static gov.loc.mets.FileType.FLocat.LOCTYPE.URL;
 import static gov.loc.mets.MdSecType.MdWrap.MDTYPE;
 import static gov.loc.mets.MetsType.FileSec;
 
-public class MetsGenerator implements Processor {
+public class DepositMetsGenerator implements Processor {
 
     public static final String METS_SCHEMA_LOCATION = "http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd";
     public static final String MODS_SCHEMA_LOCATION = "http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/v3/mods-3-6.xsd";
-    private static final Logger log = LoggerFactory.getLogger(MetsGenerator.class);
+    private static final Logger log = LoggerFactory.getLogger(DepositMetsGenerator.class);
     private static final XmlOptions xmlOptions;
 
     static {
@@ -77,12 +80,24 @@ public class MetsGenerator implements Processor {
         addXsiSchemaLocation(metsRecord, METS_SCHEMA_LOCATION);
         addXsiSchemaLocation(metsRecord, MODS_SCHEMA_LOCATION);
 
-        OpusDocument opusDocument = msg.getBody(OpusDocument.class);
-        embedQucosaXml(metsRecord, opusDocument);
-        generateBasicMods(metsRecord, opusDocument);
+        if (msg.getBody() instanceof Map) {
+            Map m = msg.getBody(Map.class);
+            ModsDocument modsDocument = (ModsDocument) m.get("MODS");
+            if (exchange.getProperty("MODS_CHANGES").equals(true) && modsDocument != null) {
+                embedMods(metsRecord, modsDocument);
+            }
+            InfoDocument infoDocument = (InfoDocument) m.get("SLUB-INFO");
+            if (exchange.getProperty("SLUB-INFO_CHANGES").equals(true) && infoDocument != null) {
+                embedInfo(metsRecord, infoDocument);
+            }
+        } else {
+            OpusDocument opusDocument = msg.getBody(OpusDocument.class);
+            embedQucosaXml(metsRecord, opusDocument);
+            generateBasicMods(metsRecord, opusDocument);
+            URL fileUrl = new URL(msg.getHeader("Qucosa-File-Url").toString());
+            attachUploadFileSections(metsRecord, opusDocument, fileUrl);
+        }
 
-        URL fileUrl = new URL(msg.getHeader("Qucosa-File-Url").toString());
-        attachUploadFileSections(metsRecord, opusDocument, fileUrl);
 
         if (log.isDebugEnabled()) {
             log.debug("\n" + metsDocument.xmlText(xmlOptions));
@@ -206,6 +221,29 @@ public class MetsGenerator implements Processor {
         mdWrap.setOTHERMDTYPE("QUCOSA-XML");
         mdWrap.setMIMETYPE("application/xml");
         mdWrap.addNewXmlData().set(opusDocument);
+    }
+
+    private void embedMods(Mets metsRecord, ModsDocument modsDocument) {
+        MdSecType dmdSection = metsRecord.addNewDmdSec();
+        dmdSection.setID("MODS_XML");
+        MdWrap mdWrap = dmdSection.addNewMdWrap();
+        mdWrap.setMDTYPE(MDTYPE.MODS);
+        mdWrap.setMIMETYPE("application/mods+xml");
+        mdWrap.addNewXmlData().set(modsDocument);
+    }
+
+    private void embedInfo(Mets metsRecord, InfoDocument infoDocument) {
+        AmdSecType amdSection = metsRecord.addNewAmdSec();
+        amdSection.setID("AMD_SLUB-INFO");
+
+        MdSecType techMd = amdSection.addNewTechMD();
+        techMd.setID("TECH_SLUB-INFO");
+
+        MdWrap mdWrap = techMd.addNewMdWrap();
+        mdWrap.setMDTYPE(MDTYPE.OTHER);
+        mdWrap.setOTHERMDTYPE("SLUBINFO");
+        mdWrap.setMIMETYPE("application/vnd.slub-info+xml");
+        mdWrap.addNewXmlData().set(infoDocument);
     }
 
     private void addXsiSchemaLocation(XmlObject xml, String schemaLocation) {

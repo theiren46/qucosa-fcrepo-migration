@@ -49,7 +49,6 @@ public class CommandLineOptions {
             name = "--ownerID",
             aliases = "-o",
             usage = "Owner ID to be set for ingested documents",
-            depends = "--stage-resource",
             required = true
     )
     private String ownerId = null;

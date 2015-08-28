@@ -26,6 +26,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.BufferedHttpEntity;
@@ -110,6 +111,42 @@ public class SwordConnection {
         }
 
         if (response.getStatusLine().getStatusCode() != HttpStatus.SC_CREATED) {
+            String reason = response.getStatusLine().getReasonPhrase();
+            throw new Exception(reason);
+        }
+
+        return response;
+    }
+
+    public HttpResponse update(String pid, SwordDeposit deposit, Boolean noop, String onBehalfOfHeader) throws Exception {
+        URIBuilder uriBuilder = new URIBuilder(url + "/" + deposit.getCollection() + "/" + pid);
+        HttpPut httpPut = new HttpPut(uriBuilder.build());
+        httpPut.setHeader("X-No-Op", String.valueOf(noop));
+        httpPut.setHeader("Content-Type", deposit.getContentType());
+
+        if (onBehalfOfHeader != null && !onBehalfOfHeader.isEmpty()) {
+            httpPut.setHeader("X-On-Behalf-Of", onBehalfOfHeader);
+        }
+
+        BasicHttpEntity httpEntity = new BasicHttpEntity();
+        httpEntity.setContent(toInputStream(deposit.getBody()));
+        httpEntity.setContentType(deposit.getContentType());
+        httpPut.setEntity(new BufferedHttpEntity(httpEntity));
+
+        HttpResponse response = httpClient.execute(httpPut);
+        EntityUtils.consume(response.getEntity());
+
+        if (log.isDebugEnabled()) {
+            if (noop) {
+                log.debug("SWORD parameter 'X-No-Op' is '{}'", noop);
+                log.debug("SWORD parameter 'X-On-Behalf-Of' is '{}'", onBehalfOfHeader);
+                log.debug("Content type is '{}'", deposit.getContentType());
+                log.debug("Posting to SWORD collection '{}'", deposit.getCollection());
+            }
+            log.debug(response.toString());
+        }
+
+        if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
             String reason = response.getStatusLine().getReasonPhrase();
             throw new Exception(reason);
         }

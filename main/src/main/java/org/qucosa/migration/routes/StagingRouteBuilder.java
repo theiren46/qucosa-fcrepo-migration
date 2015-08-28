@@ -24,7 +24,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
 import org.qucosa.camel.component.sword.SwordDeposit;
-import org.qucosa.migration.processors.MetsGenerator;
+import org.qucosa.migration.processors.DepositMetsGenerator;
 
 import java.util.concurrent.TimeUnit;
 
@@ -72,7 +72,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .setHeader("Slug", simple("qucosa:${body.identifier}"))
                 .to("opus4:documents")
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
-                .bean(MetsGenerator.class)
+                .bean(DepositMetsGenerator.class)
                 .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
                 .setHeader("Collection", constant(config.getString("sword.collection")))
                 .convertBodyTo(SwordDeposit.class)

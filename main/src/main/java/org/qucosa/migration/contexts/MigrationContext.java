@@ -34,21 +34,18 @@ public class MigrationContext extends DefaultCamelContext {
     }
 
     protected void setup(Configuration conf, boolean isStaging, boolean isTransforming) throws Exception {
-        if (isStaging) {
-            Opus4DataSource opus4DataSource = new Opus4DataSource();
-            opus4DataSource.configure(conf);
+        Opus4DataSource opus4DataSource = new Opus4DataSource();
+        opus4DataSource.configure(conf);
 
-            SwordConnection swordConnection = new SwordConnection();
-            swordConnection.configure(conf);
+        SwordConnection swordConnection = new SwordConnection();
+        swordConnection.configure(conf);
 
-            SimpleRegistry simpleRegistry = new SimpleRegistry();
-            simpleRegistry.put(Opus4DataSource.DATA_SOURCE_NAME, opus4DataSource);
-            simpleRegistry.put(SwordConnection.DATA_SOURCE_NAME, swordConnection);
-            setRegistry(simpleRegistry);
+        SimpleRegistry simpleRegistry = new SimpleRegistry();
+        simpleRegistry.put(Opus4DataSource.DATA_SOURCE_NAME, opus4DataSource);
+        simpleRegistry.put(SwordConnection.DATA_SOURCE_NAME, swordConnection);
+        setRegistry(simpleRegistry);
 
-            addRoutes(new StagingRouteBuilder(conf));
-        }
-
+        if (isStaging) addRoutes(new StagingRouteBuilder(conf));
         if (isTransforming) addRoutes(new TransformationRouteBuilder(conf));
 
         setStreamCaching(true);

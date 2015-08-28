@@ -29,6 +29,11 @@ public class SwordComponent extends DefaultComponent {
         if (remaining.startsWith("deposit")) {
             return new ProcessorEndpoint(uri, this, new SwordDepositProcessor());
         }
+
+        if (remaining.startsWith("update")) {
+            return new ProcessorEndpoint(uri, this, new SwordUpdateProcessor());
+        }
+
         throw new Exception("Unknown endpoint URI:" + remaining);
     }
 }

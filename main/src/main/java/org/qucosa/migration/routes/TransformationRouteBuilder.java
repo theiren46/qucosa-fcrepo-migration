@@ -29,12 +29,14 @@ import org.apache.camel.component.http.HttpOperationFailedException;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.qucosa.camel.component.sword.SwordDeposit;
+import org.qucosa.migration.processors.DepositMetsGenerator;
 import org.qucosa.migration.processors.HttpOperationFailedHelper;
 import org.qucosa.migration.processors.transformations.*;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.qucosa.migration.processors.aggregate.HashMapAggregationStrategy.aggregateHashBy;
-import static org.qucosa.migration.processors.transformations.MappingProcessor.MODS_CHANGES;
-import static org.qucosa.migration.processors.transformations.MappingProcessor.SLUB_INFO_CHANGES;
 
 public class TransformationRouteBuilder extends RouteBuilder {
 
@@ -48,6 +50,18 @@ public class TransformationRouteBuilder extends RouteBuilder {
     public void configure() throws Exception {
         configureTransformationPipeline();
 
+        final String fedoraUri = getConfigValueOrThrowException("fedora.url");
+
+        configureHttpBasicAuth(
+                fedoraUri,
+                getConfigValueOrThrowException("fedora.user"),
+                getConfigValueOrThrowException("fedora.password"));
+
+        configureHttpBasicAuth(
+                getConfigValueOrThrowException("sword.url"),
+                getConfigValueOrThrowException("sword.user"),
+                getConfigValueOrThrowException("sword.password"));
+
         from("direct:transform")
                 .routeId("transform")
                 .multicast(aggregateHashBy(header("DSID")))
@@ -58,7 +72,6 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .routingSlip(header("transformations")).ignoreInvalidEndpoints()
                 .to("direct:ds:update");
 
-        final String uri = getConfigValueOrThrowException("fedora.url");
         final String datastreamPath = "/objects/${header[PID]}/datastreams/${header[DSID]}";
 
         from("direct:ds:qucosaxml")
@@ -69,7 +82,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("GET"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath + "/content"))
                 .setBody(constant(""))
-                .to(uri)
+                .to(fedoraUri)
                 .convertBodyTo(String.class)
                 .bean(OpusDocument.Factory.class, "parse(${body})");
 
@@ -91,7 +104,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("GET"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath + "/content"))
                 .setBody(constant(""))
-                .to(uri)
+                .to(fedoraUri)
                 .convertBodyTo(String.class)
                 .bean(ModsDocument.Factory.class, "parse(${body})");
 
@@ -113,55 +126,36 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .setHeader(Exchange.HTTP_METHOD, constant("GET"))
                 .setHeader(Exchange.HTTP_PATH, simple(datastreamPath + "/content"))
                 .setBody(constant(""))
-                .to(uri)
+                .to(fedoraUri)
                 .convertBodyTo(String.class)
                 .bean(InfoDocument.Factory.class, "parse(${body})");
 
         from("direct:ds:update")
-                .multicast()
-                .to("direct:ds:update:mods", "direct:ds:update:slub-info");
+                .bean(DepositMetsGenerator.class)
+                .setHeader("Qucosa-File-Url", constant(configuration.getString("qucosa.file.url")))
+                .setHeader("Collection", constant(configuration.getString("sword.collection")))
+                .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
+                .convertBodyTo(SwordDeposit.class)
+                .to("direct:sword:update");
 
-        from("direct:ds:update:mods")
-                .routeId("update-mods")
+        from("direct:sword:update")
+                .routeId("sword-update")
+                .log("Updating ${header[PID]}")
+                .errorHandler(deadLetterChannel("direct:deposit:dead")
+                        .maximumRedeliveries(5)
+                        .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
+                        .asyncDelayedRedelivery()
+                        .retryAttemptedLogLevel(LoggingLevel.WARN))
                 .threads()
-                .choice()
+                .setHeader("X-No-Op", constant(configuration.getBoolean("sword.noop")))
+                .setHeader("X-On-Behalf-Of", constant(configuration.getString("sword.ownerID", null)))
+                .to("sword:update");
+    }
 
-                .when(simple("${exchangeProperty[" + MODS_CHANGES + "]} == true"))
-                .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
-                .setHeader("DSID", constant("MODS"))
-                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-                .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
-                .setHeader(Exchange.HTTP_QUERY, simple("dsLabel=Object Bibliographic Metadata"))
-                .setHeader(Exchange.CONTENT_TYPE, constant("application/mods+xml"))
-                .transform(simple("${body[MODS]}")).convertBodyTo(String.class)
-                .to(uri)
-
-                .otherwise()
-                .log(LoggingLevel.DEBUG, "Update skipped: No changes in MODS datastream for ${header[PID]}");
-
-        from("direct:ds:update:slub-info")
-                .routeId("update-slub-info")
-                .threads()
-                .choice()
-
-                .when(simple("${exchangeProperty[" + SLUB_INFO_CHANGES + "]} == true"))
-                .log(LoggingLevel.DEBUG, "Update ${header[PID]}")
-                .setHeader("DSID", constant("SLUB-INFO"))
-                .setHeader(Exchange.HTTP_METHOD, constant("POST"))
-                .setHeader(Exchange.HTTP_PATH, simple(datastreamPath))
-                .setHeader(Exchange.HTTP_QUERY, simple("dsLabel=SLUB Administrative Metadata"))
-                .setHeader(Exchange.CONTENT_TYPE, constant("application/vnd.slub-info+xml"))
-                .transform(simple("${body[SLUB-INFO]}")).convertBodyTo(String.class)
-                .to(uri)
-
-                .otherwise()
-                .log(LoggingLevel.DEBUG, "Update skipped: No changes in SLUB-INFO datastream for ${header[PID]}");
-
+    private void configureHttpBasicAuth(String uri, String user, String password) throws ConfigurationException {
         HttpEndpoint httpEndpoint = (HttpEndpoint) getContext().getEndpoint(uri);
         httpEndpoint.setHttpClientConfigurer(
-                new BasicAuthenticationHttpClientConfigurer(false,
-                        getConfigValueOrThrowException("sword.user"),
-                        getConfigValueOrThrowException("sword.password")));
+                new BasicAuthenticationHttpClientConfigurer(false, user, password));
     }
 
     private void configureTransformationPipeline() throws IllegalAccessException, InstantiationException {
