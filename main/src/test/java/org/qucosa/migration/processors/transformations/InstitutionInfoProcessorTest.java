@@ -49,6 +49,18 @@ public class InstitutionInfoProcessorTest extends ProcessorTestBase {
     }
 
     @Test
+    public void No_new_corporation_reference_if_one_already_exists() throws Exception {
+        createOrganisation(Organisation.Type.OTHER,
+                "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");
+
+        runProcessor(processor);
+        runProcessor(processor);
+
+        Document xml = modsDocument.getMods().getDomNode().getOwnerDocument();
+        XMLAssert.assertXpathNotExists("//mods:extension/slub:info/slub:corporation[@ref=//mods:name/@ID][2]", xml);
+    }
+
+    @Test
     public void extractsType() throws Exception {
         createOrganisation(Organisation.Type.OTHER,
                 "Chemnitz", "publisher", "TU Chemnitz", "Rektorat", "Abteilung Foo", "Gruppe Baz");

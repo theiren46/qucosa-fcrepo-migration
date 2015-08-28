@@ -26,6 +26,7 @@ import noNamespace.OpusDocument;
 import noNamespace.Organisation;
 import noNamespace.Organisation.Type;
 
+import javax.xml.xpath.XPathExpressionException;
 import java.util.*;
 
 import static gov.loc.mods.v3.CodeOrText.CODE;
@@ -104,7 +105,7 @@ public class InstitutionInfoProcessor extends MappingProcessor {
             signalChanges(MODS_CHANGES);
         }
 
-        CorporationType ct = (CorporationType) select("slub:corporation[@slub:ref='" + token + "']", it);
+        CorporationType ct = (CorporationType) select("slub:corporation[@ref='" + token + "']", it);
         if (ct == null) {
             ct = it.addNewCorporation();
             ct.setRef(token);
@@ -133,25 +134,25 @@ public class InstitutionInfoProcessor extends MappingProcessor {
         return id;
     }
 
-    private void createOrganizationType(CorporationType ct, String hierarchy, String name) {
+    private void createOrganizationType(CorporationType ct, String hierarchy, String name) throws XPathExpressionException {
         switch (hierarchy) {
             case "institution":
-                ct.addInstitution(name);
+                if (!nodeExists("slub:institution[text()='" + qq(name) + "']", ct)) ct.addInstitution(name);
                 break;
             case "section":
-                ct.addSection(name);
+                if (!nodeExists("slub:section[text()='" + qq(name) + "']", ct)) ct.addSection(name);
                 break;
             case "university":
-                ct.addUniversity(name);
+                if (!nodeExists("slub:university[text()='" + qq(name) + "']", ct)) ct.addUniversity(name);
                 break;
             case "faculty":
-                ct.addFaculty(name);
+                if (!nodeExists("slub:faculty[text()='" + qq(name) + "']", ct)) ct.addFaculty(name);
                 break;
             case "institute":
-                ct.addInstitute(name);
+                if (!nodeExists("slub:institute[text()='" + qq(name) + "']", ct)) ct.addInstitute(name);
                 break;
             case "chair":
-                ct.addChair(name);
+                if (!nodeExists("slub:chair[text()='" + qq(name) + "']", ct)) ct.addChair(name);
                 break;
         }
     }
