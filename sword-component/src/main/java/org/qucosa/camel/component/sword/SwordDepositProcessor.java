@@ -23,7 +23,15 @@ import org.apache.camel.Processor;
 import org.apache.camel.spi.Registry;
 import org.apache.http.HttpResponse;
 
+import static org.qucosa.camel.component.sword.SwordComponent.DepositMode.DEPOSIT;
+
 public class SwordDepositProcessor implements Processor {
+
+    private final SwordComponent.DepositMode mode;
+
+    public SwordDepositProcessor(SwordComponent.DepositMode depositMode) {
+        this.mode = depositMode;
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -40,8 +48,15 @@ public class SwordDepositProcessor implements Processor {
 
         final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
         final String onBehalfOfHeader = msg.getHeader("X-On-Behalf-Of", String.class);
-        final String slugHeader = msg.getHeader("Slug", String.class);
-        HttpResponse httpResponse = connection.deposit(body, noopHeader, slugHeader, onBehalfOfHeader);
+
+        HttpResponse httpResponse;
+        if (mode == DEPOSIT) {
+            final String slugHeader = msg.getHeader("Slug", String.class);
+            httpResponse = connection.deposit(body, noopHeader, slugHeader, onBehalfOfHeader);
+        } else {
+            final String pid = msg.getHeader("PID", String.class);
+            httpResponse = connection.update(pid, body, noopHeader, onBehalfOfHeader);
+        }
 
         exchange.getIn().setBody(httpResponse);
     }

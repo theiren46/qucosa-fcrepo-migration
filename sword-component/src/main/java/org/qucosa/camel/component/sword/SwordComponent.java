@@ -27,13 +27,15 @@ public class SwordComponent extends DefaultComponent {
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         if (remaining.startsWith("deposit")) {
-            return new ProcessorEndpoint(uri, this, new SwordDepositProcessor());
+            return new ProcessorEndpoint(uri, this, new SwordDepositProcessor(DepositMode.DEPOSIT));
         }
-
         if (remaining.startsWith("update")) {
-            return new ProcessorEndpoint(uri, this, new SwordUpdateProcessor());
+            return new ProcessorEndpoint(uri, this, new SwordDepositProcessor(DepositMode.UPDATE));
         }
-
         throw new Exception("Unknown endpoint URI:" + remaining);
+    }
+
+    public enum DepositMode {
+        DEPOSIT, UPDATE
     }
 }
