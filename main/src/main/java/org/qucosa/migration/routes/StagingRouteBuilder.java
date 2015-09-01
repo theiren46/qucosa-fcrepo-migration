@@ -25,6 +25,7 @@ import org.apache.http.HttpResponse;
 import org.qucosa.camel.component.opus4.Opus4ResourceID;
 import org.qucosa.camel.component.sword.SwordDeposit;
 import org.qucosa.migration.processors.DepositMetsGenerator;
+import org.qucosa.migration.processors.PurgeFedoraObject;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,9 +46,17 @@ public class StagingRouteBuilder extends RouteBuilder {
         return locationStr.substring(locationStr.lastIndexOf('/') + 1);
     }
 
-
     @Override
     public void configure() throws Exception {
+        errorHandler(deadLetterChannel("direct:dead")
+                .maximumRedeliveries(5)
+                .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
+                .asyncDelayedRedelivery());
+
+        from("direct:dead")
+                .routeId("Failed")
+                .log(LoggingLevel.ERROR, "${body}");
+
         from("direct:staging")
                 .routeId("staging")
                 .log("Staging resource: ${body}")
@@ -69,33 +78,33 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .routeId("stage-document")
                 .threads()
                 .convertBodyTo(Opus4ResourceID.class)
+
+                .choice()
+                .when(constant(config.getBoolean("sword.purge")))
+                .log("Purging Fedora object qucosa:${body.identifier}")
+                .process(new PurgeFedoraObject(config))
+                .end()
+
                 .setHeader("Slug", simple("qucosa:${body.identifier}"))
                 .to("opus4:documents")
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
+
                 .bean(DepositMetsGenerator.class)
+
                 .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
                 .setHeader("Collection", constant(config.getString("sword.collection")))
-                .convertBodyTo(SwordDeposit.class)
                 .to("direct:deposit");
 
         from("direct:deposit")
                 .routeId("deposit-route")
-                .errorHandler(deadLetterChannel("direct:deposit:dead")
-                        .maximumRedeliveries(5)
-                        .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
-                        .asyncDelayedRedelivery()
-                        .retryAttemptedLogLevel(LoggingLevel.WARN))
-                .threads()
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .setHeader("X-On-Behalf-Of", constant(config.getString("sword.ownerID", null)))
+                .convertBodyTo(SwordDeposit.class)
                 .to("sword:deposit")
                 .throttle(5).asyncDelayed()
                 .choice().when(constant(config.getBoolean("transforming")))
                 .transform(method(StagingRouteBuilder.class, "extractPID"))
                 .to("direct:transform");
-
-        from("direct:deposit:dead")
-                .routeId("deposit-error")
-                .log(LoggingLevel.ERROR, "Failed:\n${body.body}");
     }
+
 }

@@ -53,6 +53,12 @@ public class CommandLineOptions {
     )
     private String ownerId = null;
     @Option(
+            name = "--purge",
+            aliases = "-p",
+            usage = "Try to purge object before doing deposit"
+    )
+    private Boolean purgeBeforeDeposit = false;
+    @Option(
             name = "--stage-resource",
             aliases = "-s",
             usage = "Opus ID of a single document or tenant for staging")
@@ -110,5 +116,9 @@ public class CommandLineOptions {
 
     public String getCollection() {
         return collection;
+    }
+
+    public Boolean getPurgeBeforeDeposit() {
+        return purgeBeforeDeposit;
     }
 }
