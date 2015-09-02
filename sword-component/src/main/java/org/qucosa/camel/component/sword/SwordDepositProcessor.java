@@ -44,18 +44,18 @@ public class SwordDepositProcessor implements Processor {
         }
 
         Message msg = exchange.getIn();
-        SwordDeposit body = (SwordDeposit) msg.getBody();
+        SwordDeposit swordDeposit = (SwordDeposit) msg.getBody();
 
         final Boolean noopHeader = (Boolean) msg.getHeader("X-No-Op", true);
         final String onBehalfOfHeader = msg.getHeader("X-On-Behalf-Of", String.class);
 
         HttpResponse httpResponse;
         if (mode == DEPOSIT) {
-            final String slugHeader = msg.getHeader("Slug", String.class);
-            httpResponse = connection.deposit(body, noopHeader, slugHeader, onBehalfOfHeader);
+            final String slugHeader = swordDeposit.getSlug();
+            httpResponse = connection.deposit(swordDeposit, noopHeader, slugHeader, onBehalfOfHeader);
         } else {
             final String pid = msg.getHeader("PID", String.class);
-            httpResponse = connection.update(pid, body, noopHeader, onBehalfOfHeader);
+            httpResponse = connection.update(pid, swordDeposit, noopHeader, onBehalfOfHeader);
         }
 
         exchange.getIn().setBody(httpResponse);

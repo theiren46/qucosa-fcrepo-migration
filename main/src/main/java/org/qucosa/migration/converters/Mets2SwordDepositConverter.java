@@ -30,6 +30,7 @@ public class Mets2SwordDepositConverter {
     public SwordDeposit toSwordDeposit(MetsDocument metsDocument, Exchange exchange) {
         Message msg = exchange.getIn();
         return new SwordDeposit(
+                msg.getHeader("Slug").toString(),
                 metsDocument.xmlText(),
                 msg.getHeader("Content-Type").toString(),
                 msg.getHeader("Collection").toString());

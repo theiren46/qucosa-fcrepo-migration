@@ -91,14 +91,14 @@ public class StagingRouteBuilder extends RouteBuilder {
 
                 .bean(DepositMetsGenerator.class)
 
-                .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
-                .setHeader("Collection", constant(config.getString("sword.collection")))
                 .to("direct:deposit");
 
         from("direct:deposit")
                 .routeId("deposit-route")
                 .setHeader("X-No-Op", constant(config.getBoolean("sword.noop")))
                 .setHeader("X-On-Behalf-Of", constant(config.getString("sword.ownerID", null)))
+                .setHeader("Content-Type", constant("application/vnd.qucosa.mets+xml"))
+                .setHeader("Collection", constant(config.getString("sword.collection")))
                 .convertBodyTo(SwordDeposit.class)
                 .to("sword:deposit")
                 .throttle(5).asyncDelayed()
