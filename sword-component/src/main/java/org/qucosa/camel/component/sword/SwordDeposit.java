@@ -22,8 +22,10 @@ public class SwordDeposit {
     private String body;
     private String collection;
     private String contentType;
+    private String slug;
 
-    public SwordDeposit(String body, String contentType, String collection) {
+    public SwordDeposit(String slug, String body, String contentType, String collection) {
+        this.slug = slug;
         this.body = body;
         this.contentType = contentType;
         this.collection = collection;
@@ -41,4 +43,13 @@ public class SwordDeposit {
         return collection;
     }
 
+    public String getSlug() {
+        return slug;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s],S:'%s',C:'%s',T:'%s',B:'%s'\n",
+                super.toString(), slug, collection, contentType, body);
+    }
 }

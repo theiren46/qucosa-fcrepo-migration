@@ -141,7 +141,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
         from("direct:sword:update")
                 .routeId("sword-update")
                 .log("Updating ${header[PID]}")
-                .errorHandler(deadLetterChannel("direct:deposit:dead")
+                .errorHandler(deadLetterChannel("direct:dead")
                         .maximumRedeliveries(5)
                         .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
                         .asyncDelayedRedelivery()
@@ -185,7 +185,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
             all.to(uri);
             from(uri)
                     .routeId("transform-" + mp.getLabel())
-                    .log("Processing...")
+                    .log(LoggingLevel.DEBUG, "Processing...")
                     .process(mp);
         }
     }
