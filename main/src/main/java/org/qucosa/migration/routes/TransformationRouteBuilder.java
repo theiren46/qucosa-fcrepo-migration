@@ -144,6 +144,8 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .errorHandler(deadLetterChannel("direct:dead")
                         .maximumRedeliveries(5)
                         .redeliveryDelay(TimeUnit.SECONDS.toMillis(3))
+                        .maximumRedeliveryDelay(TimeUnit.SECONDS.toMillis(60))
+                        .backOffMultiplier(2)
                         .asyncDelayedRedelivery()
                         .retryAttemptedLogLevel(LoggingLevel.WARN))
                 .threads()
