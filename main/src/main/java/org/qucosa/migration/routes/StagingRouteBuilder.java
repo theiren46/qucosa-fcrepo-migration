@@ -61,7 +61,7 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .errorHandler(noErrorHandler())
                 .log(LoggingLevel.ERROR, "${body}")
                 .setBody(simple("${body} ${exception}"))
-                .to("file://target/output?fileName=errors.txt");
+                .to("file://target/output");
 
         from("direct:staging")
                 .routeId("staging")
