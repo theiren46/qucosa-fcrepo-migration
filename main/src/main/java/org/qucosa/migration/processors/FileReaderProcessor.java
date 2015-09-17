@@ -15,26 +15,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.qucosa.migration.converters;
+package org.qucosa.migration.processors;
 
-import gov.loc.mets.MetsDocument;
-import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
-import org.qucosa.camel.component.sword.SwordDeposit;
+import org.apache.camel.Processor;
 
-@Converter
-public class Mets2SwordDepositConverter {
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
-    @Converter
-    public SwordDeposit toSwordDeposit(MetsDocument metsDocument, Exchange exchange) {
-        Message msg = exchange.getIn();
-        return new SwordDeposit(
-                (String) msg.getHeader("Slug"),
-                metsDocument.xmlText(),
-                (String) msg.getHeader("Content-Type"),
-                (String) msg.getHeader("Collection"));
+public class FileReaderProcessor implements Processor {
 
+    @Override
+    public void process(Exchange exchange) throws Exception {
+        Message in = exchange.getIn();
+        String filename = in.getBody(String.class);
+        List<String> lines = Files.readAllLines(
+                Paths.get(filename), Charset.defaultCharset());
+        in.setBody(lines);
     }
 
 }

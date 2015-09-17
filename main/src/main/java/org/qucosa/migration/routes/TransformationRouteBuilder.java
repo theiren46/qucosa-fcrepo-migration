@@ -131,6 +131,7 @@ public class TransformationRouteBuilder extends RouteBuilder {
                 .bean(InfoDocument.Factory.class, "parse(${body})");
 
         from("direct:ds:update")
+                .routeId("update")
                 .bean(DepositMetsGenerator.class)
                 .setHeader("Qucosa-File-Url", constant(configuration.getString("qucosa.file.url")))
                 .setHeader("Collection", constant(configuration.getString("sword.collection")))

@@ -34,6 +34,13 @@ public class CommandLineOptions {
     )
     private String collection = null;
     @Option(
+            name = "--stage-resource-file",
+            aliases = "-f",
+            usage = "Name of file to read Opus IDs from",
+            forbids = "--stage-resource"
+    )
+    private String idFile = "";
+    @Option(
             name = "--mappings",
             aliases = "-m",
             usage = "Comma separated list of mappings to apply when transforming a staged resource."
@@ -61,13 +68,14 @@ public class CommandLineOptions {
     @Option(
             name = "--stage-resource",
             aliases = "-s",
-            usage = "Opus ID of a single document or tenant for staging")
+            usage = "Opus ID of a single document or tenant for staging",
+            forbids = "--stage-resource-file"
+    )
     private String stageResource = null;
     @Option(
             name = "--stage-transform",
             usage = "Applies transformation to staged resources if --stage-resource is given.\n" +
                     "Since it requires a successful deposit, it doesn't work with --noop.",
-            depends = "--stage-resource",
             forbids = "--noop"
     )
     private Boolean stageTransform = false;
@@ -120,5 +128,9 @@ public class CommandLineOptions {
 
     public Boolean getPurgeBeforeDeposit() {
         return purgeBeforeDeposit;
+    }
+
+    public String getIdFile() {
+        return idFile;
     }
 }

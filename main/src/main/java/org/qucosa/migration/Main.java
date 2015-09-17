@@ -44,14 +44,19 @@ public class Main {
         MigrationContext ctx = null;
         try {
             Boolean hasStagingResource = (options.getStageResource() != null);
+            Boolean hasStagingresourceFile = (!options.getIdFile().isEmpty());
             Boolean hasTransformResource = (options.getTransformResource() != null);
+
             Boolean isTransforming = hasTransformResource
                     || (options.getMappings().length > 0)
                     || (options.isStageTransform());
+
+            Boolean isStaging = hasStagingResource || hasStagingresourceFile;
+
             System.setProperty("transforming", String.valueOf(isTransforming));
 
             Configuration conf = new SystemConfiguration();
-            ctx = new MigrationContext(conf, hasStagingResource, isTransforming);
+            ctx = new MigrationContext(conf, isStaging, isTransforming);
             ctx.start();
 
             final String routingSlip = buildTransformationRoutingSlip(options);
@@ -59,7 +64,9 @@ public class Main {
             if (hasStagingResource) {
                 sendExchange("direct:staging", options.getStageResource(), ctx, routingSlip);
             }
-
+            if (hasStagingresourceFile) {
+                sendExchange("direct:staging:file", options.getIdFile(), ctx, routingSlip);
+            }
             if (hasTransformResource) {
                 sendExchange("direct:transform", options.getTransformResource(), ctx, routingSlip);
             }
