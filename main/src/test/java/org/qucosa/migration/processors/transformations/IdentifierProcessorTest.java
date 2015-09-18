@@ -18,6 +18,7 @@
 package org.qucosa.migration.processors.transformations;
 
 
+import org.apache.xmlbeans.XmlObject;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 
@@ -82,6 +83,18 @@ public class IdentifierProcessorTest extends ProcessorTestBase {
 
         XMLAssert.assertXpathExists(
                 "//mods:identifier[@type='ppn' and text()='" + ppn + "']",
+                modsDocument.getMods().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void extractsOpusId() throws Exception {
+        String opusId = "193487";
+        opusDocument.getOpus().getOpusDocument().setDocumentId(opusId);
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//mods:identifier[@type='opus' and text()='" + opusId + "']",
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 

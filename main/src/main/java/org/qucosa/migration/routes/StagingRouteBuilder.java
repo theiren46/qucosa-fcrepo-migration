@@ -100,7 +100,11 @@ public class StagingRouteBuilder extends RouteBuilder {
                 .process(new PurgeFedoraObject(config))
                 .end()
 
+                .choice()
+                .when(constant(config.getBoolean("sword.slugheader")))
                 .setHeader("Slug", simple("qucosa:${body.identifier}"))
+                .end()
+
                 .to("opus4:documents")
                 .setHeader("Qucosa-File-Url", constant(config.getString("qucosa.file.url")))
 

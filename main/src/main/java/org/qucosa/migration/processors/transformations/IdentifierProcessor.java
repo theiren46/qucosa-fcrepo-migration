@@ -34,23 +34,33 @@ public class IdentifierProcessor extends MappingProcessor {
         final Document opus = opusDocument.getOpus().getOpusDocument();
         final ModsDefinition mods = modsDocument.getMods();
 
+        extractOpusId(opus, mods);
+
         String[] ns = {"Isbn", "Urn", "Doi", "Issn", "Ppn"};
         for (String n : ns) map(n, opus, mods);
+    }
+
+    private void extractOpusId(Document opus, ModsDefinition mods) {
+        String opusId = opus.getDocumentId();
+        ensureIdentifierElement("opus", opusId, mods);
     }
 
     private void map(String type, Document opusDocument, ModsDefinition mods) throws XPathExpressionException {
         for (XmlObject xmlObject : selectAll("Identifier" + type, opusDocument)) {
             Identifier oid = (Identifier) xmlObject;
             final String oidValue = oid.getValue();
-            if (oidValue != null && !nodeExists(
-                    String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), qq(oidValue)),
-                    mods)) {
-                IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
-                identifierDefinition.setType(type.toLowerCase());
-                identifierDefinition.setStringValue(oidValue);
-                signalChanges(MODS_CHANGES);
-            }
+            ensureIdentifierElement(type, oidValue, mods);
         }
+    }
 
+    private void ensureIdentifierElement(String type, String id, ModsDefinition mods) {
+        if (id != null && !nodeExists(
+                String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), qq(id)),
+                mods)) {
+            IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
+            identifierDefinition.setType(type.toLowerCase());
+            identifierDefinition.setStringValue(id);
+            signalChanges(MODS_CHANGES);
+        }
     }
 }

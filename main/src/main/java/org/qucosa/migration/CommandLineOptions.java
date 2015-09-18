@@ -85,6 +85,12 @@ public class CommandLineOptions {
             usage = "ID of already staged resource for transformation"
     )
     private String transformResource = null;
+    @Option(
+            name = "--use-slug",
+            usage = "Given this option, the generated Fedora ID will reflect the original Opus ID",
+            depends = "--stage-resource"
+    )
+    private Boolean useSlugHeader = false;
 
     public CommandLineOptions(String[] args) {
         CmdLineParser parser = new CmdLineParser(this);
@@ -98,7 +104,7 @@ public class CommandLineOptions {
 
     }
 
-    public Boolean getNoop() {
+    public Boolean isNoop() {
         return noop;
     }
 
@@ -126,11 +132,15 @@ public class CommandLineOptions {
         return collection;
     }
 
-    public Boolean getPurgeBeforeDeposit() {
+    public Boolean purgeBeforeDeposit() {
         return purgeBeforeDeposit;
     }
 
     public String getIdFile() {
         return idFile;
+    }
+
+    public Boolean useSlugHeader() {
+        return useSlugHeader;
     }
 }

@@ -292,7 +292,7 @@
             <xs:element name="SubjectUncontrolled" type="subject" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="File" type="file" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="Organisation" type="organisation" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="DocumentId" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="DocumentId" type="xs:string" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>

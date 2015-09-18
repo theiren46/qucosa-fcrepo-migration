@@ -33,8 +33,9 @@ public class Main {
 
     public static void main(String[] args) {
         CommandLineOptions options = new CommandLineOptions(args);
-        System.setProperty("sword.noop", String.valueOf(options.getNoop()));
-        System.setProperty("sword.purge", String.valueOf(options.getPurgeBeforeDeposit()));
+        System.setProperty("sword.noop", String.valueOf(options.isNoop()));
+        System.setProperty("sword.slugheader", String.valueOf(options.useSlugHeader()));
+        System.setProperty("sword.purge", String.valueOf(options.purgeBeforeDeposit()));
         System.setProperty("sword.collection", String.valueOf(options.getCollection()));
 
         if (options.getOwnerId() != null) {

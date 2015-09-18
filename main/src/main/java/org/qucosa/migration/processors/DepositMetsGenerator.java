@@ -167,7 +167,7 @@ public class DepositMetsGenerator implements Processor {
             throws MalformedURLException, URISyntaxException {
         URL url = new URL(baseFileUrl.toExternalForm()
                 + "/"
-                + extractOpusDocumentId(opusDocument)
+                + opusDocument.getOpus().getOpusDocument().getDocumentId()
                 + "/" + opusFile.getPathName());
         return new URI(
                 url.getProtocol(),
@@ -177,10 +177,6 @@ public class DepositMetsGenerator implements Processor {
                 url.getPath(),
                 url.getQuery(),
                 url.getRef());
-    }
-
-    private String extractOpusDocumentId(OpusDocument opusDocument) {
-        return opusDocument.getOpus().getOpusDocument().getDocumentId().getDomNode().getFirstChild().getNodeValue();
     }
 
     private void generateBasicMods(Mets metsDocument, OpusDocument opusDocument) {
