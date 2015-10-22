@@ -36,7 +36,7 @@ public class CataloguingProcessorTest extends ProcessorTestBase {
         runProcessor(processor);
 
         XMLAssert.assertXpathExists(
-                "//mods:abstract[@lang='ger' and @type='content' and text()='" + value + "']",
+                "//mods:abstract[@lang='ger' and @type='summary' and text()='" + value + "']",
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 

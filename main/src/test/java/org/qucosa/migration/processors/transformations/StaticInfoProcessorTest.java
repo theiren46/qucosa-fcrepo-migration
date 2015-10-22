@@ -44,4 +44,14 @@ public class StaticInfoProcessorTest extends ProcessorTestBase {
                 modsDocument.getMods().getDomNode().getOwnerDocument());
     }
 
+    @Test
+    public void slubAgreementIsSetToYes() throws Exception {
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//slub:rights/" +
+                        "slub:agreement[@given='yes']",
+                infoDocument.getInfo().getDomNode().getOwnerDocument());
+    }
+
 }

@@ -17,7 +17,10 @@
 
 package org.qucosa.migration.processors.transformations;
 
+import de.slubDresden.AgreementType;
 import de.slubDresden.InfoDocument;
+import de.slubDresden.InfoType;
+import de.slubDresden.RightsType;
 import gov.loc.mods.v3.ModsDefinition;
 import gov.loc.mods.v3.ModsDocument;
 import gov.loc.mods.v3.OriginInfoDefinition;
@@ -32,9 +35,28 @@ public class StaticInfoProcessor extends MappingProcessor {
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
         final ModsDefinition mods = modsDocument.getMods();
+        final InfoType info = infoDocument.getInfo();
 
         ensureEdition(mods);
         ensurePhysicalDescription(mods);
+        ensureRightsAgreement(info);
+    }
+
+    private void ensureRightsAgreement(InfoType info) {
+        RightsType rt = (RightsType) select("slub:rights", info);
+        if (rt == null) {
+            rt = info.addNewRights();
+            signalChanges(SLUB_INFO_CHANGES);
+        }
+
+        AgreementType at = (AgreementType)
+                select("slub:agreement", rt);
+        if (at == null) {
+            at = rt.addNewAgreement();
+            signalChanges(SLUB_INFO_CHANGES);
+        }
+
+        at.setGiven("yes");
     }
 
     private void ensurePhysicalDescription(ModsDefinition mods) throws XPathExpressionException {

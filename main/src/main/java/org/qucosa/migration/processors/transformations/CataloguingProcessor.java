@@ -106,12 +106,12 @@ public class CataloguingProcessor extends MappingProcessor {
 
             AbstractDefinition ad = (AbstractDefinition) select(
                     String.format("mods:abstract[@lang='%s' and @type='%s' and text()='%s']",
-                            lang, "content", qq(abst)), mods);
+                            lang, "summary", qq(abst)), mods);
 
             if (ad == null) {
                 ad = mods.addNewAbstract();
                 ad.setLang(lang);
-                ad.setType("content");
+                ad.setType("summary");
                 ad.setStringValue(abst);
                 signalChanges(MODS_CHANGES);
             }
