@@ -85,7 +85,7 @@ public class DistributionInfoProcessor extends MappingProcessor {
         }
 
         PlaceTermDefinition ptd = (PlaceTermDefinition)
-                select("mods:placeTerm[@type='text' and text()='" + qq(publisherPlace) + "']", pd);
+                select("mods:placeTerm[@type='text' and text()='" + singleline(publisherPlace) + "']", pd);
 
         if (ptd == null) {
             ptd = pd.addNewPlaceTerm();

@@ -65,7 +65,7 @@ public class CataloguingProcessor extends MappingProcessor {
                         select("mods:classification" + String.format(query, lang), mods);
             } else {
                 cl = (ClassificationDefinition)
-                        select("mods:classification" + String.format(query, type, qq(value)), mods);
+                        select("mods:classification" + String.format(query, type, singleline(value)), mods);
             }
 
             if (cl == null) {
@@ -93,7 +93,7 @@ public class CataloguingProcessor extends MappingProcessor {
 
             if (toc == null) {
                 toc = mods.addNewTableOfContents();
-                toc.setStringValue(opusTableOfContent);
+                toc.setStringValue(multiline(opusTableOfContent));
                 signalChanges(MODS_CHANGES);
             }
         }
@@ -106,7 +106,7 @@ public class CataloguingProcessor extends MappingProcessor {
 
             AbstractDefinition ad = (AbstractDefinition) select(
                     String.format("mods:abstract[@lang='%s' and @type='%s' and text()='%s']",
-                            lang, "summary", qq(abst)), mods);
+                            lang, "summary", multiline(abst)), mods);
 
             if (ad == null) {
                 ad = mods.addNewAbstract();

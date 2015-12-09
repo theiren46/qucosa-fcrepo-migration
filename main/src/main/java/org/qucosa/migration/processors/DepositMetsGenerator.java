@@ -37,6 +37,7 @@ import noNamespace.Title;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.slf4j.Logger;
@@ -119,6 +120,7 @@ public class DepositMetsGenerator implements Processor {
             metsFile.setID("ATT-" + i);
             i++;
             metsFile.setMIMETYPE(opusFile.getMimeType());
+            addMextLabelAttribute(opusFile.getLabel(), metsFile);
 
             Hash bestHash = selectBestHash(opusFile);
             if (bestHash != null) {
@@ -132,10 +134,15 @@ public class DepositMetsGenerator implements Processor {
             URI href = buildProperlyEscapedURI(opusDocument, baseFileUrl, opusFile);
             fLocat.setLOCTYPE(URL);
             fLocat.setHref(href.toASCIIString());
-            fLocat.setTitle(opusFile.getLabel());
-
         }
+    }
 
+    private void addMextLabelAttribute(String label, FileType metsFile) {
+        final XmlCursor cursor = metsFile.newCursor();
+        cursor.toLastAttribute();
+        cursor.insertAttributeWithValue(
+                "LABEL", "http://slub-dresden.de/mets", label);
+        cursor.dispose();
     }
 
     private String translateQucosaHashType(String qucosaHashType) throws Exception {

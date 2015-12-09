@@ -17,21 +17,91 @@
 
 package org.qucosa.migration.processors.transformations;
 
-import de.slubDresden.InfoDocument;
-import de.slubDresden.InfoType;
+import de.slubDresden.*;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.OpusDocument;
+import org.apache.xmlbeans.XmlObject;
+
+import java.util.ArrayList;
+
+import static de.slubDresden.YesNo.YES;
 
 public class RightsProcessor extends MappingProcessor {
 
     @Override
     public void process(OpusDocument opusDocument, ModsDocument modsDocument, InfoDocument infoDocument) throws Exception {
-        final String vgwortOpenKey = vgwortEncoding(opusDocument.getOpus().getOpusDocument().getVgWortOpenKey());
+        mapVgWortopenKey(opusDocument, infoDocument);
+        mapFileAttachments(opusDocument, infoDocument);
+    }
+
+    private void mapFileAttachments(OpusDocument opusDocument, InfoDocument infoDocument) {
+        RightsType rights = infoDocument.getInfo().getRights();
+        if (rights == null) {
+            rights = infoDocument.getInfo().addNewRights();
+            signalChanges(SLUB_INFO_CHANGES);
+        }
+
+        final ArrayList<String> existingAttachmentRefs = new ArrayList<>();
+        for (XmlObject o : selectAll("slub:attachment", rights)) {
+            final AttachmentType eat = (AttachmentType) o;
+            existingAttachmentRefs.add(eat.getRef());
+        }
+
+        final ArrayList<String> processedAttachmentRefs = new ArrayList<>();
+
+        int i = 0;
+        for (noNamespace.File opusFile : opusDocument.getOpus().getOpusDocument().getFileArray()) {
+            final String ref = "ATT-" + i;
+            final YesNo.Enum hasArchivalValue = yesNoBooleanMapping(opusFile.getOaiExport());
+            final YesNo.Enum isDownloadable = yesNoBooleanMapping(opusFile.getFrontdoorVisible());
+            final YesNo.Enum isRedistributable = YES;
+
+            final String query = String.format("slub:attachment[@ref='%s']", ref);
+            AttachmentType at = (AttachmentType) select(query, rights);
+            if (at == null) {
+                at = rights.addNewAttachment();
+                signalChanges(SLUB_INFO_CHANGES);
+            }
+
+            processedAttachmentRefs.add(ref);
+
+            if (at.getRef() == null || !at.getRef().equals(ref)) {
+                at.setRef(ref);
+                signalChanges(SLUB_INFO_CHANGES);
+            }
+            if (at.getHasArchivalValue() == null || !at.getHasArchivalValue().equals(hasArchivalValue)) {
+                at.setHasArchivalValue(hasArchivalValue);
+                signalChanges(SLUB_INFO_CHANGES);
+            }
+            if (at.getIsDownloadable() == null || !at.getIsDownloadable().equals(isDownloadable)) {
+                at.setIsDownloadable(isDownloadable);
+                signalChanges(SLUB_INFO_CHANGES);
+            }
+            if (at.getIsRedistributable() == null || !at.getIsRedistributable().equals(isRedistributable)) {
+                at.setIsRedistributable(isRedistributable);
+                signalChanges(SLUB_INFO_CHANGES);
+            }
+
+            i++;
+        }
+
+        existingAttachmentRefs.removeAll(processedAttachmentRefs);
+        for (int j = 0; j < rights.getAttachmentArray().length; j++) {
+            if (existingAttachmentRefs.contains(rights.getAttachmentArray(j).getRef())) {
+                rights.removeAttachment(j);
+            }
+        }
+    }
+
+    private void mapVgWortopenKey(OpusDocument opusDocument, InfoDocument infoDocument) {
+        final String vgwortOpenKey = opusDocument.getOpus().getOpusDocument().getVgWortOpenKey();
         if (vgwortOpenKey != null && !vgwortOpenKey.isEmpty()) {
+            final String encodedVgWortOpenKey = vgwortEncoding(vgwortOpenKey);
             InfoType info = infoDocument.getInfo();
+
             if (info.getVgwortOpenKey() == null
-                    || !info.getVgwortOpenKey().equals(vgwortOpenKey)) {
-                info.setVgwortOpenKey(vgwortOpenKey);
+                    || !info.getVgwortOpenKey().equals(encodedVgWortOpenKey)) {
+                info.setVgwortOpenKey(encodedVgWortOpenKey);
                 signalChanges(SLUB_INFO_CHANGES);
             }
         }

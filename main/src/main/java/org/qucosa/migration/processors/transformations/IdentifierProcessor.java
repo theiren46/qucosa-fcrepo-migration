@@ -55,7 +55,7 @@ public class IdentifierProcessor extends MappingProcessor {
 
     private void ensureIdentifierElement(String type, String id, ModsDefinition mods) {
         if (id != null && !nodeExists(
-                String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), qq(id)),
+                String.format("mods:identifier[@type='%s' and text()='%s']", type.toLowerCase(), singleline(id)),
                 mods)) {
             IdentifierDefinition identifierDefinition = mods.addNewIdentifier();
             identifierDefinition.setType(type.toLowerCase());

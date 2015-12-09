@@ -26,18 +26,11 @@
     <xs:import namespace="http://xmlns.com/foaf/0.1/" schemaLocation="foaf-fake.xsd"/>
 
     <xs:element name="info" type="slub:infoType" xmlns:slub="http://slub-dresden.de/"/>
-    <xs:complexType name="embargoType">
-        <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute type="xs:string" name="encoding"/>
-            </xs:extension>
-        </xs:simpleContent>
-    </xs:complexType>
     <xs:complexType name="rightsType">
         <xs:sequence>
             <xs:element type="licenseType" name="license"/>
             <xs:element type="agreementType" name="agreement"/>
-            <xs:element type="embargoType" name="embargo"/>
+            <xs:element type="attachmentType" name="attachment" maxOccurs="unbounded"/>
             <xs:element type="xs:string" name="accessDNB"/>
             <xs:element type="xs:string" name="accessPOD"/>
         </xs:sequence>
@@ -83,4 +76,16 @@
     <xs:complexType name="agreementType">
         <xs:attribute type="xs:string" fixed="yes" name="given"/>
     </xs:complexType>
+    <xs:complexType name="attachmentType">
+        <xs:attribute type="xs:IDREF" name="ref"/>
+        <xs:attribute type="yesNo" name="hasArchivalValue"/>
+        <xs:attribute type="yesNo" name="isDownloadable"/>
+        <xs:attribute type="yesNo" name="isRedistributable"/>
+    </xs:complexType>
+    <xs:simpleType name="yesNo">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="yes"/>
+            <xs:enumeration value="no"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

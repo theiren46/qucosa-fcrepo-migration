@@ -18,8 +18,10 @@
 package org.qucosa.migration.processors.transformations;
 
 import de.slubDresden.InfoDocument;
+import de.slubDresden.YesNo;
 import gov.loc.mods.v3.ModsDocument;
 import noNamespace.Date;
+import noNamespace.File;
 import noNamespace.OpusDocument;
 import org.apache.xmlbeans.XmlException;
 import org.custommonkey.xmlunit.NamespaceContext;
@@ -74,5 +76,13 @@ public class ProcessorTestBase {
         sdp.setMinute(BigInteger.valueOf(minute));
         sdp.setSecond(BigInteger.valueOf(second));
         sdp.setTimezone(timezone);
+    }
+
+    protected File addFile(String path, Boolean oaiExport, Boolean frontdoorVisible) {
+        File f = opusDocument.getOpus().getOpusDocument().addNewFile();
+        f.setPathName(path);
+        f.setOaiExport(oaiExport);
+        f.setFrontdoorVisible(frontdoorVisible);
+        return f;
     }
 }

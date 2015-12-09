@@ -40,7 +40,7 @@ public class TitleInfoProcessorTest extends ProcessorTestBase {
         ModsDefinition outputMods = modsDocument.getMods();
 
         XMLAssert.assertXpathExists(
-                "//mods:titleInfo[@lang='" + language + "']/mods:title[text()='" + value + "']",
+                "//mods:titleInfo[@lang='" + language + "' and @usage='primary']/mods:title[text()='" + value + "']",
                 outputMods.getDomNode().getOwnerDocument());
     }
 

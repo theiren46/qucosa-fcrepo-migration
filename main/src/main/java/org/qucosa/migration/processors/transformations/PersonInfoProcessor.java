@@ -196,10 +196,10 @@ public class PersonInfoProcessor extends MappingProcessor {
         sb.append("mods:name[");
         sb.append("@type='personal'");
         if (given != null && !given.isEmpty()) {
-            sb.append(" and mods:namePart[@type='given' and text()='" + qq(given) + "']");
+            sb.append(" and mods:namePart[@type='given' and text()='" + singleline(given) + "']");
         }
         if (family != null && !family.isEmpty()) {
-            sb.append(" and mods:namePart[@type='family' and text()='" + qq(family) + "']");
+            sb.append(" and mods:namePart[@type='family' and text()='" + singleline(family) + "']");
         }
         if (date != null) {
             sb.append(" and mods:namePart[@type='date' and text()='" + date + "']");
@@ -219,7 +219,7 @@ public class PersonInfoProcessor extends MappingProcessor {
 
     private void checkOrSetNamePart(NamePartDefinition.Type.Enum type, String value, NameDefinition nd) {
         NamePartDefinition np = (NamePartDefinition)
-                select("mods:namePart[@type='" + type + "' and text()='" + qq(value) + "']", nd);
+                select("mods:namePart[@type='" + type + "' and text()='" + singleline(value) + "']", nd);
 
         if (np == null) {
             np = nd.addNewNamePart();
@@ -257,7 +257,7 @@ public class PersonInfoProcessor extends MappingProcessor {
             final String mbox = submitter.getEmail();
 
             SubmitterType st = (SubmitterType)
-                    select("slub:submitter[foaf:Person/foaf:name='" + qq(name) + "']", info);
+                    select("slub:submitter[foaf:Person/foaf:name='" + singleline(name) + "']", info);
 
             if (st == null) {
                 st = info.addNewSubmitter();

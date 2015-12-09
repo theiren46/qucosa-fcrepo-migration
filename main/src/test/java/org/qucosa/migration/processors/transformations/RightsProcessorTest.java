@@ -20,6 +20,9 @@ package org.qucosa.migration.processors.transformations;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Test;
 
+import static de.slubDresden.YesNo.NO;
+import static de.slubDresden.YesNo.YES;
+
 public class RightsProcessorTest extends ProcessorTestBase {
 
     final private MappingProcessor processor = new RightsProcessor();
@@ -46,6 +49,33 @@ public class RightsProcessorTest extends ProcessorTestBase {
 
         XMLAssert.assertXpathExists(
                 "//slub:vgwortOpenKey[text()='" + vgWortOpenKey + "']",
+                infoDocument.getInfo().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void hasSlubAttachmentElementForEachFile() throws Exception {
+        addFile("file1.pdf", true, false);
+        addFile("file2.pdf", false, true);
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathExists(
+                "//slub:rights/slub:attachment[@ref='ATT-0' and @hasArchivalValue='yes' and @isDownloadable='no']",
+                infoDocument.getInfo().getDomNode().getOwnerDocument());
+        XMLAssert.assertXpathExists(
+                "//slub:rights/slub:attachment[@ref='ATT-1' and @hasArchivalValue='no' and @isDownloadable='yes']",
+                infoDocument.getInfo().getDomNode().getOwnerDocument());
+    }
+
+    @Test
+    public void holdsNoUnnecessaryAttachmentElements() throws Exception {
+        addFile("file1.pdf", true, false);
+        infoDocument.getInfo().addNewRights().addNewAttachment().setRef("ATT-1");
+
+        runProcessor(processor);
+
+        XMLAssert.assertXpathNotExists(
+                "//slub:rights/slub:attachment[@ref='ATT-1']",
                 infoDocument.getInfo().getDomNode().getOwnerDocument());
     }
 
